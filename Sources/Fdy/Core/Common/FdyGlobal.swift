@@ -5,15 +5,15 @@ import Foundation
 /// 全局工具入口。通过 `fdy` 访问所有工具类。
 ///
 /// ```swift
-/// fdy.logger.debug("hello")
-/// fdy.helper.isPad
-/// fdy.perChecker.request(.camera) { ... }
-/// fdy.queue.asyncMain { ... }
-/// fdy.screen.width
-/// fdy.symbol.monochrome(for: "star", color: .red)
-/// fdy.path.documentsDirPath
+/// fdyG.logger.debug("hello")
+/// fdyG.helper.isPad
+/// fdyG.perChecker.request(.camera) { ... }
+/// fdyG.queue.asyncMain { ... }
+/// fdyG.screen.width
+/// fdyG.symbol.monochrome(for: "star", color: .red)
+/// fdyG.path.documentsDirPath
 /// ```
-public let fdy = FdyGlobal()
+public let fdyG = FdyGlobal()
 
 /// 全局工具聚合器
 public final class FdyGlobal: @unchecked Sendable {
