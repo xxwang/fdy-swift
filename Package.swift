@@ -1,11 +1,11 @@
-// swift-tools-version: 5.10
+// swift-tools-version: 6.0
 
 import PackageDescription
 
 let package = Package(
     name: "Dy",
     platforms: [
-        .iOS(.v15),
+        .iOS(.v18),
     ],
     products: [
         .library(name: "Dy", targets: ["Dy"]),
@@ -23,19 +23,31 @@ let package = Package(
                 .target(name: "DyCombineCocoa"),
                 .target(name: "DyLogger"),
             ],
-            path: "Sources/Dy"
+            path: "Sources/Dy",
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .target(
             name: "DyCore",
-            path: "Sources/Core"
+            path: "Sources/Core",
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .target(
             name: "DyCombineCocoa",
-            path: "Sources/CombineCocoa"
+            path: "Sources/CombineCocoa",
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .target(
             name: "DyLogger",
-            path: "Sources/Logger"
+            path: "Sources/Logger",
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+            ]
         ),
     ]
 )

@@ -46,7 +46,7 @@ Swift Package Manager：
 // Xcode: File → Add Package Dependency → 输入仓库 URL
 ```
 
-平台要求：**iOS 15.0+**，无任何第三方依赖。
+平台要求：**iOS 18.0+ / Swift 6.0**，无任何第三方依赖。
 
 ---
 
