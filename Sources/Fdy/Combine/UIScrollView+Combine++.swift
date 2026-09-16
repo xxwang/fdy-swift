@@ -5,12 +5,17 @@ import UIKit
 
 /// `UIScrollViewDelegate` 代理：接管滚动回调并转发给原有的 `delegate`，
 /// 同时通过 `PassthroughSubject` 对外暴露各滚动事件，供 Combine 订阅。
-final class ScrollViewDelegateProxy: NSObject, UIScrollViewDelegate {
+///
+/// - Note: 仅本文件使用，故声明为 `private`，不作为模块 API 暴露（初版为 internal 且无前缀）。
+/// - Note: `originalDelegate` 是 `weak` —— 原 delegate 被释放后转发链自然断开，
+///   不会造成泄漏，但原 delegate 此后也收不到回调。
+private final class FdyScrollViewDelegateProxy: NSObject, UIScrollViewDelegate {
     weak var originalDelegate: UIScrollViewDelegate?
 
     let didScroll = PassthroughSubject<Void, Never>()
     let willBeginDragging = PassthroughSubject<Void, Never>()
-    let didEndDragging = PassthroughSubject<Void, Never>()
+    /// 载荷为 `willDecelerate`
+    let didEndDragging = PassthroughSubject<Bool, Never>()
     let willBeginDecelerating = PassthroughSubject<Void, Never>()
     let didEndDecelerating = PassthroughSubject<Void, Never>()
     let didEndScrollingAnimation = PassthroughSubject<Void, Never>()
@@ -25,8 +30,16 @@ final class ScrollViewDelegateProxy: NSObject, UIScrollViewDelegate {
         return originalDelegate?.responds(to: aSelector) ?? false
     }
 
+    /// 只有原 delegate 确实响应时才转发。
+    ///
+    /// 初版无条件返回 `originalDelegate`：原 delegate 不响应该 selector、或在
+    /// `responds(to:)` 与转发之间被释放（`weak`）时，消息会落到代理身上，
+    /// 最终以「原 delegate 的身份」抛出 `unrecognized selector`，错误归属误导排查。
     override func forwardingTarget(for aSelector: Selector!) -> Any? {
-        originalDelegate
+        if let originalDelegate, originalDelegate.responds(to: aSelector) {
+            return originalDelegate
+        }
+        return super.forwardingTarget(for: aSelector)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -40,7 +53,7 @@ final class ScrollViewDelegateProxy: NSObject, UIScrollViewDelegate {
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        didEndDragging.send(())
+        didEndDragging.send(decelerate)
         originalDelegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
     }
 
@@ -71,17 +84,28 @@ final class ScrollViewDelegateProxy: NSObject, UIScrollViewDelegate {
 }
 
 public extension UIScrollView {
-    private static var cc_delegateProxyKey: UInt8 = 0
+    private nonisolated(unsafe) static var cc_delegateProxyKey: UInt8 = 0
 
-    /// 懒加载并缓存 delegate 代理（首次访问时接管 `delegate`，原 delegate 被保留并转发）
-    private var cc_delegateProxy: ScrollViewDelegateProxy {
-        if let existing = fdy_getAssociatedObject(forKey: &Self.cc_delegateProxyKey) as? ScrollViewDelegateProxy {
+    /// 懒加载、缓存并（必要时）**重新接管** delegate 代理。
+    ///
+    /// 首次访问会把当前 `delegate` 记为转发目标并顶替之。若此后接入方又自行设置了
+    /// `scrollView.delegate = X`，代理会被静默顶掉 —— 因此缓存命中时会检查「我现在还是不是
+    /// delegate」，不是则把当前 delegate 记为新的转发目标并重新接管，使 8 个 publisher 自动恢复。
+    /// 初版没有这一步：代理被顶掉后再次访问只会拿到「已不是 delegate 的缓存代理」，
+    /// 所有 publisher 永久失效，且无任何报错。
+    private var cc_delegateProxy: FdyScrollViewDelegateProxy {
+        if let existing = fdy_GetAO(forKey: &Self.cc_delegateProxyKey) as? FdyScrollViewDelegateProxy {
+            let isAlreadyAttached = (delegate as AnyObject?) === existing
+            if !isAlreadyAttached {
+                existing.originalDelegate = delegate
+                delegate = existing
+            }
             return existing
         }
-        let proxy = ScrollViewDelegateProxy()
-        proxy.originalDelegate = self.delegate
-        self.delegate = proxy
-        fdy_setAssociatedObject(proxy, forKey: &Self.cc_delegateProxyKey)
+        let proxy = FdyScrollViewDelegateProxy()
+        proxy.originalDelegate = delegate
+        delegate = proxy
+        fdy_SetAO(proxy, forKey: &Self.cc_delegateProxyKey)
         return proxy
     }
 
@@ -95,8 +119,14 @@ public extension UIScrollView {
         ControlEvent(cc_delegateProxy.willBeginDragging.eraseToAnyPublisher())
     }
 
-    /// 结束拖拽（含是否将继续减速）
+    /// 结束拖拽（丢弃 `willDecelerate`，需要该值请用
+    /// `fdy_didEndDraggingWithDecelerationPublisher`）
     var fdy_didEndDraggingPublisher: ControlEvent<Void> {
+        ControlEvent(cc_delegateProxy.didEndDragging.map { _ in () }.eraseToAnyPublisher())
+    }
+
+    /// 结束拖拽，载荷为 `willDecelerate`（是否将继续减速）
+    var fdy_didEndDraggingWithDecelerationPublisher: ControlEvent<Bool> {
         ControlEvent(cc_delegateProxy.didEndDragging.eraseToAnyPublisher())
     }
 
@@ -123,5 +153,19 @@ public extension UIScrollView {
     /// 调整内容缩进变化
     var fdy_didChangeAdjustedContentInsetPublisher: ControlEvent<Void> {
         ControlEvent(cc_delegateProxy.didChangeAdjustedContentInset.eraseToAnyPublisher())
+    }
+
+    /// 滚动位置（**值流**，可读可绑定写回）：订阅时立即重放当前偏移，此后每次变化都发出。
+    ///
+    /// 实测 `contentOffset` 的 KVO 连 `setContentOffset(_:animated:)` 的动画内部路径都可靠
+    /// （逐帧回调），因此不再需要事件通道对照 —— 这一点与 `UISlider.value` 恰好相反，
+    /// 说明「KVO 是否可靠」是逐类结论，不能类推。
+    var fdy_contentOffsetPublisher: ControlProperty<CGPoint> {
+        ControlProperty(
+            values: publisher(for: \.contentOffset, options: [.initial, .new])
+                .removeDuplicates()
+                .eraseToAnyPublisher(),
+            setter: { [weak self] in self?.contentOffset = $0 }
+        )
     }
 }

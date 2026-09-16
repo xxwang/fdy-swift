@@ -4,11 +4,14 @@ import UIKit
 // MARK: - UIView 手势发布者
 public extension UIView {
     /// 已添加手势的缓存键（避免重复添加同一手势）
-    private static var cc_gestureCacheKey: UInt8 = 0
+    private nonisolated(unsafe) static var cc_gestureCacheKey: UInt8 = 0
 
     private var cc_gestureCache: [String: UIGestureRecognizer] {
-        get { fdy_getAssociatedObject(forKey: &Self.cc_gestureCacheKey) as? [String: UIGestureRecognizer] ?? [:] }
-        set { fdy_setAssociatedObject(newValue, forKey: &Self.cc_gestureCacheKey) }
+        get {
+            let cache: [String: UIGestureRecognizer] = fdy_GetAO(forKey: &Self.cc_gestureCacheKey) ?? [:]
+            return cache
+        }
+        set { fdy_SetAO(newValue, forKey: &Self.cc_gestureCacheKey) }
     }
 
     /// 获取或创建并缓存手势识别器（同一 key 复用，不重复添加）
@@ -25,25 +28,46 @@ public extension UIView {
     }
 
     /// 将手势识别器包装为 `ControlEvent`（订阅取消时移除 target）
+    ///
+    /// - Note: 同一识别器上多个订阅者各挂一个 `ClosureTarget`，一次手势会向所有订阅者各投递一次。
     private func cc_event<G: UIGestureRecognizer>(_ recognizer: G) -> ControlEvent<G> {
-        let publisher = SubscribePublisher<G> { (subscriber: AnySubscriber<G, Never>) in
-            let target = ClosureTarget {
-                _ = subscriber.receive(recognizer)
-            }
-            recognizer.addTarget(target, action: #selector(ClosureTarget.invoke))
-            subscriber.receive(subscription: ControlEventSubscription(target: target) {
+        let publisher = SubscribePublisher<G> { [recognizer] (subscriber: AnySubscriber<G, Never>) in
+            let subscription = ControlEventSubscription { target in
                 recognizer.removeTarget(target, action: #selector(ClosureTarget.invoke))
-            })
+            }
+            subscription.deliver = { [weak recognizer] in
+                guard let recognizer else { return .none }
+                return subscriber.receive(recognizer)
+            }
+            subscriber.receive(subscription: subscription)
+            guard !subscription.cancelled else { return }
+            recognizer.addTarget(subscription.target, action: #selector(ClosureTarget.invoke))
         }.eraseToAnyPublisher()
         return ControlEvent(publisher)
     }
 
     // MARK: 具体手势
+    //
+    // - Note: 以下每个访问器都会把 `isUserInteractionEnabled` 置为 `true`，
+    //   并在首次访问时把识别器加入手势列表（不可撤销的写副作用）。
+    //   若不需要该行为，请自行创建并 `addGestureRecognizer`。
 
     /// 点击手势
-    var fdy_tapGesturePublisher: ControlEvent<UITapGestureRecognizer> {
+    ///
+    /// - Parameter numberOfTaps: 需要的点击次数；不同次数各自缓存一个识别器，互不干扰
+    ///   （初版固定按 `"tap"` 缓存，无法同时注册单击与双击）。
+    func fdy_tapGesturePublisher(numberOfTaps: Int = 1) -> ControlEvent<UITapGestureRecognizer> {
         isUserInteractionEnabled = true
-        return cc_event(cc_cachedGesture(key: "tap") { UITapGestureRecognizer() })
+        return cc_event(cc_cachedGesture(key: "tap-\(numberOfTaps)") {
+            let recognizer = UITapGestureRecognizer()
+            recognizer.numberOfTapsRequired = numberOfTaps
+            return recognizer
+        })
+    }
+
+    /// 单击手势（等价于 `fdy_tapGesturePublisher(numberOfTaps: 1)`）
+    var fdy_tapGesturePublisher: ControlEvent<UITapGestureRecognizer> {
+        fdy_tapGesturePublisher()
     }
 
     /// 轻扫手势（可指定方向，不同方向各自缓存）
