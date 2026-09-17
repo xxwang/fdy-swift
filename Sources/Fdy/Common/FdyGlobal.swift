@@ -1,0 +1,79 @@
+import Foundation
+
+// MARK: - 全局入口
+
+/// 全局工具入口。通过 `fdyG` 访问所有工具类。
+///
+/// ```swift
+/// fdyG.logger.debug("hello")
+/// fdyG.helper.isPad
+/// fdyG.perChecker.request(.camera) { ... }
+/// fdyG.queue.asyncMain { ... }
+/// fdyG.screen.width
+/// fdyG.symbol.monochrome(for: "star", color: .red)
+/// fdyG.path.documentsDirPath
+/// fdyG.appearance.initGlobalUI()
+/// fdyG.skinManager.updateSkin()
+/// fdyG.plist.read(from: url)
+/// ```
+///
+/// - Note: 全局单例一律由这里统一暴露,不再在调用侧直接写 `Xxx.shared`。
+public let fdyG = FdyGlobal()
+
+/// 全局工具聚合器
+public final class FdyGlobal: @unchecked Sendable {
+    /// 设备辅助信息
+    public var helper: FdyHelper {
+        FdyHelper.shared
+    }
+
+    /// 权限管理
+    public var perChecker: FdyPermissionChecker {
+        FdyPermissionChecker.shared
+    }
+
+    /// 任务队列
+    public var queue: FdyQueue {
+        FdyQueue.shared
+    }
+
+    /// 屏幕信息
+    public var screen: FdyScreen {
+        FdyScreen.shared
+    }
+
+    /// SF Symbol 图标
+    public var symbol: FdySymbol {
+        FdySymbol.shared
+    }
+
+    /// 沙盒路径
+    public var path: FdyPath {
+        FdyPath.shared
+    }
+
+    /// 触觉反馈（必须在主线程使用）
+    @MainActor public var haptic: FdyHaptic {
+        FdyHaptic.shared
+    }
+
+    /// 全局 UI 外观（App 启动时的**一次性**默认样式，走 `UIAppearance` 代理）
+    public var appearance: FdyAppearance {
+        FdyAppearance.shared
+    }
+
+    /// 主题皮肤管理器（**运行期**主题切换，广播给已注册的 ``FdySkinable``，必须在主线程使用）
+    @MainActor public var skinManager: FdySkinManager {
+        FdySkinManager.shared
+    }
+
+    /// 屏幕录制 / 截屏监听
+    public var screenCaptureMonitor: FdyScreenCaptureMonitor {
+        FdyScreenCaptureMonitor.shared
+    }
+
+    /// `.plist` 文件读写
+    public var plist: FdyPlist {
+        FdyPlist.shared
+    }
+}

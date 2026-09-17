@@ -93,3 +93,6 @@ iOSInjectionProject/
 .DS_Store
 .netrc
 .workbuddy
+
+# 过程产物（补丁已应用完毕，不再入库）
+docs/*.patch

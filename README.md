@@ -41,10 +41,14 @@ var userName: String
 
 | 路径 | 内容 |
 |------|------|
-| `Sources/Fdy/Core` | 核心：`.fdy` 命名空间、Chain 链式 API、Extensions、通用工具类 |
-| `Sources/Fdy/Combine` | Combine + UIKit 事件封装（`fdy_*Publisher`） |
-| `Sources/Fdy/Logger` | 5 级日志 + 可插拔输出目标 |
 | `Sources/Fdy/Fdy.swift` | 模块入口，重导出 `UIKit` / `Combine` |
+| `Sources/Fdy/Chain` | `.fdy` 链式 API（UIKit / Foundation / QuartzCore / MapKit / WebKit…） |
+| `Sources/Fdy/Combine` | Combine + UIKit 事件封装（`fdy_*Publisher`） |
+| `Sources/Fdy/Common` | 工具类与单例管理器（`FdyScreen` / `FdyHelper` / `fdyG`…） |
+| `Sources/Fdy/Components` | 可复用控件（`FdyButton` / `FdyTextView`） |
+| `Sources/Fdy/Extensions` | `fdy_` 前缀扩展（按框架分目录） |
+| `Sources/Fdy/Logger` | 5 级日志 + 可插拔输出目标 |
+| `Sources/Fdy/Protocols` | 本库自有协议（`FdyExtension` / `FdySetupable` / `FdySkinable`…） |
 
 > `import Fdy` 即引入全部功能（含 `UIKit` / `Combine`）。
 
@@ -65,7 +69,7 @@ Swift Package Manager：
 
 ## 链式 API 核心
 
-所有扩展通过 `.fdy` 命名空间访问，基于两个入口（定义于 `Sources/Fdy/Core/Protocols/FdyExtension.swift`）：
+所有扩展通过 `.fdy` 命名空间访问，基于两个入口（定义于 `Sources/Fdy/Protocols/FdyExtension.swift`）：
 
 - **实例入口** `object.fdy` → `FdyWrapper<Object>`
 - **类型入口** `Type.fdy` → `FdyWrapper<Type.Type>`（用于配置静态/类属性）
@@ -90,7 +94,7 @@ UILabel().fdy.then { $0.text = "hi" }      // 引用类型：配置并返回自�
 
 ### Chain 链式配置
 
-`Sources/Fdy/Core/Chain/` 按系统框架组织，为各类型提供**同名 setter 链式方法**，全部返回 `Self`。引用类型可省略 `.build()`：
+`Sources/Fdy/Chain/` 按系统框架组织，为各类型提供**同名 setter 链式方法**，全部返回 `Self`。引用类型可省略 `.build()`：
 
 ```swift
 let label = UILabel()
@@ -119,7 +123,7 @@ let layer = CAGradientLayer()
 > **UIButton 的链式方法分两层**，定义在两个文件里：按钮侧 `UIButton+Chain.swift`（24 个方法）
 > 与配置侧 `UIButton.Configuration+Chain.swift`（43 个方法）。
 
-#### 按钮侧 —— `Core/Chain/UIKit/UIButton+Chain.swift`
+#### 按钮侧 —— `Chain/UIKit/UIButton+Chain.swift`
 
 分三组。
 
@@ -148,10 +152,10 @@ let layer = CAGradientLayer()
 **传统 API（14）**
 
 基于 `UIControl.State` 的 setter：`addAction` / `title` / `attributedTitle` / `titleColor` / `titleShadowColor` /
-`font` / `image` / `preferredSymbolConfiguration(_:for:)` / `backgroundImage`（图片与纯色两个重载）/
-`backgroundColor` / `contentEdgeInsets` / `titleEdgeInsets` / `imageEdgeInsets`。
+`font` / `image` / `preferredSymbolConfiguration(_:for:)` / `backgroundImage`（图片）/
+`backgroundColor`（纯色，含指定状态重载）/ `contentEdgeInsets` / `titleEdgeInsets` / `imageEdgeInsets`。
 
-其中 `backgroundImage` / `contentEdgeInsets` 在按钮**已持有配置**时自动改走 `configuration` 路径 ——
+其中 `backgroundImage` / `backgroundColor(_:for:)` / `contentEdgeInsets` 在按钮**已持有配置**时自动改走 `configuration` 路径 ——
 iOS 15 起这些传统属性会被 `UIButton.Configuration` 忽略。`backgroundColor(_:)` 没做这层分派，
 它只写 `view.backgroundColor`，与 `configuration.background` 是两层，仅建议用于非配置按钮。
 
@@ -167,7 +171,7 @@ iOS 15 起这些传统属性会被 `UIButton.Configuration` 忽略。`background
 > `removeAction`（对象与 identifier 两个重载）/ `sendActions(for:)` / `performPrimaryAction()`。
 > 其中 `toolTip` 实测在模拟器上写入后读回仍是 `nil`（含直接写属性），需真机 / 指针环境才有实际效果。
 
-#### 配置侧 —— `Core/Chain/UIKit/UIButton.Configuration+Chain.swift`
+#### 配置侧 —— `Chain/UIKit/UIButton.Configuration+Chain.swift`
 
 43 个 `UIButton.Configuration` 的链式方法（42 个单项属性 + `layoutImage` 组合方法）。接收者是**配置对象本身**（不是按钮），
 因此入口是 `configuration.fdy.xxx(...)`，方法名与属性同名、**无前缀**；值类型语义，需 `build()` 取回：
@@ -211,7 +215,7 @@ let submit = UIButton.plain()
 
 支持 Chain 的类型覆盖：`UIView`/`UIButton`/`UILabel`/`UITextField`/`UITextView`/`UIImageView`/`UICollectionView`/`UITableView`/`UIScrollView`/`UIStackView`/`UIViewController`/`CALayer`/`CAAnimation` 系列、`CAGradientLayer`、`MKMapView`、`WKWebView`、`NSAttributedString`、`Date`、`Timer`、`UIEdgeInsets` 等 60+ 类型。
 
-### 可复用控件（`Sources/Fdy/Core/Components/`）
+### 可复用控件（`Sources/Fdy/Components/`）
 
 视觉上要做得小、但要保证 44×44pt 点击热区的按钮，以及需要防止用户连点重复提交的按钮，
 都用 `FdyButton`：
@@ -232,7 +236,15 @@ let submit = FdyButton(type: .custom)
 // 也可以直接赋值（<= 0 表示不生效）
 close.fdy_expandSize = 12
 submit.fdy_repeatClickInterval = 0.5
+
+// 三个构造入口都可用
+let a = FdyButton(frame: .zero)           // 直接指定 frame
+let b = FdyButton(type: .custom)          // UIButton 便利构造
+let c = FdyButton.button()                // 类工厂方法
 ```
+
+> `FdyButton` 与 `FdyTextView` 的组件约定一致：`init(frame:)` 公开、`init?(coder:)` 可用（支持 Storyboard）、
+> 都接入 `FdySetupable`（成员有空默认实现，子类按需重写 `setupUI()` / `bindEvents()`，两个初始化器都会调用）。
 
 > - 两项能力都实现在 `FdyButton` 自身：热区走 `point(inside:with:)`，防重复走 `sendAction` 的两个重载。
 >   **只对该类及其子类生效，不污染其它 `UIButton`。**
@@ -269,7 +281,7 @@ UITableView.fdy.do { _ in /* $0 是 UIViewController.Type 元类型，用于配�
 
 ---
 
-## 扩展方法（`Sources/Fdy/Core/Extensions/`）
+## 扩展方法（`Sources/Fdy/Extensions/`）
 
 按系统框架与领域组织，均带 `fdy_` 前缀，直接作用于原生类型（无需 `.fdy`）：
 
@@ -346,12 +358,18 @@ fdyG.screen.width                   // -> CGFloat
 fdyG.symbol.monochrome(for: "star", color: .red)
 fdyG.path.documentsDirPath
 fdyG.haptic.mediumImpact()          // 主线程
+fdyG.appearance.initGlobalUI()      // 启动时一次性默认样式
+fdyG.skinManager.updateSkin()       // 运行期主题切换广播
+fdyG.plist.read(from: url)
+fdyG.screenCaptureMonitor.start(onScreenshot: { ... }, onRecordingStart: nil, onRecordingStop: nil)
 ```
 
-> `fdyG` 聚合了 7 个工具类。各工具类仍可单独通过 `FdyXxx.shared` 访问。
+> `fdyG` 聚合了下表所有带入口的成员。入选标准：**有状态的管理器 / 工具类**统一收进来，
+> 调用侧不必再记 `FdyXxx.shared`；纯静态工具（`FdyFactory` / `FdyViewBuilder`）与值类型
+> （`FdyTuple*` / `@FdyDataStore`）不设入口。
 > 注意与 `.fdy` 命名空间区分：`fdyG` 是**工具类聚合入口**，`object.fdy` 是**链式配置入口**。
 
-## 工具类（`Sources/Fdy/Core/Common/`）
+## 工具类（`Sources/Fdy/Common/`）
 
 | 类 | `fdyG` 入口 | 功能 |
 |----|-----------|------|
@@ -362,12 +380,14 @@ fdyG.haptic.mediumImpact()          // 主线程
 | `FdyHaptic` | `fdyG.haptic` | 触觉反馈 |
 | `FdyPermissionChecker` | `fdyG.perChecker` | 权限状态查询与请求 |
 | `FdySymbol` | `fdyG.symbol` | SF Symbol 便捷创建（单色/分层/调色板/多色） |
-| `FdyAppearance` | — | 全局 UI 外观配置 |
-| `FdySkinManager` | — | 主题切换观察 |
+| `FdyAppearance` | `fdyG.appearance` | **启动时一次性**全局 UI 默认样式（走 `UIAppearance` 代理） |
+| `FdySkinManager` | `fdyG.skinManager` | **运行期**主题切换广播（配合 `FdySkinable`） |
+| `FdyScreenCaptureMonitor` | `fdyG.screenCaptureMonitor` | 录屏/投屏检测 |
+| `FdyPlist` | `fdyG.plist` | plist 读写 |
 | `FdyViewBuilder` | — | `@resultBuilder` 声明式子视图组装（`UIView { ... }`） |
-| `FdyScreenCaptureMonitor` | — | 录屏/投屏检测 |
-| `FdyPlist` | — | plist 读写 |
 | `FdyFactory.swift` | — | UIKit 类型的**类工厂方法**（见下） |
+| `FdyTuples.swift` | — | 元组容器 `FdyTuple2` ～ `FdyTuple5` |
+| `FdyDataStore.swift` | — | `@FdyDataStore` 属性包装（`UserDefaults` 存储） |
 
 ### 类工厂方法（`FdyFactory.swift`）
 
@@ -518,7 +538,7 @@ $userName.remove()            // 删除存储值
 
 ## CombineCocoa
 
-UIKit 事件封装为 Combine `Publisher`/`ControlProperty`，可用 `sink` 订阅、`assign`/`bind` 写回：
+UIKit 事件封装为 Combine `Publisher`/`FdyControlProperty`，可用 `sink` 订阅、`assign`/`bind` 写回：
 
 ```swift
 // 属性流（可读可写）
@@ -531,7 +551,7 @@ stepper.fdy_valuePublisher
 segmented.fdy_selectedSegmentIndexPublisher
 
 // 事件流
-button.fdy_tapPublisher               // ControlEvent<Void>
+button.fdy_tapPublisher               // FdyControlEvent<Void>
 control.fdy_valueChangedPublisher
 
 // 手势
@@ -548,9 +568,9 @@ view.fdy_screenEdgePanGesturePublisher
 scrollView.fdy_didScrollPublisher
 scrollView.fdy_willBeginDraggingPublisher
 scrollView.fdy_didEndDraggingPublisher
-scrollView.fdy_didEndDraggingWithDecelerationPublisher   // ControlEvent<Bool>，载荷为 willDecelerate
+scrollView.fdy_didEndDraggingWithDecelerationPublisher   // FdyControlEvent<Bool>，载荷为 willDecelerate
 scrollView.fdy_didEndDeceleratingPublisher
-scrollView.fdy_contentOffsetPublisher                    // ControlProperty<CGPoint>
+scrollView.fdy_contentOffsetPublisher                    // FdyControlProperty<CGPoint>
 ```
 
 双向绑定：
@@ -569,7 +589,7 @@ label.fdy_textPublisher.bind(from: viewModel.titlePublisher)
 
 | 项 | 行为 |
 | --- | --- |
-| `ControlProperty` 去重 | **同值不重发**。赋值与用户事件两路合并后走 `removeDuplicates()`，也是双向绑定回声抑制的前提 |
+| `FdyControlProperty` 去重 | **同值不重发**。赋值与用户事件两路合并后走 `removeDuplicates()`，也是双向绑定回声抑制的前提 |
 | 文本输入 | `fdy_textPublisher` / `fdy_attributedTextPublisher` 逐键实时。纯 KVO 观察不到打字：`UIKeyInput`/TextKit 直写内部存储，只在**代码赋值**与 `resignFirstResponder()` 时同步 |
 | 值类控件 | 原生 `setValue(_:animated:)` / `setOn(_:animated:)` 连 `animated: false` 都**两个通道都不发通知**。需要通知订阅者时改用 `fdy_setValue(_:animated:)` / `fdy_setOn(_:animated:)` |
 | 滚动代理 | `fdy_*Publisher` 首次订阅会接管 `UIScrollView.delegate`（原 delegate 被保留并转发）；若被外部顶替，**下次访问 publisher 时自动重新接管** |
@@ -621,25 +641,45 @@ fdyG.logger.error("解析失败")
 ```
 Sources/
 └── Fdy/
-    ├── Fdy.swift             # 模块入口（重导出 UIKit / Combine）
-    ├── Core/
-    │   ├── Chain/           # 链式 API（UIKit/Foundation/QuartzCore/MapKit/WebKit...）
-    │   ├── Common/          # 工具类（FdyScreen/FdyHelper/FdyPath/FdyQueue...）
-    │   ├── Components/      # 可复用控件（FdyButton：点击热区 / 防重复点击）
-    │   ├── Extensions/      # fdy_ 前缀扩展（按框架组织）
-    │   ├── Protocols/       # FdyExtension/FdyReusable/FdyLoadable/FdySetupable
-    │   ├── Wrapper/         # @FdyDataStore
-    │   └── Core.swift
-    ├── Combine/             # Combine + UIKit 事件
-    └── Logger/             # FdyLogger + 输出目标
+    ├── Fdy.swift                 # 模块入口（重导出 UIKit / Combine）
+    ├── Chain/                    # 链式 API（UIKit/Foundation/QuartzCore/MapKit/WebKit...）
+    ├── Combine/                  # UIKit 事件的 Combine 封装（FdyControlEvent / FdyControlProperty）
+    ├── Common/                   # 工具类（FdyScreen/FdyHelper/FdyQueue/FdyTuples/@FdyDataStore...）
+    ├── Components/               # 可复用控件（FdyButton / FdyTextView）
+    ├── Extensions/               # fdy_ 前缀扩展
+    │   ├── Stdlib/               # 标准库类型（String/Array/Dictionary/Optional...）
+    │   ├── StdlibProtocols/      # 标准库协议（Collection/Sequence/Comparable...）
+    │   └── UIKit/ Foundation/ QuartzCore/ CoreGraphics/ ...
+    ├── Logger/                   # FdyLogger + 输出目标（OutputDestination/）
+    └── Protocols/                # 本库自有协议（FdyExtension/FdyLoadable/FdyReusable/FdySetupable/FdySkinable）
 ```
+
+> 顶层按**能力**平铺，不再有中间层。`Extensions/StdlibProtocols/` 装的是**标准库协议**的扩展
+> （`Collection`/`Sequence`…），与本库自有的 `Protocols/` 不是一回事。
 
 ## 协议
 
 - `FdyExtension` — 命名空间协议，所有扩展的基础（`.fdy` 入口）
 - `FdyReusable` — 自动生成复用标识符（`fdy_identifier`）
 - `FdyLoadable` — 从 XIB/Storyboard 加载
-- `FdySetupable` — MVVM 配置生命周期
+- `FdySetupable` — MVVM 配置生命周期（成员均有空默认实现，按需重写）
+- `FdySkinable` — 主题皮肤响应（配合 `FdySkinManager` 做运行期切换）
+
+`FdyExtension` 的 conformance 全库只有 3 条，且统一登记在**该类型的首个 Chain 文件**里：
+
+| 类型 | 登记处 | 是否被继承 |
+|------|--------|-----------|
+| `NSObject` | `Chain/Foundation/NSObject+Chain.swift` | **是** —— 类子类继承，`UIButton`/`UILabel`/`UIView` 等据此拿到 `.fdy` |
+| `Date` | `Chain/Foundation/Date+Chain.swift` | 否 |
+| `UIButton.Configuration` | `Chain/UIKit/UIButton.Configuration+Chain.swift` | 否（Swift 侧是 **struct**） |
+
+> 因此 `.fdy` 目前**不适用于** `CGPoint`、`Array`、`Dictionary` 等值类型
+> （写 `CGPoint(x:y:).fdy` 会报 `has no member 'fdy'`）；这类类型请直接用 `fdy_` 前缀扩展。
+
+## 文档
+
+`docs/` 下按主题存放方案与实测记录（如 `UIButton_Configuration_多状态实现.md`、
+`项目结构_命名_审计与优化方案.md`）。
 
 ## License
 
