@@ -171,6 +171,34 @@ import WebKit
         let configuration = UIButton.Configuration.borderedProminent()
         return UIButton(configuration: configuration)
     }
+
+    /// 创建一个玻璃样式的 `UIButton`
+    @available(iOS 26.0, *)
+    open class func glass() -> UIButton {
+        let configuration = UIButton.Configuration.glass()
+        return UIButton(configuration: configuration)
+    }
+
+    /// 创建一个突出玻璃样式的 `UIButton`
+    @available(iOS 26.0, *)
+    open class func prominentGlass() -> UIButton {
+        let configuration = UIButton.Configuration.prominentGlass()
+        return UIButton(configuration: configuration)
+    }
+
+    /// 创建一个透明玻璃样式的 `UIButton`
+    @available(iOS 26.0, *)
+    open class func clearGlass() -> UIButton {
+        let configuration = UIButton.Configuration.clearGlass()
+        return UIButton(configuration: configuration)
+    }
+
+    /// 创建一个突出透明玻璃样式的 `UIButton`
+    @available(iOS 26.0, *)
+    open class func prominentClearGlass() -> UIButton {
+        let configuration = UIButton.Configuration.prominentClearGlass()
+        return UIButton(configuration: configuration)
+    }
 }
 
 // MARK: - UISwitch

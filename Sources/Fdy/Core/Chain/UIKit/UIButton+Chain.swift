@@ -2,14 +2,16 @@ import UIKit
 
 // MARK: - 链式方法(配置化)
 //
-// 这里只放「配置对象本身」的操作(整体替换 / 更新处理器 / 方向化布局)。
-// 单项属性的链式设置见 `UIButton.Configuration+Chain.swift` —— 接收者是 `UIButton.Configuration`,
+// 按钮侧的配置入口(整体替换 / 更新处理器 / 自动更新开关 / 主动请求刷新)。
+// 单项属性与图文布局的链式设置见 `UIButton.Configuration+Chain.swift` —— 接收者是 `UIButton.Configuration`,
 // 方法名与属性同名,可先 `.fdy` 链式改好再交回按钮。
-//
-// - Note: 按钮未持有配置时以 `.plain()` 兜底;`FdyFactory.plain()` / `.tinted()` 创建的按钮自带配置。
 public extension FdyWrapper where Base: UIButton {
     /// 整体替换按钮的 `UIButton.Configuration`
-    /// - Parameter configuration: 新的配置对象,传 `nil` 清除配置
+    ///
+    /// - Note: 参数**非可选**,不提供「传 `nil` 清除配置」的入口 ——
+    ///   按钮已设 `configurationUpdateHandler` 时把它置 `nil` 会抛
+    ///   `NSInternalInconsistencyException: Updated configuration was nil for configuration: (null)`。
+    /// - Parameter configuration: 新的配置对象
     /// - Returns: `Self`
     @discardableResult
     func configuration(_ configuration: UIButton.Configuration) -> Self {
@@ -26,33 +28,93 @@ public extension FdyWrapper where Base: UIButton {
         return self
     }
 
-    /// 设置图片方向与图文间距
+    /// 设置状态变化时是否自动更新配置
     ///
-    /// - Note: 带 `switch` 分支,未套用 `updateConfiguration`。
-    /// - Parameters:
-    ///   - direction: 图片方向
-    ///   - spacing: 间距
+    /// - Note: 默认 `true`。置 `false` 后 UIKit 不再自动派生状态样式,
+    ///   需自行调用 `setNeedsUpdateConfiguration()` 才会刷新。
+    /// - Parameter automaticallyUpdatesConfiguration: 是否自动更新
     /// - Returns: `Self`
     @discardableResult
-    func layoutImage(direction: NSDirectionalRectEdge, spacing: CGFloat) -> Self {
-        var config = base.configuration ?? UIButton.Configuration.plain()
-        switch direction {
-        case .top:
-            config.imagePlacement = .top
-            config.imagePadding = spacing
-        case .bottom:
-            config.imagePlacement = .bottom
-            config.imagePadding = spacing
-        case .leading:
-            config.imagePlacement = .leading
-            config.imagePadding = spacing
-        case .trailing:
-            config.imagePlacement = .trailing
-            config.imagePadding = spacing
-        default:
-            break
-        }
-        base.configuration = config
+    func automaticallyUpdatesConfiguration(_ automaticallyUpdatesConfiguration: Bool) -> Self {
+        base.automaticallyUpdatesConfiguration = automaticallyUpdatesConfiguration
+        return self
+    }
+
+    /// 请求按钮更新其配置
+    ///
+    /// - Note: 更新在**下一个布局周期**执行 —— 需让 runloop 转一圈才能读到新值。
+    /// - Returns: `Self`
+    @discardableResult
+    func setNeedsUpdateConfiguration() -> Self {
+        base.setNeedsUpdateConfiguration()
+        return self
+    }
+}
+
+// MARK: - 链式方法(菜单与指针)
+//
+// 按钮的角色、菜单与指针交互属性(iOS 14 起引入,与 `UIControl.State` 无关)。
+// `menu` 只负责挂菜单,「点击直接弹菜单」需配合 `UIControl` 侧的 `showsMenuAsPrimaryAction(_:)`。
+public extension FdyWrapper where Base: UIButton {
+    /// 设置按钮角色
+    ///
+    /// - Note: 影响键盘快捷键与菜单项的强调方式(`.primary` / `.cancel` / `.destructive`)。
+    /// - Parameter role: 角色,默认 `.normal`
+    /// - Returns: `Self`
+    @discardableResult
+    func role(_ role: UIButton.Role) -> Self {
+        base.role = role
+        return self
+    }
+
+    /// 设置按钮附带的菜单
+    ///
+    /// - Note: 传入非 `nil` 时按钮会自动启用 `contextMenuInteraction`;
+    ///   要让**点击**直接弹出菜单,需配合 `fdy.showsMenuAsPrimaryAction(true)`。
+    /// - Parameter menu: 菜单,传 `nil` 清除
+    /// - Returns: `Self`
+    @discardableResult
+    func menu(_ menu: UIMenu?) -> Self {
+        base.menu = menu
+        return self
+    }
+
+    /// 设置菜单元素的排序策略
+    /// - Parameter preferredMenuElementOrder: 排序策略
+    /// - Returns: `Self`
+    @discardableResult
+    func preferredMenuElementOrder(_ preferredMenuElementOrder: UIContextMenuConfiguration.ElementOrder) -> Self {
+        base.preferredMenuElementOrder = preferredMenuElementOrder
+        return self
+    }
+
+    /// 设置主操作是否切换选中态
+    ///
+    /// - Note: 与菜单无关的普通按钮上,主操作会直接切换 `isSelected`;
+    ///   有菜单且 `showsMenuAsPrimaryAction` 为 `true` 时表现为「选项选择」。
+    /// - Parameter changesSelectionAsPrimaryAction: 是否切换选中态
+    /// - Returns: `Self`
+    @discardableResult
+    func changesSelectionAsPrimaryAction(_ changesSelectionAsPrimaryAction: Bool) -> Self {
+        base.changesSelectionAsPrimaryAction = changesSelectionAsPrimaryAction
+        return self
+    }
+
+    /// 设置是否启用按钮内置的指针交互(iPadOS)
+    /// - Parameter isEnabled: 是否启用
+    /// - Returns: `Self`
+    @discardableResult
+    func isPointerInteractionEnabled(_ isEnabled: Bool) -> Self {
+        base.isPointerInteractionEnabled = isEnabled
+        return self
+    }
+
+    /// 设置指针效果的自定义提供者
+    /// - Parameter provider: 提供者,传 `nil` 用系统默认效果
+    /// - Returns: `Self`
+    @discardableResult
+    func pointerStyleProvider(_ provider: UIButton.PointerStyleProvider?) -> Self {
+        base.pointerStyleProvider = provider
         return self
     }
 }
@@ -107,6 +169,19 @@ public extension FdyWrapper where Base: UIButton {
         return self
     }
 
+    /// 设置按钮在指定状态下的标题阴影颜色
+    ///
+    /// - Note: 纯传统路径 —— `UIButton.Configuration` 无对应项,配置化按钮上不生效。
+    /// - Parameters:
+    ///   - color: 阴影颜色
+    ///   - state: 按钮状态,默认为 `.normal`
+    /// - Returns: `Self`
+    @discardableResult
+    func titleShadowColor(_ color: UIColor, for state: UIControl.State = .normal) -> Self {
+        base.setTitleShadowColor(color, for: state)
+        return self
+    }
+
     /// 设置按钮标题的字体
     /// - Parameter font: 要应用的字体
     /// - Returns: `Self`
@@ -124,6 +199,22 @@ public extension FdyWrapper where Base: UIButton {
     @discardableResult
     func image(_ image: UIImage?, for state: UIControl.State = .normal) -> Self {
         base.setImage(image, for: state)
+        return self
+    }
+
+    /// 设置按钮在指定状态下图标的符号配置(仅 SF Symbol 生效)
+    ///
+    /// - Note: 纯传统路径 —— 配置化按钮请改用配置侧的 `fdy.preferredSymbolConfigurationForImage(_:)`。
+    /// - Parameters:
+    ///   - configuration: 符号配置,可为 `nil` 用默认
+    ///   - state: 按钮状态,默认为 `.normal`
+    /// - Returns: `Self`
+    @discardableResult
+    func preferredSymbolConfiguration(
+        _ configuration: UIImage.SymbolConfiguration?,
+        for state: UIControl.State = .normal
+    ) -> Self {
+        base.setPreferredSymbolConfiguration(configuration, forImageIn: state)
         return self
     }
 
@@ -206,7 +297,7 @@ public extension FdyWrapper where Base: UIButton {
     /// 设置标题边距
     ///
     /// - Note: iOS 15 起系统弃用 `titleEdgeInsets`,且按钮使用 `UIButton.Configuration` 时该属性会被忽略。
-    ///   配置化按钮的图文间距请改用 `imagePadding(_:)` 或 `layoutImage(direction:spacing:)`。
+    ///   配置化按钮的图文间距请在配置侧设置(`fdy.imagePadding(_:)` / `fdy.layoutImage(direction:spacing:)`)。
     /// - Parameter insets: 边距
     /// - Returns: `Self`
     @discardableResult
@@ -218,7 +309,7 @@ public extension FdyWrapper where Base: UIButton {
     /// 设置图片边距
     ///
     /// - Note: iOS 15 起系统弃用 `imageEdgeInsets`,且按钮使用 `UIButton.Configuration` 时该属性会被忽略。
-    ///   配置化按钮的图文间距请改用 `imagePadding(_:)` 或 `layoutImage(direction:spacing:)`。
+    ///   配置化按钮的图文间距请在配置侧设置(`fdy.imagePadding(_:)` / `fdy.layoutImage(direction:spacing:)`)。
     /// - Parameter insets: 边距
     /// - Returns: `Self`
     @discardableResult

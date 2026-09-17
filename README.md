@@ -5,13 +5,13 @@
 ```swift
 import Fdy   // 一键引入全部模块
 
-// 全局工具入口
-fdy.logger.debug("hello")
-fdy.helper.isPad            // -> Bool
-fdy.perChecker.request(.camera) { result in ... }
-fdy.queue.asyncMain { ... }
-fdy.screen.width             // -> CGFloat
-fdy.symbol.monochrome(for: "star", color: .red)
+// 全局工具入口（聚合 7 个工具类）
+fdyG.logger.debug("hello")
+fdyG.helper.isPad            // -> Bool
+fdyG.perChecker.request(.camera) { result in ... }
+fdyG.queue.asyncMain { ... }
+fdyG.screen.width             // -> CGFloat
+fdyG.symbol.monochrome(for: "star", color: .red)
 
 // 链式配置视图（引用类型，无需 .build()）
 let view = UIView()
@@ -20,9 +20,12 @@ let view = UIView()
     .cornerRadius(8)
     .masksToBounds(true)
 
-// 值类型链式（返回新副本）
-let point = CGPoint(x: 10, y: 20)
-    .fdy.with { $0.x += 5; $0.y *= 2 }
+// 值类型链式（返回新副本，需要 .build() 收尾）
+let configuration = UIButton.Configuration.plain()
+    .fdy
+    .title("确定")
+    .cornerStyle(.capsule)
+    .build()
 
 // 颜色便捷初始化
 let color = UIColor(hex: "#FF5722")
@@ -62,7 +65,7 @@ Swift Package Manager：
 
 ## 链式 API 核心
 
-所有扩展通过 `.fdy` 命名空间访问，基于两个入口（定义于 `Sources/Core/Protocols/FdyExtension.swift`）：
+所有扩展通过 `.fdy` 命名空间访问，基于两个入口（定义于 `Sources/Fdy/Core/Protocols/FdyExtension.swift`）：
 
 - **实例入口** `object.fdy` → `FdyWrapper<Object>`
 - **类型入口** `Type.fdy` → `FdyWrapper<Type.Type>`（用于配置静态/类属性）
@@ -73,17 +76,21 @@ Swift Package Manager：
 let v = UIView()
     .fdy.build()                          // 取出被包装的实例
 
-CGPoint(x: 0, y: 0)
-    .fdy.with { $0.x = 10 }               // 值类型：操作副本并返回新值
+UIButton.Configuration.plain()
+    .fdy.with { $0.title = "确定" }        // 值类型：操作副本并返回新值（UILabel/CGPoint 等需自行加 conformance）
 
-[1, 2, 3].fdy.do { print($0) }            // 副作用：仅执行闭包
+UILabel().fdy.do { print($0.text ?? "") }  // 副作用：仅执行闭包
 
-UILabel().fdy.then { $0.text = "hi" }     // 引用类型：配置并返回自身，可继续链式
+UILabel().fdy.then { $0.text = "hi" }      // 引用类型：配置并返回自身，可继续链式
 ```
+
+> `.fdy` 需要目标类型 conform `FdyExtension`。库内只 conform 了 `NSObject`（因此所有 `UIView` / `UIViewController` 等引用类型自动继承）与 `Date`；
+> `UIButton.Configuration` 因为是 Swift **struct**（ObjC 侧 `UIButtonConfiguration` 虽是 `NSObject` 子类，Swift 桥接成了值类型）才单独补了一条 conformance。
+> 其余 struct（`CGPoint` / `[Int]` 等）默认拿不到 `.fdy`。
 
 ### Chain 链式配置
 
-`Sources/Core/Chain/` 按系统框架组织，为各类型提供**同名 setter 链式方法**，全部返回 `Self`。引用类型可省略 `.build()`：
+`Sources/Fdy/Core/Chain/` 按系统框架组织，为各类型提供**同名 setter 链式方法**，全部返回 `Self`。引用类型可省略 `.build()`：
 
 ```swift
 let label = UILabel()
@@ -103,46 +110,120 @@ let button = UIButton(type: .system)
 
 let layer = CAGradientLayer()
     .fdy
-    .colors([UIColor.red.cgColor, UIColor.blue.cgColor])
+    .colors([UIColor.red, UIColor.blue])
     .locations([0, 1])
     .startPoint(CGPoint(x: 0, y: 0))
     .endPoint(CGPoint(x: 1, y: 1))
 ```
 
-> **UIButton 的链式方法分两套**，定义在两个文件里，调用点一眼可分：
-> - **传统 API** —— 按 `UIControl.State` 取值（`.title(_:for:)` / `.titleColor(_:for:)` / `.backgroundImage(_:for:)` …），
->   见 `Core/Chain/UIKit/UIButton+Chain.swift`；
-> - **配置化 API** —— 读写 `UIButton.Configuration`，方法名统一 **`bc_`**（button configuration）前缀，
->   见 `Core/Chain/UIKit/UIButton+Configuration+Chain.swift`：
+> **UIButton 的链式方法分两层**，定义在两个文件里：按钮侧 `UIButton+Chain.swift`（24 个方法）
+> 与配置侧 `UIButton.Configuration+Chain.swift`（43 个方法）。
+
+#### 按钮侧 —— `Core/Chain/UIKit/UIButton+Chain.swift`
+
+分三组。
+
+**配置化（4）**
+
+| 方法 | 说明 |
+| --- | --- |
+| `configuration(_:)` | 整体替换按钮的 `UIButton.Configuration`（参数非可选） |
+| `configurationUpdateHandler(_:)` | 设置/清除配置更新处理器（`UIControl.State` 状态分支的官方落点） |
+| `automaticallyUpdatesConfiguration(_:)` | 状态变化时是否自动派生配置（默认 `true`） |
+| `setNeedsUpdateConfiguration()` | 主动请求刷新配置（下一个布局周期执行） |
+
+**菜单与指针（6）**
+
+| 方法 | 说明 |
+| --- | --- |
+| `role(_:)` | 按钮角色（`.primary` / `.cancel` / `.destructive`） |
+| `menu(_:)` | 挂 `UIMenu`（非 `nil` 时自动启用 context menu 交互） |
+| `preferredMenuElementOrder(_:)` | 菜单元素排序策略（iOS 16+） |
+| `changesSelectionAsPrimaryAction(_:)` | 主操作是否切换选中态 |
+| `isPointerInteractionEnabled(_:)` | 是否启用内置指针交互（iPadOS） |
+| `pointerStyleProvider(_:)` | 指针效果自定义提供者 |
+
+「点击直接弹菜单」需 `menu(_:)` 配合 `UIControl` 侧的 `showsMenuAsPrimaryAction(_:)`。
+
+**传统 API（14）**
+
+基于 `UIControl.State` 的 setter：`addAction` / `title` / `attributedTitle` / `titleColor` / `titleShadowColor` /
+`font` / `image` / `preferredSymbolConfiguration(_:for:)` / `backgroundImage`（图片与纯色两个重载）/
+`backgroundColor` / `contentEdgeInsets` / `titleEdgeInsets` / `imageEdgeInsets`。
+
+其中 `backgroundImage` / `contentEdgeInsets` 在按钮**已持有配置**时自动改走 `configuration` 路径 ——
+iOS 15 起这些传统属性会被 `UIButton.Configuration` 忽略。`backgroundColor(_:)` 没做这层分派，
+它只写 `view.backgroundColor`，与 `configuration.background` 是两层，仅建议用于非配置按钮。
+
+> **实测补充（iOS 18.0 / 26.5 一致）**：配置模式下 `.normal` 的 `title` / `attributedTitle` / `image`
+> 会被 UIKit bridge 进 `configuration`（异步，下一 layout 周期落地）；但**非 `.normal` 状态会被丢弃** ——
+> 配置没有状态维度，多状态请走 `configurationUpdateHandler(_:)`。
+> `titleColor` / `titleShadowColor` / `preferredSymbolConfiguration(_:for:)` / `titleEdgeInsets` /
+> `imageEdgeInsets` / `font` 在配置模式下不生效，保留它们是为了**非配置模式**的按钮（`UIButton.button()`）。
 >
-> ```swift
-> let submit = UIButton.plain()
->     .fdy
->     .bc_title("提交")
->     .bc_cornerStyle(.capsule)
->     .bc_baseBackgroundColor(.systemBlue)
->     .bc_baseForegroundColor(.white)
->     .bc_contentInsets(NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
->     .build()
-> ```
->
-> 两者可混用，但同一属性请只用一套：传统 setter 会被 `configuration` 覆盖。
+> **`UIControl` 层的方法按钮同样可用**（`UIControl+Chain.swift`，15 个）：`isEnabled` / `isSelected` /
+> `isHighlighted` / `contentVerticalAlignment` / `contentHorizontalAlignment` / `showsMenuAsPrimaryAction` /
+> `isContextMenuInteractionEnabled` / `toolTip` / `isSymbolAnimationEnabled` / `addTarget` / `removeTarget` /
+> `removeAction`（对象与 identifier 两个重载）/ `sendActions(for:)` / `performPrimaryAction()`。
+> 其中 `toolTip` 实测在模拟器上写入后读回仍是 `nil`（含直接写属性），需真机 / 指针环境才有实际效果。
+
+#### 配置侧 —— `Core/Chain/UIKit/UIButton.Configuration+Chain.swift`
+
+43 个 `UIButton.Configuration` 的链式方法（42 个单项属性 + `layoutImage` 组合方法）。接收者是**配置对象本身**（不是按钮），
+因此入口是 `configuration.fdy.xxx(...)`，方法名与属性同名、**无前缀**；值类型语义，需 `build()` 取回：
+
+```swift
+let configuration = UIButton.Configuration.filled().fdy
+    .title("提交")
+    .subtitle("副标题")
+    .image(UIImage(systemName: "checkmark"), placement: .leading)
+    .imagePadding(6)
+    .cornerStyle(.capsule)
+    .baseBackgroundColor(.systemBlue)
+    .baseForegroundColor(.white)
+    .backgroundCornerRadius(8)
+    .build()
+
+let submit = UIButton.plain()
+    .fdy
+    .configuration(configuration)
+    .build()
+```
+
+按属性分组的方法全集：
+
+| 组 | 方法 |
+| --- | --- |
+| 文本（10） | `title` `attributedTitle` `subtitle` `attributedSubtitle` `titlePadding` `titleLineBreakMode` `subtitleLineBreakMode` `titleAlignment` `titleTextAttributesTransformer` `subtitleTextAttributesTransformer` |
+| 图标（7） | `image(_:placement:)` `imagePlacement` `imagePadding` `imageReservation` `preferredSymbolConfigurationForImage` `imageColorTransformer` `symbolContentTransition`（iOS 26+） |
+| 加载与指示器（4） | `isLoading` `activityIndicatorColorTransformer` `indicator` `indicatorColorTransformer` |
+| 颜色与尺寸（6） | `baseBackgroundColor` `baseForegroundColor` `cornerStyle` `buttonSize` `macIdiomStyle` `automaticallyUpdateForSelection` |
+| 布局（3） | `contentInsets` `defaultContentInsets` `layoutImage(direction:spacing:)` |
+| 背景（13） | `backgroundImage` `backgroundImageContentMode` `backgroundColor` `backgroundColorTransformer` `backgroundCornerRadius` `backgroundInsets` `backgroundMarginEdges` `backgroundStrokeColor` `backgroundStrokeColorTransformer` `backgroundStrokeWidth` `backgroundStrokeOutset` `backgroundVisualEffect` `backgroundCustomView` |
+
+> - 背景组对应 `UIBackgroundConfiguration` 的属性，统一用 `background` 前缀；唯一改名的是
+>   `edgesAddingLayoutMarginsToBackgroundInsets` → `backgroundMarginEdges`（原名过长）。
+> - 未覆盖的只剩 `background.shadowProperties`（只读属性）。
+> - **多状态（高亮/选中/禁用）请配合 `configurationUpdateHandler(_:)`**：
+>   在 handler 里基于「外部只读模板」重建配置再写回，**不要在 handler 内读回 `button.configuration`** ——
+>   `automaticallyUpdatesConfiguration` 默认为 `true`，UIKit 会把派生后的配置写回，导致状态回退时残留旧值。
+>   另注意 UIKit 只对**颜色**派生状态样式，背景图/图标在各状态下完全相同，需要自己换。
 
 支持 Chain 的类型覆盖：`UIView`/`UIButton`/`UILabel`/`UITextField`/`UITextView`/`UIImageView`/`UICollectionView`/`UITableView`/`UIScrollView`/`UIStackView`/`UIViewController`/`CALayer`/`CAAnimation` 系列、`CAGradientLayer`、`MKMapView`、`WKWebView`、`NSAttributedString`、`Date`、`Timer`、`UIEdgeInsets` 等 60+ 类型。
 
-### 可复用控件（`Sources/Core/Components/`）
+### 可复用控件（`Sources/Fdy/Core/Components/`）
 
 视觉上要做得小、但要保证 44×44pt 点击热区的按钮，以及需要防止用户连点重复提交的按钮，
-都用 `FdyHitAreaButton`：
+都用 `FdyButton`：
 
 ```swift
-let close = FdyHitAreaButton(type: .custom)
+let close = FdyButton(type: .custom)
     .fdy
     .image(UIImage(systemName: "xmark"), for: .normal)
     .expandClickArea(12)              // 向四周各扩展 12pt
     .build()
 
-let submit = FdyHitAreaButton(type: .custom)
+let submit = FdyButton(type: .custom)
     .fdy
     .title("提交", for: .normal)
     .repeatClickInterval(0.5)         // 0.5s 内的重复触发只放行第一次
@@ -153,7 +234,7 @@ close.fdy_expandSize = 12
 submit.fdy_repeatClickInterval = 0.5
 ```
 
-> - 两项能力都实现在 `FdyHitAreaButton` 自身：热区走 `point(inside:with:)`，防重复走 `sendAction` 的两个重载。
+> - 两项能力都实现在 `FdyButton` 自身：热区走 `point(inside:with:)`，防重复走 `sendAction` 的两个重载。
 >   **只对该类及其子类生效，不污染其它 `UIButton`。**
 > - 防重复点击**按业务动作分别计时**（键为 selector 名 / `UIAction.identifier`），
 >   因此「`.touchDown` 做按压反馈 + `.touchUpInside` 做业务」不会互相挤占时间窗；
@@ -162,7 +243,7 @@ submit.fdy_repeatClickInterval = 0.5
 > - 历史版本通过 `UIButton` 扩展注入 `point(inside:with:)` 实现全局热区扩展
 >   （`fdy.expandClickArea(_:)` / `fdy_expandClickArea(_:)`），**该入口已移除** ——
 >   它会作用于所有 `UIButton`（含 UIKit 内部按钮），且一旦某个子类重写了 `point(inside:with:)` 就会静默失效。
->   原调用点会拿到编译错误：`requires that 'UIButton' inherit from 'FdyHitAreaButton'`。
+>   原调用点会拿到编译错误：`requires that 'UIButton' inherit from 'FdyButton'`。
 > - **一个必踩的坑**：扩展区域超出父视图 `bounds` 时不生效 —— `hitTest` 先询问父视图，父视图判定点不在自己范围内就直接返回 `nil`，根本不会询问本按钮。
 
 ### 手势链式（UIView）
@@ -183,12 +264,12 @@ let view = UIView()
 ### 类型级配置
 
 ```swift
-UIViewController.fdy.do { $0.backgroundColor = .systemRed }   // 配置静态属性
+UITableView.fdy.do { _ in /* $0 是 UIViewController.Type 元类型，用于配置静态/类属性 */ }
 ```
 
 ---
 
-## 扩展方法（`Sources/Core/Extensions/`）
+## 扩展方法（`Sources/Fdy/Core/Extensions/`）
 
 按系统框架与领域组织，均带 `fdy_` 前缀，直接作用于原生类型（无需 `.fdy`）：
 
@@ -197,25 +278,23 @@ UIViewController.fdy.do { $0.backgroundColor = .systemRed }   // 配置静态属
 ```swift
 UIColor(hex: "#FF5722")                // 3/4/6/8 位 hex（非可选）
 UIColor(argbHex: "#80FF5722")          // ARGB（含透明度，可选）
-color.fdy.alpha(0.5)                    // 透明度
-color.fdy_random                        // 随机色
+color.fdy_alpha(0.5)                    // 透明度
+UIColor.fdy_random                      // 随机色
 
 let view = UIView()
-view.fdy.removeAllSubviews()            // 移除所有子视图
-view.fdy.hideKeyboard()                 // 收起键盘
+view.fdy_removeAllSubviews()            // 移除所有子视图
+view.fdy_hideKeyboard()                 // 收起键盘
 view.fdy_viewController                 // 最近的父控制器
 view.fdy_allSubviews                    // 递归所有子视图
 view.fdy_findSubview(ofType: MyView.self)
 view.fdy_captureScreenshot()            // 截图
 
-label.fdy_actualFontSize                // 实际字号
-textField.fdy_textPublisher             // 见 CombineCocoa
-button.fdy_viewSize()                   // 标题尺寸，默认不折行（.greatestFiniteMagnitude）
+label.fdy_viewSize()                    // 标题尺寸，默认不折行（.greatestFiniteMagnitude）
+button.fdy_viewSize()                   // 同上
 button.fdy_viewSize(maxWidth: FdyScreen.screenWidth)   // 按屏宽折行时显式传入
 
-UIFont.fdy_font(size: 16, weight: .medium)   // 任意字族（默认苹方），不参与 Dynamic Type
-UIFont.fdy_font(size: 16, weight: .medium)
-    .fdy_scaled(forTextStyle: .body)         // 响应系统 Dynamic Type 缩放
+UIFont.fdy_font(with: "PingFang SC", size: 16)   // 指定字族，字族不可用时回退系统字体
+UIFont.fdy_showAllFonts()                        // 控制台打印设备全部可用字体
 ```
 
 ### Foundation
@@ -223,8 +302,8 @@ UIFont.fdy_font(size: 16, weight: .medium)
 ```swift
 object.fdy_className                    // "MyViewController"（实例）
 MyClass.fdy_className                   // "MyClass"（类型）
-bundle.fdy_appVersion                   // 版本号
-date.fdy_adding(days: 7)                // 日期运算
+Bundle.fdy_appVersion                   // 版本号（类型属性）
+date.fdy_adding(days: 7)                // 日期运算（返回 Date?）
 data.fdy_bytes()                        // Data → [UInt8]
 url.fdy_appendParameters([...])         // URL 追加参数
 ```
@@ -234,8 +313,9 @@ url.fdy_appendParameters([...])         // URL 追加参数
 ```swift
 [1, 2, 3].fdy_average                   // 平均值
 array.fdy_safe(at: 100)                 // 安全下标，越界返回 nil
-array.fdy_removeDuplicates()            // 去重（保持顺序）
-"hello".fdy_uppercased()                // 字符串工具
+var numbers = [1, 2, 2, 3]
+numbers.fdy_removeDuplicates()          // 去重（原地修改，保持顺序）
+Character("a").fdy_uppercase()          // 字符转大写
 
 model.fdy_encode()                      // Codable → Data?
 model.fdy_string()                      // Codable → JSON 字符串
@@ -253,112 +333,137 @@ MyModel.fdy_decode(from: data)          // Data → Codable
 
 ---
 
-## 全局工具入口 `fdy`
+## 全局工具入口 `fdyG`
 
-所有工具类通过全局 `fdy` 变量统一访问，无需记住每个类的 `shared`：
+所有工具类通过全局 `fdyG` 变量（`FdyGlobal` 的全局实例）统一访问，无需记住每个类的 `shared`：
 
 ```swift
-fdy.logger.debug("hello")
-fdy.helper.isPad                    // -> Bool
-fdy.perChecker.request(.camera) { result in ... }
-fdy.queue.asyncMain { ... }
-fdy.screen.width                    // -> CGFloat
-fdy.symbol.monochrome(for: "star", color: .red)
-fdy.haptic.mediumImpact()           // 主线程
+fdyG.logger.debug("hello")
+fdyG.helper.isPad                   // -> Bool
+fdyG.perChecker.request(.camera) { result in ... }
+fdyG.queue.asyncMain { ... }
+fdyG.screen.width                   // -> CGFloat
+fdyG.symbol.monochrome(for: "star", color: .red)
+fdyG.path.documentsDirPath
+fdyG.haptic.mediumImpact()          // 主线程
 ```
 
-> `fdy` 是 `FdyGlobal` 类的全局实例，聚合了 7 个工具类。各工具类仍可单独通过 `FdyXxx.shared` 访问。
+> `fdyG` 聚合了 7 个工具类。各工具类仍可单独通过 `FdyXxx.shared` 访问。
+> 注意与 `.fdy` 命名空间区分：`fdyG` 是**工具类聚合入口**，`object.fdy` 是**链式配置入口**。
 
-## 工具类（`Sources/Core/Common/`）
+## 工具类（`Sources/Fdy/Core/Common/`）
 
-| 类 | `fdy` 入口 | 功能 |
+| 类 | `fdyG` 入口 | 功能 |
 |----|-----------|------|
-| `FdyScreen` | `fdy.screen` | 屏幕尺寸、安全区、状态栏/导航栏/标签栏高度、设计稿适配 |
-| `FdyHelper` | `fdy.helper` | 设备信息（IDFV/IDFA/机型/系统版本/越狱检测等） |
-| `FdyPath` | `fdy.path` | 沙盒路径与文件操作 |
-| `FdyQueue` | `fdy.queue` | 异步调度、防抖、定时器、一次性执行、串行/并发队列 |
-| `FdyHaptic` | `fdy.haptic` | 触觉反馈 |
-| `FdyPermissionChecker` | `fdy.perChecker` | 权限状态查询与请求 |
-| `FdySymbol` | `fdy.symbol` | SF Symbol 便捷创建（单色/分层/调色板/多色） |
+| `FdyScreen` | `fdyG.screen` | 屏幕尺寸、安全区、状态栏/导航栏/标签栏高度、设计稿适配 |
+| `FdyHelper` | `fdyG.helper` | 设备信息（IDFV/IDFA/机型/系统版本/越狱检测等） |
+| `FdyPath` | `fdyG.path` | 沙盒路径与文件操作 |
+| `FdyQueue` | `fdyG.queue` | 异步调度、防抖、定时器、一次性执行、串行/并发队列 |
+| `FdyHaptic` | `fdyG.haptic` | 触觉反馈 |
+| `FdyPermissionChecker` | `fdyG.perChecker` | 权限状态查询与请求 |
+| `FdySymbol` | `fdyG.symbol` | SF Symbol 便捷创建（单色/分层/调色板/多色） |
 | `FdyAppearance` | — | 全局 UI 外观配置 |
 | `FdySkinManager` | — | 主题切换观察 |
-| `FdyViewBuilder` | — | `@resultBuilder` 声明式子视图组装 |
+| `FdyViewBuilder` | — | `@resultBuilder` 声明式子视图组装（`UIView { ... }`） |
 | `FdyScreenCaptureMonitor` | — | 录屏/投屏检测 |
 | `FdyPlist` | — | plist 读写 |
-| `FdyCreator` | — | 通用创建工具 |
+| `FdyFactory.swift` | — | UIKit 类型的**类工厂方法**（见下） |
+
+### 类工厂方法（`FdyFactory.swift`）
+
+以 `@objc extension` 形式挂在各 UIKit 类型上，直接当类方法调用：
+
+```swift
+UIView.view()
+UIStackView.hStackView() / .vStackView()
+UITableView.tableView(.grouped)
+UICollectionView.collectionView(scrollDirection: .vertical)
+UIButton.button() / .plain() / .tinted() / .gray() / .filled()
+       / .borderless() / .bordered() / .borderedTinted() / .borderedProminent()
+UIButton.glass() / .prominentGlass() / .clearGlass() / .prominentClearGlass()   // iOS 26+
+UISwitch.switch() / UIBarButtonItem.barButtonItem() / UIDatePicker.datePicker()
+```
+
+> `UIButton.plain()` / `.filled()` 等返回的按钮**自带 `UIButton.Configuration`**，
+> 后续用 `.fdy.configuration(_:)` 换配置，或先构造配置再赋值。
+> 4 个 `glass` 变体标了 `@available(iOS 26.0, *)`，低版本调用需自行做可用性判断。
 
 ### 屏幕与适配
 
 ```swift
-fdy.screen.setupSketch(size: CGSize(width: 375, height: 812))  // 设设计稿
+FdyScreen.setupSketch(size: CGSize(width: 375, height: 812))  // 设设计稿
 
 16.fitWidth          // 按设计稿宽度等比缩放（Int / CGFloat 均支持）
 20.fitHeight         // 按设计稿高度等比缩放
 12.fitLarger         // 宽高取较大
 8.fitSmaller         // 宽高取较小
 
-fdy.screen.width / height / scale
-fdy.screen.safeAreaTop / safeAreaBottom
-fdy.screen.statusBarHeight
-fdy.screen.navBarTotalHeight          // 状态栏 + 导航栏
-fdy.screen.tabBarTotalHeight          // 标签栏 + 底部安全区
-fdy.screen.isCaptured                 // 是否录屏/投屏
+fdyG.screen.width / height / scale
+fdyG.screen.safeAreaTop / safeAreaBottom
+fdyG.screen.statusBarHeight
+fdyG.screen.navBarTotalHeight        // 状态栏 + 导航栏
+fdyG.screen.tabBarTotalHeight        // 标签栏 + 底部安全区
+fdyG.screen.isCaptured               // 是否录屏/投屏
 ```
 
 ### 设备信息
 
 ```swift
-fdy.helper.isSimulator
-fdy.helper.isDebug
-fdy.helper.isPad / isPhone
-fdy.helper.isIPhoneXSeries
-fdy.helper.isJailbroken
-fdy.helper.identifierForVendor   // IDFV
-fdy.helper.advertisingIdentifier // IDFA（需授权）
-fdy.helper.systemVersion
-fdy.helper.className(Self.self)
+fdyG.helper.isSimulator
+fdyG.helper.isDebug
+fdyG.helper.isPad / isPhone
+fdyG.helper.isIPhoneXSeries
+fdyG.helper.isJailbroken
+fdyG.helper.identifierForVendor   // IDFV
+fdyG.helper.advertisingIdentifier // IDFA（需授权）
+fdyG.helper.systemVersion
+fdyG.helper.className(Self.self)
 ```
 
 ### 队列与定时器
 
 ```swift
-fdy.queue.debounced(delay: 0.3) { performSearch() }   // 防抖
-fdy.queue.executeSerially([task1, task2]) { print("完成") }
-fdy.queue.executeConcurrently([...])
-fdy.queue.executeOnce(token: "app.init") { setupAnalytics() }
-fdy.queue.countdownTimer(every: 1.0, times: 5) { _, remaining in }
-fdy.queue.delayed(1.0) { ... }
+let debouncedSearch = fdyG.queue.debounced(delay: 0.3) { performSearch() }
+searchBar.onTextChange = { _ in debouncedSearch() }   // 返回闭包，需自行调用
+
+fdyG.queue.executeSerially([task1, task2]) { print("完成") }
+fdyG.queue.executeConcurrently([...]) { print("完成") }
+fdyG.queue.executeOnce(token: "app.init") { setupAnalytics() }
+fdyG.queue.countdownTimer(every: 1.0, times: 5) { _, remaining in }
+fdyG.queue.delayed(1.0) { ... }
 ```
 
 ### 沙盒路径
 
 ```swift
-fdy.path.documentsDirPath
-fdy.path.cachesDirPath
-fdy.path.path(in: .caches, ...)        // 或 resolvePath
-fdy.path.exists(at: path)
-fdy.path.createFile(at: path)
-fdy.path.remove(at: path)
+fdyG.path.documentsDirPath
+fdyG.path.cachesDirPath
+fdyG.path.path(inCaches: "a.txt")      // 或 inDocuments / inLibrary / inApplicationSupport / inTemp
+fdyG.path.exists(at: path)
+fdyG.path.createFile(at: path)
+fdyG.path.remove(at: path)
 ```
 
 ### 触觉反馈
 
+`FdyHaptic` 标注为 `@MainActor`，需要在主线程调用。
+
 ```swift
-fdy.haptic.lightImpact()
-fdy.haptic.mediumImpact()
-fdy.haptic.heavyImpact()
-fdy.haptic.rigidImpact()
-fdy.haptic.softImpact()
-fdy.haptic.selectionChanged()
-fdy.haptic.notification(.success)
-fdy.haptic.haptic(.medium, style: .rigid)   // 自定义强度
+fdyG.haptic.lightImpact()
+fdyG.haptic.mediumImpact()
+fdyG.haptic.heavyImpact()
+fdyG.haptic.rigidImpact()
+fdyG.haptic.softImpact()
+fdyG.haptic.selectionChanged()
+fdyG.haptic.notification(.success)
+fdyG.haptic.haptic(.impact(.medium))   // 自定义：.impact(_:) / .selectionChanged / .notification(_:)
 ```
 
 ### 权限管理
 
 ```swift
-fdy.perChecker.checkStatus(for: .camera)   // 查询状态
-fdy.perChecker.request(.photoLibrary) { result in
+fdyG.perChecker.checkStatus(for: .camera)   // 查询状态
+fdyG.perChecker.request(.photoLibrary) { result in
     switch result {
     case .authorized:     loadPhotos()
     case .denied:         showSettingsAlert()
@@ -370,24 +475,26 @@ fdy.perChecker.request(.photoLibrary) { result in
 ### SF Symbol
 
 ```swift
-fdy.symbol.monochrome(for: "star.fill", color: .red)
-fdy.symbol.hierarchical(for: "star.fill", hierarchicalColor: .yellow)
-fdy.symbol.palette(for: "star.fill", paletteColors: [.yellow, .orange])
-fdy.symbol.multicolor(for: "star.fill")
+fdyG.symbol.monochrome(for: "star.fill", color: .red)
+fdyG.symbol.hierarchical(for: "star.fill", hierarchicalColor: .yellow)
+fdyG.symbol.palette(for: "star.fill", paletteColors: [.yellow, .orange])
+fdyG.symbol.multicolor(for: "star.fill")
 ```
 
 ### 声明式视图构建（`@FdyViewBuilder`）
 
 ```swift
-let container = UIView()
-container.fdy.addSubviews(
-    FdyViewBuilder.buildBlock(
-        UILabel(),
-        UIButton(type: .system),
-        showImage ? UIImageView() : nil
-    )
-)
+let container = UIView {
+    UILabel()
+    UIButton(type: .system)
+} configure: {
+    $0.backgroundColor = .systemBackground
+}
 ```
+
+> `UIView { ... }` 会把子视图加入容器并默认关闭 `translatesAutoresizingMaskIntoConstraints`。
+> - **只能平铺子视图**：`buildBlock` 是可变参数版本（`UIView...`），因此 `if` / `for` / `if-else` 分支
+>   以及 `cond ? view : nil` 都**不支持** —— 需要条件插入时请自行拼数组后循环 `addSubview`。
 
 ---
 
@@ -493,18 +600,18 @@ FdyLogger.shared.fatal("致命错误")
 
 FdyLogger.shared.minimumLevel = .warn   // 生产环境只输出 warn 及以上
 
-// 全局便捷函数
-fdy_logInfo("数据加载完成")
-fdy_logError("解析失败")
+// 全局便捷入口
+fdyG.logger.info("数据加载完成")
+fdyG.logger.error("解析失败")
 ```
 
 ---
 
 ## 设计原则
 
-- **不污染原生类型** — 实例方法通过 `.fdy` 命名空间（`FdyWrapper`）隔离，工具类通过全局 `fdy` 入口访问。
+- **不污染原生类型** — 实例方法通过 `.fdy` 命名空间（`FdyWrapper`）隔离，工具类通过全局 `fdyG` 入口访问。
 - **链式调用** — Chain setter 返回 `FdyWrapper`，支持连续配置；引用类型可省略 `.build()`。
-- **双入口** — 实例 `object.fdy` 与类型 `Type.fdy`（配置静态/类属性）；全局 `fdy` 聚合工具类。
+- **双入口** — 实例 `object.fdy` 与类型 `Type.fdy`（配置静态/类属性）；全局 `fdyG` 聚合工具类。
 - **值类型安全** — `.with` 返回副本，不改原值。
 - **健壮回退** — 字体字族、资源加载等不可用时优雅回退，不 crash。
 - **iOS 18+** — 最低支持版本，Swift 6.0 工具链 + Swift 5 语言模式。
@@ -518,7 +625,7 @@ Sources/
     ├── Core/
     │   ├── Chain/           # 链式 API（UIKit/Foundation/QuartzCore/MapKit/WebKit...）
     │   ├── Common/          # 工具类（FdyScreen/FdyHelper/FdyPath/FdyQueue...）
-    │   ├── Components/      # 可复用控件（FdyHitAreaButton：点击热区 / 防重复点击）
+    │   ├── Components/      # 可复用控件（FdyButton：点击热区 / 防重复点击）
     │   ├── Extensions/      # fdy_ 前缀扩展（按框架组织）
     │   ├── Protocols/       # FdyExtension/FdyReusable/FdyLoadable/FdySetupable
     │   ├── Wrapper/         # @FdyDataStore

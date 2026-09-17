@@ -136,6 +136,47 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.imagePadding = padding }
     }
 
+    /// 设置图标的预留宽度
+    ///
+    /// - Note: 为图标预留固定宽度 —— 图标缺失或切换时按钮宽度不跳动。
+    /// - Parameter reservation: 预留宽度
+    /// - Returns: `Self`
+    @discardableResult
+    func imageReservation(_ reservation: CGFloat) -> Self {
+        updateConfiguration { $0.imageReservation = reservation }
+    }
+
+    /// 一步设置图片方向与图文间距
+    ///
+    /// 等价于依次调用 `imagePlacement(_:)` 与 `imagePadding(_:)`,只是省一次链式调用。
+    /// - Note: 只识别**单一**方向(`.top` / `.bottom` / `.leading` / `.trailing`),
+    ///   组合值(如 `[.top, .leading]`)或空集不生效。
+    /// - Parameters:
+    ///   - direction: 图片方向
+    ///   - spacing: 图文间距
+    /// - Returns: `Self`
+    @discardableResult
+    func layoutImage(direction: NSDirectionalRectEdge, spacing: CGFloat) -> Self {
+        updateConfiguration { configuration in
+            switch direction {
+            case .top:
+                configuration.imagePlacement = .top
+                configuration.imagePadding = spacing
+            case .bottom:
+                configuration.imagePlacement = .bottom
+                configuration.imagePadding = spacing
+            case .leading:
+                configuration.imagePlacement = .leading
+                configuration.imagePadding = spacing
+            case .trailing:
+                configuration.imagePlacement = .trailing
+                configuration.imagePadding = spacing
+            default:
+                break
+            }
+        }
+    }
+
     /// 设置图标的符号配置(仅 SF Symbol 生效)
     /// - Parameter preferredSymbolConfigurationForImage: 符号配置,传 `nil` 用默认
     /// - Returns: `Self`

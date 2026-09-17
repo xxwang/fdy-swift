@@ -14,18 +14,21 @@ import UIKit
 ///
 /// - Example:
 /// ```swift
-/// let button = FdyHitAreaButton(type: .custom)
+/// let button = FdyButton(type: .custom)
 ///     .fdy
 ///     .expandClickArea(10)          // 向四周各扩展 10pt
 ///     .repeatClickInterval(0.5)     // 0.5s 内重复触发只放行第一次
 ///     .build()
 ///
 /// // 或不使用链式语法
-/// let other = FdyHitAreaButton()
+/// let other = FdyButton()
 /// other.fdy_expandSize = 10
 /// other.fdy_repeatClickInterval = 0.5
 /// ```
-open class FdyHitAreaButton: UIButton {
+open class FdyButton: UIButton {
+    /// 按钮点击处理回调。子类可重写或在初始化后设置
+    open var clickBlock: FdyAction1<FdyButton>?
+
     // MARK: - 点击热区
 
     /// 向四周扩展的尺寸；`<= 0` 表示不扩展
@@ -85,10 +88,23 @@ open class FdyHitAreaButton: UIButton {
         fdy_lastFireTimes[key] = now
         return true
     }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+
+    @available(*, unavailable)
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override open class func button() -> FdyButton {
+        return Self(type: .custom)
+    }
 }
 
 // MARK: - 链式方法
-public extension FdyWrapper where Base: FdyHitAreaButton {
+public extension FdyWrapper where Base: FdyButton {
     /// 扩大按钮的点击区域
     ///
     /// - Note: 命中判定写在本类自身，只对该类及其子类生效，不污染其它 `UIButton`。
@@ -108,6 +124,30 @@ public extension FdyWrapper where Base: FdyHitAreaButton {
     @discardableResult
     func repeatClickInterval(_ interval: TimeInterval) -> Self {
         base.fdy_repeatClickInterval = interval
+        return self
+    }
+}
+
+extension FdyButton {
+    /// 按钮点击处理
+    @objc func clickHandler(_ sender: FdyButton) {
+        if let block = self.clickBlock {
+            block(sender)
+        }
+    }
+}
+
+// MARK: - 链式配置(自定义)
+public extension FdyWrapper where Base: FdyButton {
+    /// 绑定点击处理回调
+    /// - Warning: 闭包被按钮**强引用**。若闭包内使用 `self`，
+    ///   请使用 `[weak self]` 避免循环引用泄漏。
+    /// - Parameter block: 点击处理回调
+    /// - Returns: `Self`
+    func clickBlock(_ block: @escaping FdyAction1<FdyButton>) -> Self {
+        base.clickBlock = block
+        base.removeTarget(base, action: #selector(FdyButton.clickHandler(_:)), for: .touchUpInside)
+        base.addTarget(base, action: #selector(FdyButton.clickHandler(_:)), for: .touchUpInside)
         return self
     }
 }
