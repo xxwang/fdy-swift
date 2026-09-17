@@ -1,9 +1,67 @@
 import UIKit
 
+// MARK: - 链式方法(配置化)
+//
+// 这里只放「配置对象本身」的操作(整体替换 / 更新处理器 / 方向化布局)。
+// 单项属性的链式设置见 `UIButton.Configuration+Chain.swift` —— 接收者是 `UIButton.Configuration`,
+// 方法名与属性同名,可先 `.fdy` 链式改好再交回按钮。
+//
+// - Note: 按钮未持有配置时以 `.plain()` 兜底;`FdyFactory.plain()` / `.tinted()` 创建的按钮自带配置。
+public extension FdyWrapper where Base: UIButton {
+    /// 整体替换按钮的 `UIButton.Configuration`
+    /// - Parameter configuration: 新的配置对象,传 `nil` 清除配置
+    /// - Returns: `Self`
+    @discardableResult
+    func configuration(_ configuration: UIButton.Configuration) -> Self {
+        base.configuration = configuration
+        return self
+    }
+
+    /// 按钮配置更新处理器
+    /// - Parameter handler: 处理器
+    /// - Returns: `Self`
+    @discardableResult
+    func configurationUpdateHandler(_ handler: UIButton.ConfigurationUpdateHandler?) -> Self {
+        base.configurationUpdateHandler = handler
+        return self
+    }
+
+    /// 设置图片方向与图文间距
+    ///
+    /// - Note: 带 `switch` 分支,未套用 `updateConfiguration`。
+    /// - Parameters:
+    ///   - direction: 图片方向
+    ///   - spacing: 间距
+    /// - Returns: `Self`
+    @discardableResult
+    func layoutImage(direction: NSDirectionalRectEdge, spacing: CGFloat) -> Self {
+        var config = base.configuration ?? UIButton.Configuration.plain()
+        switch direction {
+        case .top:
+            config.imagePlacement = .top
+            config.imagePadding = spacing
+        case .bottom:
+            config.imagePlacement = .bottom
+            config.imagePadding = spacing
+        case .leading:
+            config.imagePlacement = .leading
+            config.imagePadding = spacing
+        case .trailing:
+            config.imagePlacement = .trailing
+            config.imagePadding = spacing
+        default:
+            break
+        }
+        base.configuration = config
+        return self
+    }
+}
+
 // MARK: - 链式方法(传统 API)
 //
-// 本文件只保留基于 `UIControl.State` 的传统 setter(以及 `UIControl` 原生的 `addAction`),
-// 不读写 `UIButton.Configuration`。配置化 API 见 `UIButton+Configuration+Chain.swift`(方法名带 `bc_` 前缀)。
+// 基于 `UIControl.State` 的传统 setter(以及 `UIControl` 原生的 `addAction`)。
+// 其中 `backgroundImage` / `backgroundColor` / `contentEdgeInsets` 在按钮持有配置时自动改走
+// `configuration` 路径 —— iOS 15 起这些传统属性会被 `UIButton.Configuration` 忽略。
 public extension FdyWrapper where Base: UIButton {
     /// 添加一个 `UIAction`
     /// - Parameters:
@@ -129,7 +187,6 @@ public extension FdyWrapper where Base: UIButton {
     ///   (如 `FdyFactory.plain()` / `.tinted()` 创建的按钮)时,原属性会被忽略,此方法自动改走 `configuration.contentInsets`。
     /// - Parameter insets: 边距
     /// - Returns: `Self`
-    @available(iOS, deprecated: 15.0, message: "配置化按钮请改用 bc_contentInsets(_:)")
     @discardableResult
     func contentEdgeInsets(_ insets: UIEdgeInsets) -> Self {
         if var configuration = base.configuration {
@@ -149,10 +206,9 @@ public extension FdyWrapper where Base: UIButton {
     /// 设置标题边距
     ///
     /// - Note: iOS 15 起系统弃用 `titleEdgeInsets`,且按钮使用 `UIButton.Configuration` 时该属性会被忽略。
-    ///   配置化按钮的图文间距请改用 `bc_imagePadding(_:)` 或 `bc_layoutImage(direction:spacing:)`。
+    ///   配置化按钮的图文间距请改用 `imagePadding(_:)` 或 `layoutImage(direction:spacing:)`。
     /// - Parameter insets: 边距
     /// - Returns: `Self`
-    @available(iOS, deprecated: 15.0, message: "配置化按钮请改用 bc_imagePadding(_:) / bc_layoutImage(direction:spacing:)")
     @discardableResult
     func titleEdgeInsets(_ insets: UIEdgeInsets) -> Self {
         base.titleEdgeInsets = insets
@@ -162,10 +218,9 @@ public extension FdyWrapper where Base: UIButton {
     /// 设置图片边距
     ///
     /// - Note: iOS 15 起系统弃用 `imageEdgeInsets`,且按钮使用 `UIButton.Configuration` 时该属性会被忽略。
-    ///   配置化按钮的图文间距请改用 `bc_imagePadding(_:)` 或 `bc_layoutImage(direction:spacing:)`。
+    ///   配置化按钮的图文间距请改用 `imagePadding(_:)` 或 `layoutImage(direction:spacing:)`。
     /// - Parameter insets: 边距
     /// - Returns: `Self`
-    @available(iOS, deprecated: 15.0, message: "配置化按钮请改用 bc_imagePadding(_:) / bc_layoutImage(direction:spacing:)")
     @discardableResult
     func imageEdgeInsets(_ insets: UIEdgeInsets) -> Self {
         base.imageEdgeInsets = insets
