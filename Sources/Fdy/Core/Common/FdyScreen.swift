@@ -242,22 +242,22 @@ private extension FdyScreen {
 public extension BinaryInteger {
     /// 适配宽度(将整数值按设计图宽度比例适配)
     var fitWidth: CGFloat {
-        FdyScreen.calcWidth(from: self.fdy_cGFloat())
+        FdyScreen.calcWidth(from: self.fdy_CGFloat())
     }
 
     /// 适配高度(将整数值按设计图高度比例适配)
     var fitHeight: CGFloat {
-        FdyScreen.calcHeight(from: self.fdy_cGFloat())
+        FdyScreen.calcHeight(from: self.fdy_CGFloat())
     }
 
     /// 适配最大值(根据设计图宽度和高度适配后的最大值)
     var fitLarger: CGFloat {
-        FdyScreen.calcMax(from: self.fdy_cGFloat())
+        FdyScreen.calcMax(from: self.fdy_CGFloat())
     }
 
     /// 适配最小值(根据设计图宽度和高度适配后的最小值)
     var fitSmaller: CGFloat {
-        FdyScreen.calcMin(from: self.fdy_cGFloat())
+        FdyScreen.calcMin(from: self.fdy_CGFloat())
     }
 }
 
@@ -265,21 +265,21 @@ public extension BinaryInteger {
 public extension BinaryFloatingPoint {
     /// 适配宽度(将浮动数字按设计图宽度比例适配)
     var fitWidth: CGFloat {
-        FdyScreen.calcWidth(from: self.fdy_cGFloat())
+        FdyScreen.calcWidth(from: self.fdy_CGFloat())
     }
 
     /// 适配高度(将浮动数字按设计图高度比例适配)
     var fitHeight: CGFloat {
-        FdyScreen.calcHeight(from: self.fdy_cGFloat())
+        FdyScreen.calcHeight(from: self.fdy_CGFloat())
     }
 
     /// 适配最大值(根据设计图宽度和高度适配后的最大值)
     var fitLarger: CGFloat {
-        FdyScreen.calcMax(from: self.fdy_cGFloat())
+        FdyScreen.calcMax(from: self.fdy_CGFloat())
     }
 
     /// 适配最小值(根据设计图宽度和高度适配后的最小值)
     var fitSmaller: CGFloat {
-        FdyScreen.calcMin(from: self.fdy_cGFloat())
+        FdyScreen.calcMin(from: self.fdy_CGFloat())
     }
 }

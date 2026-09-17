@@ -84,7 +84,7 @@ private final class FdyScrollViewDelegateProxy: NSObject, UIScrollViewDelegate {
 }
 
 public extension UIScrollView {
-    private nonisolated(unsafe) static var cc_delegateProxyKey: UInt8 = 0
+    private nonisolated(unsafe) static var fdy_delegateProxyKey: UInt8 = 0
 
     /// 懒加载、缓存并（必要时）**重新接管** delegate 代理。
     ///
@@ -93,8 +93,8 @@ public extension UIScrollView {
     /// delegate」，不是则把当前 delegate 记为新的转发目标并重新接管，使 8 个 publisher 自动恢复。
     /// 初版没有这一步：代理被顶掉后再次访问只会拿到「已不是 delegate 的缓存代理」，
     /// 所有 publisher 永久失效，且无任何报错。
-    private var cc_delegateProxy: FdyScrollViewDelegateProxy {
-        if let existing = fdy_GetAO(forKey: &Self.cc_delegateProxyKey) as? FdyScrollViewDelegateProxy {
+    private var fdy_delegateProxy: FdyScrollViewDelegateProxy {
+        if let existing = fdy_GetAO(forKey: &Self.fdy_delegateProxyKey) as? FdyScrollViewDelegateProxy {
             let isAlreadyAttached = (delegate as AnyObject?) === existing
             if !isAlreadyAttached {
                 existing.originalDelegate = delegate
@@ -105,54 +105,54 @@ public extension UIScrollView {
         let proxy = FdyScrollViewDelegateProxy()
         proxy.originalDelegate = delegate
         delegate = proxy
-        fdy_SetAO(proxy, forKey: &Self.cc_delegateProxyKey)
+        fdy_SetAO(proxy, forKey: &Self.fdy_delegateProxyKey)
         return proxy
     }
 
     /// 滚动中（contentOffset 变化）
     var fdy_didScrollPublisher: ControlEvent<Void> {
-        ControlEvent(cc_delegateProxy.didScroll.eraseToAnyPublisher())
+        ControlEvent(fdy_delegateProxy.didScroll.eraseToAnyPublisher())
     }
 
     /// 即将开始拖拽
     var fdy_willBeginDraggingPublisher: ControlEvent<Void> {
-        ControlEvent(cc_delegateProxy.willBeginDragging.eraseToAnyPublisher())
+        ControlEvent(fdy_delegateProxy.willBeginDragging.eraseToAnyPublisher())
     }
 
     /// 结束拖拽（丢弃 `willDecelerate`，需要该值请用
     /// `fdy_didEndDraggingWithDecelerationPublisher`）
     var fdy_didEndDraggingPublisher: ControlEvent<Void> {
-        ControlEvent(cc_delegateProxy.didEndDragging.map { _ in () }.eraseToAnyPublisher())
+        ControlEvent(fdy_delegateProxy.didEndDragging.map { _ in () }.eraseToAnyPublisher())
     }
 
     /// 结束拖拽，载荷为 `willDecelerate`（是否将继续减速）
     var fdy_didEndDraggingWithDecelerationPublisher: ControlEvent<Bool> {
-        ControlEvent(cc_delegateProxy.didEndDragging.eraseToAnyPublisher())
+        ControlEvent(fdy_delegateProxy.didEndDragging.eraseToAnyPublisher())
     }
 
     /// 即将开始减速
     var fdy_willBeginDeceleratingPublisher: ControlEvent<Void> {
-        ControlEvent(cc_delegateProxy.willBeginDecelerating.eraseToAnyPublisher())
+        ControlEvent(fdy_delegateProxy.willBeginDecelerating.eraseToAnyPublisher())
     }
 
     /// 结束减速
     var fdy_didEndDeceleratingPublisher: ControlEvent<Void> {
-        ControlEvent(cc_delegateProxy.didEndDecelerating.eraseToAnyPublisher())
+        ControlEvent(fdy_delegateProxy.didEndDecelerating.eraseToAnyPublisher())
     }
 
     /// 滚动动画结束
     var fdy_didEndScrollingAnimationPublisher: ControlEvent<Void> {
-        ControlEvent(cc_delegateProxy.didEndScrollingAnimation.eraseToAnyPublisher())
+        ControlEvent(fdy_delegateProxy.didEndScrollingAnimation.eraseToAnyPublisher())
     }
 
     /// 缩放中
     var fdy_didZoomPublisher: ControlEvent<Void> {
-        ControlEvent(cc_delegateProxy.didZoom.eraseToAnyPublisher())
+        ControlEvent(fdy_delegateProxy.didZoom.eraseToAnyPublisher())
     }
 
     /// 调整内容缩进变化
     var fdy_didChangeAdjustedContentInsetPublisher: ControlEvent<Void> {
-        ControlEvent(cc_delegateProxy.didChangeAdjustedContentInset.eraseToAnyPublisher())
+        ControlEvent(fdy_delegateProxy.didChangeAdjustedContentInset.eraseToAnyPublisher())
     }
 
     /// 滚动位置（**值流**，可读可绑定写回）：订阅时立即重放当前偏移，此后每次变化都发出。

@@ -9,75 +9,75 @@ public extension BinaryInteger {
     }
 
     /// 转换为`Int`
-    func fdy_int() -> Int {
+    func fdy_Int() -> Int {
         Int(self)
     }
 
     /// 转换为`Int64`
-    func fdy_int64() -> Int64 {
+    func fdy_Int64() -> Int64 {
         Int64(self)
     }
 
     /// 转换为`UInt`
-    func fdy_uInt() -> UInt {
+    func fdy_UInt() -> UInt {
         UInt(self)
     }
 
     /// 转换为`UInt64`
-    func fdy_uInt64() -> UInt64 {
+    func fdy_UInt64() -> UInt64 {
         UInt64(self)
     }
 
     /// 转换为`Float`
-    func fdy_float() -> Float {
+    func fdy_Float() -> Float {
         Float(self)
     }
 
     /// 转换为`Double`
-    func fdy_double() -> Double {
+    func fdy_Double() -> Double {
         Double(self)
     }
 
     /// 转换为`CGFloat`
-    func fdy_cGFloat() -> CGFloat {
+    func fdy_CGFloat() -> CGFloat {
         CGFloat(self)
     }
 
     /// 转换为 `NSNumber`
-    func fdy_nSNumber() -> NSNumber {
-        NSNumber(value: self.fdy_double())
+    func fdy_NSNumber() -> NSNumber {
+        NSNumber(value: self.fdy_Double())
     }
 
     /// 转换为 `NSDecimalNumber`(通过 `Double` 中转,注意精度损失)
-    func fdy_nSDecimalNumber() -> NSDecimalNumber {
-        NSDecimalNumber(string: self.fdy_string())
+    func fdy_NSDecimalNumber() -> NSDecimalNumber {
+        NSDecimalNumber(string: self.fdy_String())
     }
 
     /// 转换为 `Decimal`(经字符串中转,避免 `Decimal(Double(self))` 对大整数(>2^53)的精度丢失)
-    func fdy_decimal() -> Decimal {
-        Decimal(string: self.fdy_string()) ?? .zero
+    func fdy_Decimal() -> Decimal {
+        Decimal(string: self.fdy_String()) ?? .zero
     }
 
     /// 转换为十进制字符串表示
-    func fdy_string() -> String {
+    func fdy_String() -> String {
         String(self)
     }
 
     /// 尝试将当前值解释为 `Unicode` 码点,并返回对应的 `Character`
     ///
     /// - Returns: 有效的 `Character`,若码点无效则返回 `nil`
-    func fdy_character() -> Character? {
+    func fdy_Character() -> Character? {
         guard let scalar = UnicodeScalar(Int(self)) else { return nil }
         return Character(scalar)
     }
 
     /// 创建一个 `CGPoint`,`x` 和 `y`坐标均设为当前值(转换为 `Double`)
-    func fdy_cGPoint() -> CGPoint {
+    func fdy_CGPoint() -> CGPoint {
         CGPoint(x: CGFloat(self), y: CGFloat(self))
     }
 
     /// 创建一个 `CGSize`,宽高均设为当前值(转换为 `CGFloat`)
-    func fdy_cGSize() -> CGSize {
+    func fdy_CGSize() -> CGSize {
         CGSize(width: CGFloat(self), height: CGFloat(self))
     }
 }

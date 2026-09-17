@@ -10,7 +10,7 @@ public extension NSNumber {
     ///   - maximumFractionDigits: 最大小数位数,默认 0
     ///   - usesGroupingSeparator: 是否启用千分位分隔,默认 true
     /// - Returns: 格式化后的字符串
-    func fdy_decimal(
+    func fdy_Decimal(
         groupingSeparator: String? = nil,
         roundingMode: NumberFormatter.RoundingMode = .halfEven,
         minimumFractionDigits: Int = 0,
@@ -75,7 +75,7 @@ public extension NSNumber {
     /// - Parameter decimalPlaces: 小数位数
     /// - Returns: 字符串(如 "12345.679")
     func fdy_fixed(_ decimalPlaces: Int) -> String? {
-        return self.fdy_decimal(
+        return self.fdy_Decimal(
             minimumFractionDigits: decimalPlaces,
             maximumFractionDigits: decimalPlaces
         )

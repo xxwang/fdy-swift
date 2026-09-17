@@ -53,7 +53,7 @@ public extension CATransform3D {
     /// 尝试将当前 3D 变换转换为 2D 仿射变换
     /// - Returns: 若变换是仿射的,则返回对应的 `CGAffineTransform`;
     ///   否则返回 `CGAffineTransform.identity`(不会崩溃,但结果可能不符合预期)
-    var fdy_cGAffineTransform: CGAffineTransform {
+    var fdy_CGAffineTransform: CGAffineTransform {
         return CATransform3DGetAffineTransform(self)
     }
 

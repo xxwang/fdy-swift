@@ -9,69 +9,69 @@ public extension BinaryFloatingPoint {
     }
 
     /// 将当前值转换为 `Int` 类型
-    func fdy_int() -> Int {
+    func fdy_Int() -> Int {
         Int(self)
     }
 
     /// 将当前值转换为 `Int64` 类型
-    func fdy_int64() -> Int64 {
+    func fdy_Int64() -> Int64 {
         Int64(self)
     }
 
     /// 将当前值转换为 `UInt` 类型
-    func fdy_uInt() -> UInt {
+    func fdy_UInt() -> UInt {
         UInt(self)
     }
 
     /// 将当前值转换为 `UInt64` 类型
-    func fdy_uInt64() -> UInt64 {
+    func fdy_UInt64() -> UInt64 {
         UInt64(self)
     }
 
     /// 将当前值转换为 `Float` 类型
-    func fdy_float() -> Float {
+    func fdy_Float() -> Float {
         Float(self)
     }
 
     /// 将当前值转换为 `Double` 类型
-    func fdy_double() -> Double {
+    func fdy_Double() -> Double {
         Double(self)
     }
 
     /// 将当前值转换为 `CGFloat` 类型
-    func fdy_cGFloat() -> CGFloat {
+    func fdy_CGFloat() -> CGFloat {
         CGFloat(self)
     }
 
     /// 将当前值包装为 `NSNumber` 对象
-    func fdy_nSNumber() -> NSNumber {
-        NSNumber(value: self.fdy_double())
+    func fdy_NSNumber() -> NSNumber {
+        NSNumber(value: self.fdy_Double())
     }
 
     /// 将当前值转换为 `NSDecimalNumber`
-    func fdy_nSDecimalNumber() -> NSDecimalNumber {
-        NSDecimalNumber(string: self.fdy_string())
+    func fdy_NSDecimalNumber() -> NSDecimalNumber {
+        NSDecimalNumber(string: self.fdy_String())
     }
 
     /// 将当前值转换为 `Decimal`
-    func fdy_decimal() -> Decimal {
-        self.fdy_nSDecimalNumber().decimalValue
+    func fdy_Decimal() -> Decimal {
+        self.fdy_NSDecimalNumber().decimalValue
     }
 
     /// 将当前值转换为字符串表示
-    func fdy_string() -> String {
+    func fdy_String() -> String {
         String(describing: self)
     }
 
     /// 将当前值转换为 `CGPoint`,`x` 和 `y` 坐标均使用该值
-    func fdy_cGPoint() -> CGPoint {
-        let v = self.fdy_cGFloat()
+    func fdy_CGPoint() -> CGPoint {
+        let v = self.fdy_CGFloat()
         return CGPoint(x: v, y: v)
     }
 
     /// 将当前值转换为 `CGSize`,`width` 和 `height` 均使用该值
-    func fdy_cGSize() -> CGSize {
-        let v = self.fdy_cGFloat()
+    func fdy_CGSize() -> CGSize {
+        let v = self.fdy_CGFloat()
         return CGSize(width: v, height: v)
     }
 }
@@ -113,7 +113,7 @@ public extension BinaryFloatingPoint {
     /// 将当前值四舍五入为最接近的整数,并转换为 `Int`
     /// - Returns: 四舍五入后的 `Int` 值
     func fdy_roundToInt() -> Int {
-        Foundation.lround(self.fdy_double())
+        Foundation.lround(self.fdy_Double())
     }
 }
 

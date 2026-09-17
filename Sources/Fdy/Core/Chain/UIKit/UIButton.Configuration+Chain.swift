@@ -8,10 +8,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func title(_ title: String) -> Self {
-        var configuration = base
-        configuration.title = title
-        base = configuration
-        return self
+        updateConfiguration { $0.title = title }
     }
 
     /// 设置按钮副标题
@@ -19,10 +16,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func subtitle(_ subtitle: String) -> Self {
-        var configuration = base
-        configuration.subtitle = subtitle
-        base = configuration
-        return self
+        updateConfiguration { $0.subtitle = subtitle }
     }
 
     /// 设置图标
@@ -32,11 +26,10 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func image(_ image: UIImage?, placement: NSDirectionalRectEdge = .leading) -> Self {
-        var configuration = base
-        configuration.image = image
-        configuration.imagePlacement = placement
-        base = configuration
-        return self
+        updateConfiguration {
+            $0.image = image
+            $0.imagePlacement = placement
+        }
     }
 
     /// 设置背景图片
@@ -44,10 +37,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func backgroundImage(_ backgroundImage: UIImage?) -> Self {
-        var configuration = base
-        configuration.background.image = backgroundImage
-        base = configuration
-        return self
+        updateBackground { $0.image = backgroundImage }
     }
 
     /// 设置加载状态(自动禁用交互 + 显示指示器)
@@ -55,10 +45,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func isLoading(_ loading: Bool) -> Self {
-        var configuration = base
-        configuration.showsActivityIndicator = loading
-        base = configuration
-        return self
+        updateConfiguration { $0.showsActivityIndicator = loading }
     }
 
     /// 设置图标间距
@@ -66,10 +53,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func imagePadding(_ padding: CGFloat) -> Self {
-        var configuration = base
-        configuration.imagePadding = padding
-        base = configuration
-        return self
+        updateConfiguration { $0.imagePadding = padding }
     }
 
     /// 设置标题间距
@@ -77,10 +61,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func titlePadding(_ padding: CGFloat) -> Self {
-        var configuration = base
-        configuration.titlePadding = padding
-        base = configuration
-        return self
+        updateConfiguration { $0.titlePadding = padding }
     }
 
     /// 设置主背景色(仅对 .filled / .tinted 有效)
@@ -88,10 +69,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func baseBackgroundColor(_ color: UIColor?) -> Self {
-        var configuration = base
-        configuration.baseBackgroundColor = color
-        base = configuration
-        return self
+        updateConfiguration { $0.baseBackgroundColor = color }
     }
 
     /// 设置主前景色(文字/图标颜色(前景色))
@@ -99,10 +77,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func baseForegroundColor(_ color: UIColor?) -> Self {
-        var configuration = base
-        configuration.baseForegroundColor = color
-        base = configuration
-        return self
+        updateConfiguration { $0.baseForegroundColor = color }
     }
 
     /// 设置属性标题
@@ -110,10 +85,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func attributedTitle(_ attributedTitle: AttributedString?) -> Self {
-        var configuration = base
-        configuration.attributedTitle = attributedTitle
-        base = configuration
-        return self
+        updateConfiguration { $0.attributedTitle = attributedTitle }
     }
 
     /// 设置属性副标题
@@ -121,10 +93,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func attributedSubtitle(_ attributedSubtitle: AttributedString?) -> Self {
-        var configuration = base
-        configuration.attributedSubtitle = attributedSubtitle
-        base = configuration
-        return self
+        updateConfiguration { $0.attributedSubtitle = attributedSubtitle }
     }
 
     /// 设置图标位置
@@ -132,10 +101,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func imagePlacement(_ imagePlacement: NSDirectionalRectEdge) -> Self {
-        var configuration = base
-        configuration.imagePlacement = imagePlacement
-        base = configuration
-        return self
+        updateConfiguration { $0.imagePlacement = imagePlacement }
     }
 
     /// 设置内容与边缘间距
@@ -143,10 +109,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func contentInsets(_ contentInsets: NSDirectionalEdgeInsets) -> Self {
-        var configuration = base
-        configuration.contentInsets = contentInsets
-        base = configuration
-        return self
+        updateConfiguration { $0.contentInsets = contentInsets }
     }
 
     /// 设置圆角风格
@@ -154,10 +117,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func cornerStyle(_ cornerStyle: UIButton.Configuration.CornerStyle) -> Self {
-        var configuration = base
-        configuration.cornerStyle = cornerStyle
-        base = configuration
-        return self
+        updateConfiguration { $0.cornerStyle = cornerStyle }
     }
 
     /// 设置边框颜色
@@ -165,10 +125,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func backgroundStrokeColor(_ strokeColor: UIColor?) -> Self {
-        var configuration = base
-        configuration.background.strokeColor = strokeColor
-        base = configuration
-        return self
+        updateBackground { $0.strokeColor = strokeColor }
     }
 
     /// 设置边框宽度
@@ -176,9 +133,33 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// - Returns: `Self`
     @discardableResult
     func backgroundStrokeWidth(_ strokeWidth: CGFloat) -> Self {
+        updateBackground { $0.strokeWidth = strokeWidth }
+    }
+}
+
+// MARK: - 配置读写模板收敛
+private extension FdyWrapper where Base == UIButton.Configuration {
+    /// 在现有配置上做一次原地修改并写回
+    ///
+    /// 收敛原先 16 处「读取副本 → 改一个属性 → 写回」的四行模板。
+    ///
+    /// - Parameter mutate: 接收 `inout` 配置对象的闭包
+    /// - Returns: `Self`
+    @discardableResult
+    @inline(__always)
+    func updateConfiguration(_ mutate: (inout UIButton.Configuration) -> Void) -> Self {
         var configuration = base
-        configuration.background.strokeWidth = strokeWidth
+        mutate(&configuration)
         base = configuration
         return self
+    }
+
+    /// 在现有配置的 `background` 上做一次原地修改并写回
+    /// - Parameter mutate: 接收 `inout` 背景配置对象的闭包
+    /// - Returns: `Self`
+    @discardableResult
+    @inline(__always)
+    func updateBackground(_ mutate: (inout UIBackgroundConfiguration) -> Void) -> Self {
+        updateConfiguration { mutate(&$0.background) }
     }
 }

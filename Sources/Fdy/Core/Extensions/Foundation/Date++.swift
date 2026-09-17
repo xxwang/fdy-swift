@@ -416,7 +416,7 @@ public extension Date {
     /// - Warning: 此值`不是标准 Unix 时间戳`,不可用于网络传输
     func fdy_localSec() -> TimeInterval {
         let offset = TimeZone.current.secondsFromGMT(for: self)
-        return self.timeIntervalSince1970 - offset.fdy_double()
+        return self.timeIntervalSince1970 - offset.fdy_Double()
     }
 
     /// 从时间戳字符串创建 `Date`

@@ -152,9 +152,9 @@ public extension UIApplication {
             self.versionString = versionString
             let comps = versionString.fdy_split(bySeparator: ".")
             if comps.count >= 3 {
-                self.major = comps[0].fdy_int()
-                self.minor = comps[1].fdy_int()
-                self.patch = comps[2].fdy_int()
+                self.major = comps[0].fdy_Int()
+                self.minor = comps[1].fdy_Int()
+                self.patch = comps[2].fdy_Int()
                 self.isValid = true
             } else {
                 self.major = 0

@@ -1,0 +1,105 @@
+--- a/Sources/Fdy/Core/Extensions/UIKit/UIButton++.swift
++++ b/Sources/Fdy/Core/Extensions/UIKit/UIButton++.swift
+@@ -5,47 +5,51 @@
+     /// 关联属性键
+     fileprivate enum FdyKeys {
+         /// 扩展点击区域大小
+-        static var expandSizeKey: UInt8 = 0
++        ///
++        /// `nonisolated(unsafe)`：关联对象 key 只需地址稳定，本身不参与并发读写。
++        /// 缺它时 Swift 6 语言模式会报 `#MutableGlobalVariable`。
++        nonisolated(unsafe) static var expandSizeKey: UInt8 = 0
+     }
+ 
+     /// 按钮的常用状态
++    ///
++    /// - Note: 只包含 `normal` / `selected` / `highlighted` / `disabled` 四个经典状态，
++    ///   不含 `.focused`(iOS 15+)、`.application`、`.reserved`。
+     var fdy_allStates: [UIControl.State] {
+-        return [.normal, .selected, .highlighted, .disabled]
++        [.normal, .selected, .highlighted, .disabled]
+     }
+ }
+ 
+ // MARK: - 扩大按钮点击区域
+ extension UIButton {
+     /// 重写点触及范围检测
++    ///
+     /// - Parameter point: 当前触摸点的坐标
+     /// - Parameter event: 当前的触摸事件
+     /// - Returns: 如果触摸点在扩展的区域内,则返回 `true`,否则返回 `false`
++    ///
++    /// - Important: 这是对 `UIButton` 的**类级注入**：方法被加进 `UIButton` 自身的方法列表
++    ///   （`UIButton` 原本不声明该方法、纯继承自 `UIView`，因此这里才能 `override`），
++    ///   所有 `UIButton` 实例以及 UIKit 内部的 `UIButton` 子类都会走到这里，且没有开关可关。
++    ///   - 若某个 `UIButton` 子类自己重写了本方法，此实现会被完全遮蔽，
++    ///     `fdy_expandClickArea(_:)` **静默失效**（编译期与运行期都没有提示）。
++    ///   - 扩展区域**超出父视图 bounds 时不生效**：`hitTest` 先询问父视图，
++    ///     父视图判定点不在自己范围内就直接返回 `nil`，根本不会询问本按钮。
+     override open func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+-        let expandedRect = self.fdy_expandedRect()
+-        // 如果没有扩展范围,则使用原始范围
+-        if expandedRect.equalTo(bounds) {
++        // 未设置扩展尺寸(或传入非正值)时直接回落，省掉一次矩形构造与相等比较
++        guard let expandSize: CGFloat = fdy_GetAO(forKey: &FdyKeys.expandSizeKey), expandSize > 0 else {
+             return super.point(inside: point, with: event)
+-        } else {
+-            return expandedRect.contains(point)
+         }
++        return bounds.insetBy(dx: -expandSize, dy: -expandSize).contains(point)
+     }
+ 
+-    /// 获取扩展的点击区域,如果没有设置扩展范围,则使用按钮的原始大小
+-    func fdy_expandedRect() -> CGRect {
+-        if let expandSize: CGFloat = self.fdy_GetAO(forKey: &FdyKeys.expandSizeKey) {
+-            return CGRect(
+-                x: bounds.origin.x - expandSize,
+-                y: bounds.origin.y - expandSize,
+-                width: bounds.size.width + 2 * expandSize,
+-                height: bounds.size.height + 2 * expandSize
+-            )
+-        }
+-        return self.bounds
+-    }
+-
+     /// 扩大按钮的点击区域
+-    /// - Parameter size: 向四周扩展的像素大小
++    ///
++    /// - Parameter size: 向四周扩展的像素大小，非正值视为不扩展
+     /// - Returns: `Self`
++    ///
++    /// - Important: 受 `point(inside:with:)` 的两条限制：子类重写该方法后此设置会失效；
++    ///   扩展区域超出父视图 bounds 时也不生效。
+     @discardableResult
+     func fdy_expandClickArea(_ size: CGFloat = 10) -> Self {
+         self.fdy_SetAO(size, forKey: &UIButton.FdyKeys.expandSizeKey)
+@@ -56,10 +60,14 @@
+ // MARK: - 计算按钮尺寸
+ public extension UIButton {
+     /// 获取指定宽度下按钮标题的`CGSize`
+-    /// - Parameter maxWidth: 最大行宽度
++    ///
++    /// - Parameter maxWidth: 最大行宽度，默认 `.greatestFiniteMagnitude`(不折行)，
++    ///   与 `UILabel.fdy_viewSize` / `NSAttributedString.fdy_viewSize` 的默认值保持一致。
++    ///   需要按屏宽折行时显式传入 `FdyScreen.screenWidth`。
+     /// - Returns: 标题的`size`
+-    func fdy_viewSize(maxWidth: CGFloat? = nil) -> CGSize {
+-        let maxWidth = maxWidth ?? FdyScreen.screenWidth
++    ///
++    /// - Note: 测量的是**当前状态**的标题文本，要测其他状态需先切换状态。
++    func fdy_viewSize(maxWidth: CGFloat = .greatestFiniteMagnitude) -> CGSize {
+         return if let currentAttributedTitle = self.currentAttributedTitle {
+             currentAttributedTitle.fdy_viewSize(maxWidth: maxWidth)
+         } else {
+--- a/Sources/Fdy/Core/Common/FdyCreator.swift
++++ b/Sources/Fdy/Core/Common/FdyCreator.swift
+@@ -122,9 +122,6 @@
+     /// 创建一个自定义类型的 `UIButton`
+     open class func button() -> UIButton {
+         return UIButton(type: .custom)
+-            .fdy
+-            .isHighlighted(false)
+-            .build()
+     }
+ 
+     /// 创建一个纯文本样式的 `UIButton`

@@ -28,7 +28,7 @@ public extension CACornerMask {
 public extension CACornerMask {
     /// 将 `CACornerMask` 转换为 `UIRectCorner`
     /// - Returns: `UIRectCorner`
-    func fdy_uIRectCorner() -> UIRectCorner {
+    func fdy_UIRectCorner() -> UIRectCorner {
         var corners: UIRectCorner = []
         if self.contains(.layerMinXMinYCorner) {
             corners.insert(.topLeft)

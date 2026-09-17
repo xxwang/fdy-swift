@@ -18,52 +18,52 @@ public extension String {
     }
 
     /// 转换为 `Int`,失败时返回 `0`
-    func fdy_int() -> Int {
+    func fdy_Int() -> Int {
         Int(self) ?? 0
     }
 
     /// 转换为 `Int64`,失败时返回 `0`
-    func fdy_int64() -> Int64 {
+    func fdy_Int64() -> Int64 {
         Int64(self) ?? 0
     }
 
     /// 转换为 `UInt`,失败时返回 `0`
-    func fdy_uInt() -> UInt {
+    func fdy_UInt() -> UInt {
         UInt(self) ?? 0
     }
 
     /// 转换为 `UInt64`,失败时返回 `0`
-    func fdy_uInt64() -> UInt64 {
+    func fdy_UInt64() -> UInt64 {
         UInt64(self) ?? 0
     }
 
     /// 转换为 `Float`,失败时返回 `0.0`
-    func fdy_float() -> Float {
+    func fdy_Float() -> Float {
         Float(self) ?? 0
     }
 
     /// 转换为 `Double`,失败时返回 `0.0`
-    func fdy_double() -> Double {
+    func fdy_Double() -> Double {
         Double(self) ?? 0
     }
 
     /// 转换为 `CGFloat`,失败时返回 `0.0`
-    func fdy_cGFloat() -> CGFloat {
+    func fdy_CGFloat() -> CGFloat {
         CGFloat(Double(self) ?? 0)
     }
 
     /// 转换为 `NSNumber`
-    func fdy_nSNumber() -> NSNumber {
+    func fdy_NSNumber() -> NSNumber {
         NSNumber(value: Double(self) ?? 0)
     }
 
     /// 转换为 `NSDecimalNumber`
-    func fdy_nSDecimalNumber() -> NSDecimalNumber {
+    func fdy_NSDecimalNumber() -> NSDecimalNumber {
         NSDecimalNumber(string: self)
     }
 
     /// 转换为 `Decimal`
-    func fdy_decimal() -> Decimal {
+    func fdy_Decimal() -> Decimal {
         return Decimal(string: self) ?? .zero
     }
 
@@ -74,50 +74,50 @@ public extension String {
     }
 
     /// 尝试将字符串解析为 `Unicode` 码点并转换为 `Character`
-    func fdy_character() -> Character? {
+    func fdy_Character() -> Character? {
         guard let intValue = Int(self),
               let scalar = UnicodeScalar(intValue) else { return nil }
         return Character(scalar)
     }
 
     /// 转换为字符数组
-    func fdy_characters() -> [Character] {
+    func fdy_Characters() -> [Character] {
         Array(self)
     }
 
     /// 转换为 `UTF-8` 编码的 `Data`
-    func fdy_data() -> Data? {
+    func fdy_Data() -> Data? {
         self.data(using: .utf8)
     }
 
     /// 尝试转换为 `URL`
-    func fdy_uRL() -> URL? {
+    func fdy_URL() -> URL? {
         URL(string: self)
     }
 
     /// 尝试转换为 `URLRequest`
     func fdy_URLRequest() -> URLRequest? {
-        guard let url = self.fdy_uRL() else { return nil }
+        guard let url = self.fdy_URL() else { return nil }
         return URLRequest(url: url)
     }
 
     /// 转换为 `Notification.Name`
-    func fdy_notificationName() -> Notification.Name {
+    func fdy_NotificationName() -> Notification.Name {
         Notification.Name(self)
     }
 
     /// 转换为 `NSString`（桥接）
-    func fdy_nSString() -> NSString {
+    func fdy_NSString() -> NSString {
         self as NSString
     }
 
     /// 转换为 `NSAttributedString`
-    func fdy_nSAttributedString() -> NSAttributedString {
+    func fdy_NSAttributedString() -> NSAttributedString {
         NSAttributedString(string: self)
     }
 
     /// 转换为 `NSMutableAttributedString`
-    func fdy_nSMutableAttributedString() -> NSMutableAttributedString {
+    func fdy_NSMutableAttributedString() -> NSMutableAttributedString {
         NSMutableAttributedString(string: self)
     }
 
@@ -127,7 +127,7 @@ public extension String {
     }
 
     /// 从资源名加载 `UIImage`
-    func fdy_uIImage() -> UIImage? {
+    func fdy_UIImage() -> UIImage? {
         UIImage(named: self)
     }
 }

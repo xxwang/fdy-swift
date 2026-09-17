@@ -339,7 +339,7 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     /// - Returns: `Self`
     @discardableResult
     func string(_ string: String) -> Self {
-        base.setAttributedString(string.fdy_nSAttributedString())
+        base.setAttributedString(string.fdy_NSAttributedString())
         return self
     }
 

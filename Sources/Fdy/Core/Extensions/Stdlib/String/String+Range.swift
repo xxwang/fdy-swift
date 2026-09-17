@@ -219,7 +219,7 @@ public extension String {
     ///
     /// - Parameter index: 位置索引
     /// - Returns: 对应字符的字符串;若索引无效,返回空字符串
-    func fdy_character(at index: Int) -> String {
+    func fdy_Character(at index: Int) -> String {
         self.fdy_substring(from: index, length: 1)
     }
 

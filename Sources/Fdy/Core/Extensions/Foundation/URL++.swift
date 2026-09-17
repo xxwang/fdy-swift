@@ -59,7 +59,7 @@ public extension URL {
     /// 将 URL 指向的内容读取为 Data(⚠️ 仅建议用于本地文件！网络 URL 会阻塞线程)
     /// - ⚠️ 警告：对网络 URL 调用会同步下载并阻塞当前线程,可能导致卡顿或崩溃
     ///   请仅用于 `isFileURL == true` 的场景
-    var fdy_data: Data? {
+    var fdy_Data: Data? {
         guard self.isFileURL else {
             os_log(.error, "⚠️ Warning: data called on non-file URL. This may block the thread.")
             return nil

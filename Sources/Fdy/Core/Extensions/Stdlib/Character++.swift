@@ -75,7 +75,7 @@ public extension Character {
 // MARK: - 类型转换
 public extension Character {
     /// 将当前字符转换为`String`
-    func fdy_string() -> String {
+    func fdy_String() -> String {
         return String(self)
     }
 

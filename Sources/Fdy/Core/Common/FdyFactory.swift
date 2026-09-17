@@ -122,9 +122,6 @@ import WebKit
     /// 创建一个自定义类型的 `UIButton`
     open class func button() -> UIButton {
         return UIButton(type: .custom)
-            .fdy
-            .isHighlighted(false)
-            .build()
     }
 
     /// 创建一个纯文本样式的 `UIButton`

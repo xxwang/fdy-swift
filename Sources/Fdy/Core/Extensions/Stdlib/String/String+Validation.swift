@@ -100,7 +100,7 @@ public extension String {
 
         var sum = 0
         for i in 0 ..< 17 {
-            guard let digit = Int(self.fdy_character(at: i)) else { return false }
+            guard let digit = Int(self.fdy_Character(at: i)) else { return false }
             sum += digit * weights[i]
         }
 

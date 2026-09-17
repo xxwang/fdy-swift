@@ -1,0 +1,609 @@
+--- a/Sources/Fdy/Combine/Internals.swift
++++ b/Sources/Fdy/Combine/Internals.swift
+@@ -7,53 +7,74 @@
+ /// target-action 桥接：将 `UIControl` / `UIGestureRecognizer` 的回调转发为闭包。
+ /// 由订阅持有的 `AnyCancellable` 强引用，订阅取消时随 `removeTarget` 一起释放，无悬挂引用。
+ final class ClosureTarget: NSObject {
+-    private let handler: () -> Void
++    /// 事件触发时调用。`ControlEventSubscription` 以**弱引用**回指订阅对象，避免强引用环。
++    var onInvoke: (() -> Void)?
+ 
+-    init(handler: @escaping () -> Void) {
+-        self.handler = handler
++    init(onInvoke: (() -> Void)? = nil) {
++        self.onInvoke = onInvoke
+         super.init()
+     }
+ 
+     @objc func invoke(_ sender: Any) {
+-        handler()
++        onInvoke?()
+     }
+ }
+ 
+ /// 控件事件的订阅：强持有 `target` 以保证其在订阅期间存活；取消时执行清理（如 `removeTarget`）。
+ /// 不直接依赖 `AnyCancellable`（本环境下其不遵循 `Subscription`），用最小 `Subscription` 实现。
++///
++/// 与初版的两点差别：
++/// 1. **跟踪 demand** —— 只在下游仍有需求时投递，并把 `receive` 返回的新增 demand 计入（Combine 契约）。
++///    初版 `request(_:)` 是空实现且返回值被丢弃，`demand == .none` 时依然会投递。
++/// 2. **`cancel()` 语义完整** —— 置位取消标记、断开 `deliver`；清理闭包以 `target` 为入参注入，
++///    避免 `target -> subscription` 的强引用环。
+ final class ControlEventSubscription: Subscription {
+-    private let target: ClosureTarget
+-    private let cleanup: () -> Void
++    let target = ClosureTarget()
+ 
+-    init(target: ClosureTarget, cleanup: @escaping () -> Void) {
+-        self.target = target
+-        self.cleanup = cleanup
++    /// 投递一次事件，返回下游新增的 demand（通常为 `.none`）
++    var deliver: (() -> Subscribers.Demand)?
++
++    /// 订阅方是否已取消（供「先交付 subscription 再挂 target」时做竞态判断）
++    var cancelled: Bool {
++        isCancelled
+     }
+ 
+-    func request(_ demand: Subscribers.Demand) {}
++    private var demand: Subscribers.Demand = .none
++    private var isCancelled = false
++    private let cleanup: (ClosureTarget) -> Void
+ 
+-    func cancel() {
+-        cleanup()
++    init(cleanup: @escaping (ClosureTarget) -> Void) {
++        self.cleanup = cleanup
++        target.onInvoke = { [weak self] in self?.flush() }
+     }
+-}
+ 
+-// MARK: - 关联对象（模块内私有，避免依赖 FdyCore）
+-extension NSObject {
+-    /// 以 RETAIN 策略存储关联对象
+-    func fdy_setAssociatedObject(
+-        _ value: Any?,
+-        forKey key: UnsafeRawPointer,
+-        policy: objc_AssociationPolicy = .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+-    ) {
+-        objc_setAssociatedObject(self, key, value, policy)
++    func request(_ demand: Subscribers.Demand) {
++        guard !isCancelled else { return }
++        self.demand += demand
+     }
+ 
+-    /// 读取关联对象
+-    func fdy_getAssociatedObject(forKey key: UnsafeRawPointer) -> Any? {
+-        objc_getAssociatedObject(self, key)
++    func cancel() {
++        guard !isCancelled else { return }
++        isCancelled = true
++        target.onInvoke = nil
++        deliver = nil // 断开对下游的强引用，避免取消后仍构成引用环
++        cleanup(target)
+     }
++
++    private func flush() {
++        guard !isCancelled, demand > 0 else { return }
++        demand -= 1
++        demand += deliver?() ?? .none
++    }
+ }
+ 
++// MARK: - 关联对象
++//
++// 关联对象统一走 `Core/Extensions/Foundation/NSObject++.swift` 的 `fdy_SetAO` / `fdy_GetAO`。
++// 初版本文件内另有一套 `fdy_setAssociatedObject` / `fdy_getAssociatedObject`，注释称
++// 「避免依赖 FdyCore」，但 `Package.swift` 只有单个 target `Fdy` —— `Core/` 与本目录同属一个模块，
++// 该前提不成立，故删除重复实现（`fdy_GetAO` 另带泛型版本，取用时不必再手写 `as?` 转换）。
++
+ // MARK: - SubscribePublisher
+ 
+ /// 极简发布者：等价于 `AnyPublisher.init(_ subscribe:)` 的内部实现，
+--- a/Sources/Fdy/Combine/UIControl+Combine++.swift
++++ b/Sources/Fdy/Combine/UIControl+Combine++.swift
+@@ -4,35 +4,33 @@
+ // MARK: - UIControl 事件发布者
+ public extension UIControl {
+     /// 通用事件发布者：监听指定的 `UIControl.Event`，取消订阅时自动解绑。
++    ///
+     /// - Parameter events: 要监听的控件事件（可多个，如 `[.touchDown, .touchUpInside]`）。
+     /// - Returns: 发出 `UIControl` 自身的 `ControlEvent`。
++    /// - Note: 事件源是**无界**的（UI 事件没有背压概念），但仍遵循 Combine 的 demand 契约：
++    ///   下游未请求（`.none`）或需求已用尽时，事件被丢弃。
+     func fdy_publisher(for events: UIControl.Event) -> ControlEvent<UIControl> {
+         let publisher = SubscribePublisher<UIControl> { [weak self] (subscriber: AnySubscriber<UIControl, Never>) in
+             guard let self else { return }
+-            let target = ClosureTarget { [weak self] in
+-                guard let self else { return }
+-                _ = subscriber.receive(self)
++            let subscription = ControlEventSubscription { [weak self] target in
++                self?.removeTarget(target, action: #selector(ClosureTarget.invoke), for: events)
+             }
+-            self.addTarget(target, action: #selector(ClosureTarget.invoke), for: events)
+-            subscriber.receive(subscription: ControlEventSubscription(target: target) {
+-                self.removeTarget(target, action: #selector(ClosureTarget.invoke), for: events)
+-            })
++            subscription.deliver = { [weak self] in
++                guard let self else { return .none }
++                return subscriber.receive(self)
++            }
++            // 先交付 subscription（Combine 约定的顺序），再挂 target
++            subscriber.receive(subscription: subscription)
++            // 订阅方可能在 receive(subscription:) 内部就取消，此时不应再挂 target
++            guard !subscription.cancelled else { return }
++            self.addTarget(subscription.target, action: #selector(ClosureTarget.invoke), for: events)
+         }.eraseToAnyPublisher()
+         return ControlEvent(publisher)
+     }
+ 
+     /// 点击（`.touchUpInside`）。
+     var fdy_tapPublisher: ControlEvent<Void> {
+-        let publisher = SubscribePublisher<Void> { (subscriber: AnySubscriber<Void, Never>) in
+-            let target = ClosureTarget {
+-                _ = subscriber.receive(())
+-            }
+-            self.addTarget(target, action: #selector(ClosureTarget.invoke), for: .touchUpInside)
+-            subscriber.receive(subscription: ControlEventSubscription(target: target) {
+-                self.removeTarget(target, action: #selector(ClosureTarget.invoke), for: .touchUpInside)
+-            })
+-        }.eraseToAnyPublisher()
+-        return ControlEvent(publisher)
++        ControlEvent(fdy_publisher(for: .touchUpInside).map { _ in () }.eraseToAnyPublisher())
+     }
+ 
+     /// 值变化（`.valueChanged`），发出 `UIControl` 自身。
+--- a/Sources/Fdy/Combine/UILabel+Combine++.swift
++++ b/Sources/Fdy/Combine/UILabel+Combine++.swift
+@@ -3,19 +3,30 @@
+ 
+ // MARK: - UILabel
+ public extension UILabel {
+-    /// 文本内容（代码赋值会发出，订阅时立即重放当前值）。
++    /// 文本内容（**只有代码赋值会发出**，订阅时立即重放当前值）。
++    ///
++    /// `UILabel` 没有用户输入，KVO 已覆盖全部变更来源，故不合并事件通道。
++    /// `removeDuplicates()` 使「赋同一个值」不再重复发出，与其余 `ControlProperty` 语义一致。
+     var fdy_textPublisher: ControlProperty<String?> {
+         ControlProperty(
+-            values: publisher(for: \.text, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.text = $0 }
++            values: publisher(for: \.text, options: [.initial, .new]).removeDuplicates().eraseToAnyPublisher(),
++            setter: { [weak self] in self?.text = $0 }
+         )
+     }
+ 
+     /// 富文本内容（可读当前值、可绑定写回）。
++    ///
++    /// `NSAttributedString` 不是 `Equatable`，去重改用 `isEqual` 比较内容。
+     var fdy_attributedTextPublisher: ControlProperty<NSAttributedString?> {
+         ControlProperty(
+-            values: publisher(for: \.attributedText, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.attributedText = $0 }
++            values: publisher(for: \.attributedText, options: [.initial, .new]).removeDuplicates { lhs, rhs in
++                switch (lhs, rhs) {
++                case (nil, nil): true
++                case let (l?, r?): l.isEqual(r)
++                default: false
++                }
++            }.eraseToAnyPublisher(),
++            setter: { [weak self] in self?.attributedText = $0 }
+         )
+     }
+ }
+--- a/Sources/Fdy/Combine/UIScrollView+Combine++.swift
++++ b/Sources/Fdy/Combine/UIScrollView+Combine++.swift
+@@ -5,12 +5,17 @@
+ 
+ /// `UIScrollViewDelegate` 代理：接管滚动回调并转发给原有的 `delegate`，
+ /// 同时通过 `PassthroughSubject` 对外暴露各滚动事件，供 Combine 订阅。
+-final class ScrollViewDelegateProxy: NSObject, UIScrollViewDelegate {
++///
++/// - Note: 仅本文件使用，故声明为 `private`，不作为模块 API 暴露（初版为 internal 且无前缀）。
++/// - Note: `originalDelegate` 是 `weak` —— 原 delegate 被释放后转发链自然断开，
++///   不会造成泄漏，但原 delegate 此后也收不到回调。
++private final class FdyScrollViewDelegateProxy: NSObject, UIScrollViewDelegate {
+     weak var originalDelegate: UIScrollViewDelegate?
+ 
+     let didScroll = PassthroughSubject<Void, Never>()
+     let willBeginDragging = PassthroughSubject<Void, Never>()
+-    let didEndDragging = PassthroughSubject<Void, Never>()
++    /// 载荷为 `willDecelerate`
++    let didEndDragging = PassthroughSubject<Bool, Never>()
+     let willBeginDecelerating = PassthroughSubject<Void, Never>()
+     let didEndDecelerating = PassthroughSubject<Void, Never>()
+     let didEndScrollingAnimation = PassthroughSubject<Void, Never>()
+@@ -25,8 +30,16 @@
+         return originalDelegate?.responds(to: aSelector) ?? false
+     }
+ 
++    /// 只有原 delegate 确实响应时才转发。
++    ///
++    /// 初版无条件返回 `originalDelegate`：原 delegate 不响应该 selector、或在
++    /// `responds(to:)` 与转发之间被释放（`weak`）时，消息会落到代理身上，
++    /// 最终以「原 delegate 的身份」抛出 `unrecognized selector`，错误归属误导排查。
+     override func forwardingTarget(for aSelector: Selector!) -> Any? {
+-        originalDelegate
++        if let originalDelegate, originalDelegate.responds(to: aSelector) {
++            return originalDelegate
++        }
++        return super.forwardingTarget(for: aSelector)
+     }
+ 
+     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+@@ -40,7 +53,7 @@
+     }
+ 
+     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+-        didEndDragging.send(())
++        didEndDragging.send(decelerate)
+         originalDelegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
+     }
+ 
+@@ -71,17 +84,28 @@
+ }
+ 
+ public extension UIScrollView {
+-    private static var cc_delegateProxyKey: UInt8 = 0
++    private nonisolated(unsafe) static var cc_delegateProxyKey: UInt8 = 0
+ 
+-    /// 懒加载并缓存 delegate 代理（首次访问时接管 `delegate`，原 delegate 被保留并转发）
+-    private var cc_delegateProxy: ScrollViewDelegateProxy {
+-        if let existing = fdy_getAssociatedObject(forKey: &Self.cc_delegateProxyKey) as? ScrollViewDelegateProxy {
++    /// 懒加载、缓存并（必要时）**重新接管** delegate 代理。
++    ///
++    /// 首次访问会把当前 `delegate` 记为转发目标并顶替之。若此后接入方又自行设置了
++    /// `scrollView.delegate = X`，代理会被静默顶掉 —— 因此缓存命中时会检查「我现在还是不是
++    /// delegate」，不是则把当前 delegate 记为新的转发目标并重新接管，使 8 个 publisher 自动恢复。
++    /// 初版没有这一步：代理被顶掉后再次访问只会拿到「已不是 delegate 的缓存代理」，
++    /// 所有 publisher 永久失效，且无任何报错。
++    private var cc_delegateProxy: FdyScrollViewDelegateProxy {
++        if let existing = fdy_GetAO(forKey: &Self.cc_delegateProxyKey) as? FdyScrollViewDelegateProxy {
++            let isAlreadyAttached = (delegate as AnyObject?) === existing
++            if !isAlreadyAttached {
++                existing.originalDelegate = delegate
++                delegate = existing
++            }
+             return existing
+         }
+-        let proxy = ScrollViewDelegateProxy()
+-        proxy.originalDelegate = self.delegate
+-        self.delegate = proxy
+-        fdy_setAssociatedObject(proxy, forKey: &Self.cc_delegateProxyKey)
++        let proxy = FdyScrollViewDelegateProxy()
++        proxy.originalDelegate = delegate
++        delegate = proxy
++        fdy_SetAO(proxy, forKey: &Self.cc_delegateProxyKey)
+         return proxy
+     }
+ 
+@@ -95,8 +119,14 @@
+         ControlEvent(cc_delegateProxy.willBeginDragging.eraseToAnyPublisher())
+     }
+ 
+-    /// 结束拖拽（含是否将继续减速）
++    /// 结束拖拽（丢弃 `willDecelerate`，需要该值请用
++    /// `fdy_didEndDraggingWithDecelerationPublisher`）
+     var fdy_didEndDraggingPublisher: ControlEvent<Void> {
++        ControlEvent(cc_delegateProxy.didEndDragging.map { _ in () }.eraseToAnyPublisher())
++    }
++
++    /// 结束拖拽，载荷为 `willDecelerate`（是否将继续减速）
++    var fdy_didEndDraggingWithDecelerationPublisher: ControlEvent<Bool> {
+         ControlEvent(cc_delegateProxy.didEndDragging.eraseToAnyPublisher())
+     }
+ 
+@@ -124,4 +154,18 @@
+     var fdy_didChangeAdjustedContentInsetPublisher: ControlEvent<Void> {
+         ControlEvent(cc_delegateProxy.didChangeAdjustedContentInset.eraseToAnyPublisher())
+     }
++
++    /// 滚动位置（**值流**，可读可绑定写回）：订阅时立即重放当前偏移，此后每次变化都发出。
++    ///
++    /// 实测 `contentOffset` 的 KVO 连 `setContentOffset(_:animated:)` 的动画内部路径都可靠
++    /// （逐帧回调），因此不再需要事件通道对照 —— 这一点与 `UISlider.value` 恰好相反，
++    /// 说明「KVO 是否可靠」是逐类结论，不能类推。
++    var fdy_contentOffsetPublisher: ControlProperty<CGPoint> {
++        ControlProperty(
++            values: publisher(for: \.contentOffset, options: [.initial, .new])
++                .removeDuplicates()
++                .eraseToAnyPublisher(),
++            setter: { [weak self] in self?.contentOffset = $0 }
++        )
++    }
+ }
+--- a/Sources/Fdy/Combine/UISegmentedControl+Combine++.swift
++++ b/Sources/Fdy/Combine/UISegmentedControl+Combine++.swift
+@@ -4,10 +4,17 @@
+ // MARK: - UISegmentedControl
+ public extension UISegmentedControl {
+     /// 当前选中项索引（可读当前值、可绑定写回）。
++    ///
++    /// 两条**互补**通道合并而成：`publisher(for: \.selectedSegmentIndex)` 覆盖代码赋值，
++    /// `.valueChanged` 覆盖用户点选；`removeDuplicates()` 兜底同值重发。
++    ///
++    /// - Note: 无选中项时 `selectedSegmentIndex` 为 `-1`，订阅初值会发出 `-1`。
+     var fdy_selectedSegmentIndexPublisher: ControlProperty<Int> {
+-        ControlProperty(
+-            values: publisher(for: \.selectedSegmentIndex, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.selectedSegmentIndex = $0 }
++        let assigned = publisher(for: \.selectedSegmentIndex, options: [.initial, .new])
++        let used = fdy_publisher(for: .valueChanged).map { [weak self] _ in self?.selectedSegmentIndex ?? -1 }
++        return ControlProperty(
++            values: assigned.merge(with: used).removeDuplicates().eraseToAnyPublisher(),
++            setter: { [weak self] in self?.selectedSegmentIndex = $0 }
+         )
+     }
+ }
+--- a/Sources/Fdy/Combine/UISlider+Combine++.swift
++++ b/Sources/Fdy/Combine/UISlider+Combine++.swift
+@@ -4,10 +4,35 @@
+ // MARK: - UISlider
+ public extension UISlider {
+     /// 滑块当前值（可读当前值、可绑定写回）。
++    ///
++    /// 两条**互补**通道合并而成：
++    /// - `publisher(for: \.value)`：覆盖**代码赋值**（`value = x`）；
++    /// - `.valueChanged`：覆盖用户拖拽与 UIKit 内部调整路径（实测 `accessibilityIncrement()` 改了值、
++    ///   发了事件，而 KVO 没发）；
++    /// - `removeDuplicates()`：两通道可能对同一次变更各发一次（如 `value = x` 后补发事件），去重兜底。
++    ///
++    /// - Note: `setValue(_:animated:)` **两个通道都不发**（是独立方法，不走属性 setter），
++    ///   需要通知订阅者时改用 `fdy_setValue(_:animated:)`。
+     var fdy_valuePublisher: ControlProperty<Float> {
+-        ControlProperty(
+-            values: publisher(for: \.value, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.value = $0 }
++        let assigned = publisher(for: \.value, options: [.initial, .new])
++        let used = fdy_publisher(for: .valueChanged).map { [weak self] _ in self?.value ?? 0 }
++        return ControlProperty(
++            values: assigned.merge(with: used).removeDuplicates().eraseToAnyPublisher(),
++            setter: { [weak self] in self?.value = $0 }
+         )
+     }
++
++    /// 带动画/不带动画地设置值，并**补发 `.valueChanged`**。
++    ///
++    /// 原生 `setValue(_:animated:)` 实测既不触发 KVO 也不发事件（`animated: false` 同样如此，
++    /// 与动画无关），订阅者会一直持有过期值。本方法在其后补发事件，
++    /// 因而合并通道（`fdy_valuePublisher`）能收到新值：
++    /// ```swift
++    /// slider.fdy_setValue(0.9, animated: true)   // 订阅者能收到 0.9
++    /// ```
++    /// - Note: 事件会被**所有** `.valueChanged` 监听者收到（含接入方自己 `addTarget` 的）。
++    func fdy_setValue(_ value: Float, animated: Bool) {
++        setValue(value, animated: animated)
++        sendActions(for: .valueChanged)
++    }
+ }
+--- a/Sources/Fdy/Combine/UIStepper+Combine++.swift
++++ b/Sources/Fdy/Combine/UIStepper+Combine++.swift
+@@ -4,10 +4,15 @@
+ // MARK: - UIStepper
+ public extension UIStepper {
+     /// 当前步进值（可读当前值、可绑定写回）。
++    ///
++    /// 两条**互补**通道合并而成：`publisher(for: \.value)` 覆盖代码赋值，
++    /// `.valueChanged` 覆盖用户点击 +/- 与长按连续步进；`removeDuplicates()` 兜底同值重发。
+     var fdy_valuePublisher: ControlProperty<Double> {
+-        ControlProperty(
+-            values: publisher(for: \.value, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.value = $0 }
++        let assigned = publisher(for: \.value, options: [.initial, .new])
++        let used = fdy_publisher(for: .valueChanged).map { [weak self] _ in self?.value ?? 0 }
++        return ControlProperty(
++            values: assigned.merge(with: used).removeDuplicates().eraseToAnyPublisher(),
++            setter: { [weak self] in self?.value = $0 }
+         )
+     }
+ }
+--- a/Sources/Fdy/Combine/UISwitch+Combine++.swift
++++ b/Sources/Fdy/Combine/UISwitch+Combine++.swift
+@@ -4,10 +4,23 @@
+ // MARK: - UISwitch
+ public extension UISwitch {
+     /// 开关状态（可读当前值、可绑定写回）。
++    ///
++    /// 两条**互补**通道合并而成：`publisher(for: \.isOn)` 覆盖代码赋值，
++    /// `.valueChanged` 覆盖用户点击与 UIKit 内部调整路径；`removeDuplicates()` 兜底同值重发。
++    ///
++    /// - Note: `setOn(_:animated:)` **两个通道都不发**，需要通知订阅者时改用 `fdy_setOn(_:animated:)`。
+     var fdy_isOnPublisher: ControlProperty<Bool> {
+-        ControlProperty(
+-            values: publisher(for: \.isOn, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.isOn = $0 }
++        let assigned = publisher(for: \.isOn, options: [.initial, .new])
++        let used = fdy_publisher(for: .valueChanged).map { [weak self] _ in self?.isOn ?? false }
++        return ControlProperty(
++            values: assigned.merge(with: used).removeDuplicates().eraseToAnyPublisher(),
++            setter: { [weak self] in self?.isOn = $0 }
+         )
+     }
++
++    /// 带动画/不带动画地设置开关，并**补发 `.valueChanged`**（原生 `setOn(_:animated:)` 不发任何通知）。
++    func fdy_setOn(_ isOn: Bool, animated: Bool) {
++        setOn(isOn, animated: animated)
++        sendActions(for: .valueChanged)
++    }
+ }
+--- a/Sources/Fdy/Combine/UITextField+Combine++.swift
++++ b/Sources/Fdy/Combine/UITextField+Combine++.swift
+@@ -3,19 +3,42 @@
+ 
+ // MARK: - UITextField
+ public extension UITextField {
+-    /// 文本内容（用户编辑与代码赋值均会发出，订阅时立即重放当前值）。
++    /// 文本内容（**用户编辑与代码赋值均会发出**，订阅时立即重放当前值）。
++    ///
++    /// 两条**互补**通道合并而成，缺一即「半边失明」：
++    /// - `publisher(for: \.text)`：KVO 只观察属性 setter，因此只覆盖**代码赋值**（`text = x`）；
++    /// - `.editingChanged`：用户打字不经过 `setText:`（UIKit 直接写内部文本存储），只有事件通道能看到；
++    /// - `removeDuplicates()`：`resignFirstResponder()` 时 UIKit 会把内部文本同步回属性，
++    ///   同一值会再走一次 KVO —— 去重挡掉它，同时也阻断双向绑定的回声（见 `ControlProperty`）。
++    ///
++    /// - Note: 组字期（拼音未上屏）事件通道发出的是**含 marked text 的中间串**（如 `"nihao"`）。
++    ///   需要上屏后的文本时请自行判 `markedTextRange == nil`。
+     var fdy_textPublisher: ControlProperty<String?> {
+-        ControlProperty(
+-            values: publisher(for: \.text, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.text = $0 }
++        let assigned = publisher(for: \.text, options: [.initial, .new])
++        let typed = fdy_publisher(for: .editingChanged).map { [weak self] _ in self?.text }
++        return ControlProperty(
++            values: assigned.merge(with: typed).removeDuplicates().eraseToAnyPublisher(),
++            setter: { [weak self] in self?.text = $0 }
+         )
+     }
+ 
+     /// 富文本内容（可读当前值、可绑定写回）。
++    ///
++    /// 与 `fdy_textPublisher` 同一构造：实测 `.editingChanged` 触发时 `attributedText`
++    /// **已经是新值**，所以事件通道读 `attributedText` 是安全的。
++    /// `NSAttributedString` 不是 `Equatable`，去重改用 `isEqual` 比较内容。
+     var fdy_attributedTextPublisher: ControlProperty<NSAttributedString?> {
+-        ControlProperty(
+-            values: publisher(for: \.attributedText, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.attributedText = $0 }
++        let assigned = publisher(for: \.attributedText, options: [.initial, .new])
++        let typed = fdy_publisher(for: .editingChanged).map { [weak self] _ in self?.attributedText }
++        return ControlProperty(
++            values: assigned.merge(with: typed).removeDuplicates { lhs, rhs in
++                switch (lhs, rhs) {
++                case (nil, nil): true
++                case let (l?, r?): l.isEqual(r)
++                default: false
++                }
++            }.eraseToAnyPublisher(),
++            setter: { [weak self] in self?.attributedText = $0 }
+         )
+     }
+ }
+--- a/Sources/Fdy/Combine/UITextView+Combine++.swift
++++ b/Sources/Fdy/Combine/UITextView+Combine++.swift
+@@ -3,19 +3,41 @@
+ 
+ // MARK: - UITextView
+ public extension UITextView {
+-    /// 文本内容（用户编辑与代码赋值均会发出，订阅时立即重放当前值）。
++    /// 文本内容（**用户编辑与代码赋值均会发出**，订阅时立即重放当前值）。
++    ///
++    /// 两条**互补**通道合并而成：
++    /// - `publisher(for: \.text)`：只覆盖**代码赋值**（`tv.text = x`）；
++    /// - `textDidChangeNotification`：`UITextView` 不是 `UIControl`，没有 `.editingChanged` 可用，
++    ///   用户打字走这条通知（实测逐键触发、含组字期；TextKit 直接写 `NSTextStorage`，KVO 全程 0 次）；
++    /// - `removeDuplicates()`：同上，配合 `ControlProperty` 阻断回声。
+     var fdy_textPublisher: ControlProperty<String?> {
+-        ControlProperty(
+-            values: publisher(for: \.text, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.text = $0 }
++        let assigned = publisher(for: \.text, options: [.initial, .new])
++        let typed = NotificationCenter.default
++            .publisher(for: UITextView.textDidChangeNotification, object: self)
++            .map { [weak self] _ in self?.text }
++        return ControlProperty(
++            values: assigned.merge(with: typed).removeDuplicates().eraseToAnyPublisher(),
++            setter: { [weak self] in self?.text = $0 }
+         )
+     }
+ 
+     /// 富文本内容（可读当前值、可绑定写回）。
++    ///
++    /// `NSAttributedString` 不是 `Equatable`，去重改用 `isEqual` 比较内容。
+     var fdy_attributedTextPublisher: ControlProperty<NSAttributedString?> {
+-        ControlProperty(
+-            values: publisher(for: \.attributedText, options: [.initial, .new]).eraseToAnyPublisher(),
+-            setter: { self.attributedText = $0 }
++        let assigned = publisher(for: \.attributedText, options: [.initial, .new])
++        let typed = NotificationCenter.default
++            .publisher(for: UITextView.textDidChangeNotification, object: self)
++            .map { [weak self] _ in self?.attributedText }
++        return ControlProperty(
++            values: assigned.merge(with: typed).removeDuplicates { lhs, rhs in
++                switch (lhs, rhs) {
++                case (nil, nil): true
++                case let (l?, r?): l.isEqual(r)
++                default: false
++                }
++            }.eraseToAnyPublisher(),
++            setter: { [weak self] in self?.attributedText = $0 }
+         )
+     }
+ }
+--- a/Sources/Fdy/Combine/UIView+Combine++.swift
++++ b/Sources/Fdy/Combine/UIView+Combine++.swift
+@@ -4,11 +4,14 @@
+ // MARK: - UIView 手势发布者
+ public extension UIView {
+     /// 已添加手势的缓存键（避免重复添加同一手势）
+-    private static var cc_gestureCacheKey: UInt8 = 0
++    private nonisolated(unsafe) static var cc_gestureCacheKey: UInt8 = 0
+ 
+     private var cc_gestureCache: [String: UIGestureRecognizer] {
+-        get { fdy_getAssociatedObject(forKey: &Self.cc_gestureCacheKey) as? [String: UIGestureRecognizer] ?? [:] }
+-        set { fdy_setAssociatedObject(newValue, forKey: &Self.cc_gestureCacheKey) }
++        get {
++            let cache: [String: UIGestureRecognizer] = fdy_GetAO(forKey: &Self.cc_gestureCacheKey) ?? [:]
++            return cache
++        }
++        set { fdy_SetAO(newValue, forKey: &Self.cc_gestureCacheKey) }
+     }
+ 
+     /// 获取或创建并缓存手势识别器（同一 key 复用，不重复添加）
+@@ -25,27 +28,48 @@
+     }
+ 
+     /// 将手势识别器包装为 `ControlEvent`（订阅取消时移除 target）
++    ///
++    /// - Note: 同一识别器上多个订阅者各挂一个 `ClosureTarget`，一次手势会向所有订阅者各投递一次。
+     private func cc_event<G: UIGestureRecognizer>(_ recognizer: G) -> ControlEvent<G> {
+-        let publisher = SubscribePublisher<G> { (subscriber: AnySubscriber<G, Never>) in
+-            let target = ClosureTarget {
+-                _ = subscriber.receive(recognizer)
+-            }
+-            recognizer.addTarget(target, action: #selector(ClosureTarget.invoke))
+-            subscriber.receive(subscription: ControlEventSubscription(target: target) {
++        let publisher = SubscribePublisher<G> { [recognizer] (subscriber: AnySubscriber<G, Never>) in
++            let subscription = ControlEventSubscription { target in
+                 recognizer.removeTarget(target, action: #selector(ClosureTarget.invoke))
+-            })
++            }
++            subscription.deliver = { [weak recognizer] in
++                guard let recognizer else { return .none }
++                return subscriber.receive(recognizer)
++            }
++            subscriber.receive(subscription: subscription)
++            guard !subscription.cancelled else { return }
++            recognizer.addTarget(subscription.target, action: #selector(ClosureTarget.invoke))
+         }.eraseToAnyPublisher()
+         return ControlEvent(publisher)
+     }
+ 
+     // MARK: 具体手势
++    //
++    // - Note: 以下每个访问器都会把 `isUserInteractionEnabled` 置为 `true`，
++    //   并在首次访问时把识别器加入手势列表（不可撤销的写副作用）。
++    //   若不需要该行为，请自行创建并 `addGestureRecognizer`。
+ 
+     /// 点击手势
+-    var fdy_tapGesturePublisher: ControlEvent<UITapGestureRecognizer> {
++    ///
++    /// - Parameter numberOfTaps: 需要的点击次数；不同次数各自缓存一个识别器，互不干扰
++    ///   （初版固定按 `"tap"` 缓存，无法同时注册单击与双击）。
++    func fdy_tapGesturePublisher(numberOfTaps: Int = 1) -> ControlEvent<UITapGestureRecognizer> {
+         isUserInteractionEnabled = true
+-        return cc_event(cc_cachedGesture(key: "tap") { UITapGestureRecognizer() })
++        return cc_event(cc_cachedGesture(key: "tap-\(numberOfTaps)") {
++            let recognizer = UITapGestureRecognizer()
++            recognizer.numberOfTapsRequired = numberOfTaps
++            return recognizer
++        })
+     }
+ 
++    /// 单击手势（等价于 `fdy_tapGesturePublisher(numberOfTaps: 1)`）
++    var fdy_tapGesturePublisher: ControlEvent<UITapGestureRecognizer> {
++        fdy_tapGesturePublisher()
++    }
++
+     /// 轻扫手势（可指定方向，不同方向各自缓存）
+     func fdy_swipeGesturePublisher(_ direction: UISwipeGestureRecognizer.Direction = .right) -> ControlEvent<UISwipeGestureRecognizer> {
+         isUserInteractionEnabled = true

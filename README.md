@@ -109,7 +109,61 @@ let layer = CAGradientLayer()
     .endPoint(CGPoint(x: 1, y: 1))
 ```
 
+> **UIButton 的链式方法分两套**，定义在两个文件里，调用点一眼可分：
+> - **传统 API** —— 按 `UIControl.State` 取值（`.title(_:for:)` / `.titleColor(_:for:)` / `.backgroundImage(_:for:)` …），
+>   见 `Core/Chain/UIKit/UIButton+Chain.swift`；
+> - **配置化 API** —— 读写 `UIButton.Configuration`，方法名统一 **`bc_`**（button configuration）前缀，
+>   见 `Core/Chain/UIKit/UIButton+Configuration+Chain.swift`：
+>
+> ```swift
+> let submit = UIButton.plain()
+>     .fdy
+>     .bc_title("提交")
+>     .bc_cornerStyle(.capsule)
+>     .bc_baseBackgroundColor(.systemBlue)
+>     .bc_baseForegroundColor(.white)
+>     .bc_contentInsets(NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+>     .build()
+> ```
+>
+> 两者可混用，但同一属性请只用一套：传统 setter 会被 `configuration` 覆盖。
+
 支持 Chain 的类型覆盖：`UIView`/`UIButton`/`UILabel`/`UITextField`/`UITextView`/`UIImageView`/`UICollectionView`/`UITableView`/`UIScrollView`/`UIStackView`/`UIViewController`/`CALayer`/`CAAnimation` 系列、`CAGradientLayer`、`MKMapView`、`WKWebView`、`NSAttributedString`、`Date`、`Timer`、`UIEdgeInsets` 等 60+ 类型。
+
+### 可复用控件（`Sources/Core/Components/`）
+
+视觉上要做得小、但要保证 44×44pt 点击热区的按钮，以及需要防止用户连点重复提交的按钮，
+都用 `FdyHitAreaButton`：
+
+```swift
+let close = FdyHitAreaButton(type: .custom)
+    .fdy
+    .image(UIImage(systemName: "xmark"), for: .normal)
+    .expandClickArea(12)              // 向四周各扩展 12pt
+    .build()
+
+let submit = FdyHitAreaButton(type: .custom)
+    .fdy
+    .title("提交", for: .normal)
+    .repeatClickInterval(0.5)         // 0.5s 内的重复触发只放行第一次
+    .build()
+
+// 也可以直接赋值（<= 0 表示不生效）
+close.fdy_expandSize = 12
+submit.fdy_repeatClickInterval = 0.5
+```
+
+> - 两项能力都实现在 `FdyHitAreaButton` 自身：热区走 `point(inside:with:)`，防重复走 `sendAction` 的两个重载。
+>   **只对该类及其子类生效，不污染其它 `UIButton`。**
+> - 防重复点击**按业务动作分别计时**（键为 selector 名 / `UIAction.identifier`），
+>   因此「`.touchDown` 做按压反馈 + `.touchUpInside` 做业务」不会互相挤占时间窗；
+>   通过 `addAction(UIAction)` 注册的回调同样受保护。
+> - 命中时间窗时**不改动 `isEnabled` 或任何视觉状态**，只是不派发该次动作。
+> - 历史版本通过 `UIButton` 扩展注入 `point(inside:with:)` 实现全局热区扩展
+>   （`fdy.expandClickArea(_:)` / `fdy_expandClickArea(_:)`），**该入口已移除** ——
+>   它会作用于所有 `UIButton`（含 UIKit 内部按钮），且一旦某个子类重写了 `point(inside:with:)` 就会静默失效。
+>   原调用点会拿到编译错误：`requires that 'UIButton' inherit from 'FdyHitAreaButton'`。
+> - **一个必踩的坑**：扩展区域超出父视图 `bounds` 时不生效 —— `hitTest` 先询问父视图，父视图判定点不在自己范围内就直接返回 `nil`，根本不会询问本按钮。
 
 ### 手势链式（UIView）
 
@@ -156,6 +210,8 @@ view.fdy_captureScreenshot()            // 截图
 
 label.fdy_actualFontSize                // 实际字号
 textField.fdy_textPublisher             // 见 CombineCocoa
+button.fdy_viewSize()                   // 标题尺寸，默认不折行（.greatestFiniteMagnitude）
+button.fdy_viewSize(maxWidth: FdyScreen.screenWidth)   // 按屏宽折行时显式传入
 
 UIFont.fdy_font(size: 16, weight: .medium)   // 任意字族（默认苹方），不参与 Dynamic Type
 UIFont.fdy_font(size: 16, weight: .medium)
@@ -373,6 +429,7 @@ control.fdy_valueChangedPublisher
 
 // 手势
 view.fdy_tapGesturePublisher
+view.fdy_tapGesturePublisher(numberOfTaps: 2)   // 双击
 view.fdy_longPressGesturePublisher
 view.fdy_panGesturePublisher
 view.fdy_swipeGesturePublisher(.left)
@@ -383,7 +440,10 @@ view.fdy_screenEdgePanGesturePublisher
 // 滚动
 scrollView.fdy_didScrollPublisher
 scrollView.fdy_willBeginDraggingPublisher
+scrollView.fdy_didEndDraggingPublisher
+scrollView.fdy_didEndDraggingWithDecelerationPublisher   // ControlEvent<Bool>，载荷为 willDecelerate
 scrollView.fdy_didEndDeceleratingPublisher
+scrollView.fdy_contentOffsetPublisher                    // ControlProperty<CGPoint>
 ```
 
 双向绑定：
@@ -396,6 +456,20 @@ textField.fdy_textPublisher
 
 // 写回 / 绑定
 label.fdy_textPublisher.bind(from: viewModel.titlePublisher)
+```
+
+### 语义与硬边界
+
+| 项 | 行为 |
+| --- | --- |
+| `ControlProperty` 去重 | **同值不重发**。赋值与用户事件两路合并后走 `removeDuplicates()`，也是双向绑定回声抑制的前提 |
+| 文本输入 | `fdy_textPublisher` / `fdy_attributedTextPublisher` 逐键实时。纯 KVO 观察不到打字：`UIKeyInput`/TextKit 直写内部存储，只在**代码赋值**与 `resignFirstResponder()` 时同步 |
+| 值类控件 | 原生 `setValue(_:animated:)` / `setOn(_:animated:)` 连 `animated: false` 都**两个通道都不发通知**。需要通知订阅者时改用 `fdy_setValue(_:animated:)` / `fdy_setOn(_:animated:)` |
+| 滚动代理 | `fdy_*Publisher` 首次订阅会接管 `UIScrollView.delegate`（原 delegate 被保留并转发）；若被外部顶替，**下次访问 publisher 时自动重新接管** |
+
+```swift
+slider.fdy_setValue(0.9, animated: true)   // 原生 setValue 不发通知，这个会
+switchView.fdy_setOn(true, animated: true)
 ```
 
 ---
@@ -444,6 +518,7 @@ Sources/
     ├── Core/
     │   ├── Chain/           # 链式 API（UIKit/Foundation/QuartzCore/MapKit/WebKit...）
     │   ├── Common/          # 工具类（FdyScreen/FdyHelper/FdyPath/FdyQueue...）
+    │   ├── Components/      # 可复用控件（FdyHitAreaButton：点击热区 / 防重复点击）
     │   ├── Extensions/      # fdy_ 前缀扩展（按框架组织）
     │   ├── Protocols/       # FdyExtension/FdyReusable/FdyLoadable/FdySetupable
     │   ├── Wrapper/         # @FdyDataStore
