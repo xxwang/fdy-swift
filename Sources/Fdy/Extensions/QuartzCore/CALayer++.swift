@@ -5,8 +5,8 @@ import UIKit
 public extension CALayer {
     /// 将图层内容转为颜色 (`UIColor`)
     /// - Returns: 返回转换的颜色,如果失败则返回`nil`
-    func fdy_UIColor() -> UIColor? {
-        if let image = self.fdy_UIImage() {
+    func fdy_toUIColor() -> UIColor? {
+        if let image = self.fdy_toUIImage() {
             return UIColor(patternImage: image)
         }
         return nil
@@ -16,7 +16,7 @@ public extension CALayer {
     /// - Parameters:
     ///   - scale: 缩放比例,默认取 `UIScreen.main.scale`(`nonisolated`,可在任意线程调用),通常与设备的屏幕密度相匹配
     /// - Returns: 返回转换后的`UIImage`,如果失败则返回`nil`
-    func fdy_UIImage(scale: CGFloat = UIScreen.main.scale) -> UIImage? {
+    func fdy_toUIImage(scale: CGFloat = UIScreen.main.scale) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(self.bounds.size, self.isOpaque, scale)
         defer { UIGraphicsEndImageContext() }
 

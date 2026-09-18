@@ -265,7 +265,7 @@ public extension UIColor {
     /// 转换为指定尺寸的`UIImage`
     /// - Parameter size: 图片尺寸
     /// - Returns: `UIImage?`
-    func fdy_UIImage(ofSize size: CGSize) -> UIImage? {
+    func fdy_toUIImage(ofSize size: CGSize) -> UIImage? {
         let rect = CGRect(origin: .zero, size: size)
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
         defer { UIGraphicsEndImageContext() }

@@ -2,6 +2,91 @@
 
 本库遵循[语义化版本](https://semver.org/lang/zh-CN/)，格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [未发布]
+
+### 破坏性变更 —— 类型转换方法统一为 `fdy_toXXX`
+
+类型转换方法的命名原先混着 **4 套**（裸大驼峰 `fdy_Decimal()`、裸小写 `fdy_date()`、`to` 前缀、`as` 前缀），
+现统一为 **`fdy_to` + 返回类型原名**，**类型前缀一律保留**（`UI` / `NS` / `CG` / `CA`）。
+
+规模：**60 处定义 / 30 个唯一旧名 / 31 个唯一新名**。完整对照表与决策依据见
+`docs/类型转换命名规范_改造方案.md`。
+
+| 旧名 | 新名 |
+|---|---|
+| `fdy_bool` / `fdy_Int` / `fdy_Float` / `fdy_Double` | `fdy_toBool` / `fdy_toInt` / `fdy_toFloat` / `fdy_toDouble` |
+| `fdy_String` | `fdy_toString` |
+| `fdy_Character` / `fdy_Characters` | `fdy_toCharacter` / `fdy_toCharacters` |
+| `fdy_NSNumber` / `fdy_NSDecimalNumber` / `fdy_Decimal` | `fdy_toNSNumber` / `fdy_toNSDecimalNumber` / `fdy_toDecimal` |
+| `fdy_CGPoint` / `fdy_CGSize` | `fdy_toCGPoint` / `fdy_toCGSize` |
+| `fdy_date` | `fdy_toDate` |
+| `fdy_URL` / `fdy_URLRequest` / `fdy_NotificationName` / `fdy_NSString` | `fdy_toURL` / `fdy_toURLRequest` / `fdy_toNotificationName` / `fdy_toNSString` |
+| `fdy_NSAttributedString` / `fdy_NSMutableAttributedString` | `fdy_toNSAttributedString` / `fdy_toNSMutableAttributedString` |
+| `fdy_nsRange` / `fdy_range` | `fdy_toNSRange` / `fdy_toRange` |
+| `fdy_UIImage` / `fdy_UIColor` | `fdy_toUIImage` / `fdy_toUIColor` |
+| `fdy_CGPath` / `fdy_CGMutablePath` | `fdy_toCGPath` / `fdy_toCGMutablePath` |
+| `fdy_cACornerMask` / `fdy_UIRectCorner` | `fdy_toCACornerMask` / `fdy_toUIRectCorner` |
+| `fdy_asCurrency` | `fdy_toCurrencyString` |
+
+**两个旧名同时映射到两个新名**（按接收者区分，不能全库替换）：
+
+| 旧名 | 接收者 | 新名 |
+|---|---|---|
+| `fdy_Data` | `String` | `fdy_toData`（UTF-8 编码） |
+| `fdy_Data` | `Array` / `Dictionary` | `fdy_toJSONData`（`JSONSerialization` 产物） |
+| `fdy_string` | `Data` / `Date` | `fdy_toString` |
+| `fdy_string` | `Encodable` | `fdy_toJSONString`（`JSONEncoder` 产物） |
+
+**下列同名成员刻意不改**（与改名族同名异义，行为未变）：
+
+- `Date.fdy_date(from:)` / `Date.fdy_string(from:format:)` —— static 时间戳**解析**工厂；
+- `String.fdy_Character(at:)` —— **截取**，返回 `String`（不是 `Character`）；
+- `NSNumber.fdy_Decimal(groupingSeparator:…)` —— **格式化**，返回 `String?`；
+- `BinaryInteger.fdy_range(from:)` / `(to:)` —— 区间**构造**；
+- 下标标签 `fdy_range` / `fdy_slice` 不受影响（不是方法名）。
+
+本版**不提供** `@available(*, deprecated, renamed:)` 别名 —— 与 0.1.0 已声明的
+「不提供渐进迁移路径」策略一致。下文 0.1.0 段中出现的类型转换旧名，以本段对照表为准。
+
+### 新增 —— 外观配置系链式（链式补全第 3 批）
+
+新增 6 个 Chain 文件、**138 个链式方法**，覆盖导航栏/标签栏外观与列表内容、空态配置。
+本批**只新增文件**，未改动任何既有实现。
+
+| 类型 | 文件 | 语义 | 方法数 |
+| --- | --- | --- | --- |
+| `UIBarAppearance`（基类） | `Chain/UIKit/UIBarAppearance+Chain.swift` | 引用 —— 就地改，免 `build()` | 10 |
+| `UINavigationBarAppearance` | `Chain/UIKit/UINavigationBarAppearance+Chain.swift` | 引用（另继承基类 10 个） | 13 |
+| `UITabBarAppearance` | `Chain/UIKit/UITabBarAppearance+Chain.swift` | 引用（另继承基类 10 个） | 8 |
+| `UIBackgroundConfiguration` | `Chain/UIKit/UIBackgroundConfiguration+Chain.swift` | **值** —— 须 `build()` 取回 | 19 |
+| `UIListContentConfiguration` | `Chain/UIKit/UIListContentConfiguration+Chain.swift` | **值** | 45 |
+| `UIContentUnavailableConfiguration` | `Chain/UIKit/UIContentUnavailableConfiguration+Chain.swift` | **值** | 43 |
+
+嵌套 struct 轴按既有约定**拍平加前缀**（先例：`UIButton.Configuration` 的 `backgroundCornerRadius`）：
+`textProperties.font` → `textFont(_:)`、`imageProperties.tintColor` → `imageTintColor(_:)`、
+`buttonProperties.role` → `buttonRole(_:)`、`shadowProperties.radius` → `shadowRadius(_:)`。
+
+**新增 3 条 `FdyExtension` conformance（29 → 32 条）**：`UIBackgroundConfiguration` /
+`UIListContentConfiguration` / `UIContentUnavailableConfiguration` —— 三者 Swift 侧均为 **struct**，
+不继承 `NSObject` 那条；**漏登记时不会编译失败**，只表现为 `.fdy` 不可达。
+
+**实测纠正（推翻本库文档既有结论）**：`UIBackgroundConfiguration.shadowProperties` 的 ObjC 头文件标注为
+`readonly`，**但同一 SDK 的 Swift 接口是 `{ get set }`**，`configuration.shadowProperties.radius = 4`
+实测可编译 —— **以编译器为准**。本批按可写实现并覆盖全部 5 个阴影属性；README 原先
+「未覆盖的只剩 `background.shadowProperties`（只读属性）」的表述已随之订正。
+
+**可用性标注（逐条反证实测，不是照抄头文件）**：
+
+| 成员 | 要求版本 | 反证结果（去掉 `@available` 后的报错） |
+|---|---|---|
+| `UIBarAppearance.overrideUserInterfaceStyle` | iOS 27.0 | `'overrideUserInterfaceStyle' is only available in iOS 27.0 or newer` |
+| `UINavigationBarAppearance.subtitleTextAttributes` | iOS 26.0 | `… is only available in iOS 26.0 or newer` |
+| `UINavigationBarAppearance.largeSubtitleTextAttributes` | iOS 26.0 | 同上 |
+| `UIToolbarAppearance.prominentButtonAppearance` | iOS 26.0 | 同上 |
+
+行为探针新增 `S40`–`S43`（值语义 vs 引用语义对照、嵌套轴写回、主副轴不串扰、子类继承父类扩展），
+双运行时判定集 51 → **55 行**。
+
 ## [0.1.0] - 2026-09-18
 
 **Fdy 首次发布。**
@@ -122,6 +207,14 @@
 - `FdyViewBuilder` 补 `buildExpression`，调用侧 `if` / `if-else` / `for` 现在可编译
 - `UIView` 补 `right(_:)` / `bottom(_:)` 链式约束
 - `UICollectionView` 的 `scrollEdgeAppearance(_:)` —— 原无参版本改名 `scrollEdgeAppearanceSynced()`
+- **常用类链式补全（第 1–2 批，共 8 个类 / 8 个文件 / 101 个新增方法）**：
+  - 第 1 批（P0 控件与几何，68 个）：`UIColor`(5) `UIFont`(5) `UIImage`(30) `UIBezierPath`(17) `UIStepper`(7) `NSLayoutConstraint`(4)
+  - 第 2 批（P0 集合视图，33 个）：`UICollectionViewCell`(10，新建) `UITableViewCell`（1 → 24，整体重写）
+  - `UIImage` 链式在底层 `fdy_*` 返回 `nil` 时（如越界裁剪）**保留原图并继续**，不会静默换成空图
+  - `UIStepper` 的三个数值 setter 对非法值**先 `guard` 再静默忽略** —— 裸写 `base.stepValue = 0` 会抛
+    `NSInvalidArgumentException` **直接终止进程**（Swift catch 不住），链式版比裸属性更安全是主动设计
+  - `UICollectionViewCell` **没有** `setSelected(_:animated:)` / `setHighlighted(_:animated:)`（`UITableViewCell` 独有），
+    其链式只暴露属性形态，**不带 `animated` 形参**
 
 ### 修复
 
@@ -165,8 +258,21 @@
   **7 个访问器（`tap`/`swipe`/`longPress`/`pan`/`pinch`/`rotation`/`screenEdgePan`）全部触发**，
   iOS 18.0 / 26.5 输出逐行一致，整条 `target-action → invoke → flush → receive → sink` 链路成立。
   （早先的 `S25c` 对照实验只证明了 `_setState:` 这个**手法**不派发 action，推不出「链路无法验证」。）
-  **仍未闭环**：`UIStepper` / `UISegmentedControl` 的**真实点击** —— 它们不经 `UIGestureRecognizer`，
-  上述路径覆盖不到，需 XCUITest；本库对它们的覆盖是程序化写值。
-- `docs/工业级_代码治理方案.md` 中引用的验证脚手架（`.build/structprobe/`：6 个跨模块探针 + 1 个行为探针 app）为**本机路径，不入库**
+  **`UIStepper` / `UISegmentedControl` 已闭环到边界**（探针 `S27`–`S29`，iOS 18.0 / 26.5 逐行一致）：
+  `.valueChanged` 通道本身经 `_emitValueChanged` 实测可用（`S27`）；改值 / 改索引 → publisher 可收到
+  （`S28` 走 KVO 通道，`S29` 亦同）。**仍未被覆盖的只有「手指触摸 → UIKit 发 `.valueChanged`」这一环**
+  —— 控件不在真实窗口层级、没有真实触摸序列时复现不出（`S29` 把这条边界固定成断言），需 XCUITest；
+  本机无 `idb`/`fbsimctl`，`simctl` 无触摸子命令，`osascript` 被 TCC 拒，故未落地。
+- iOS 26.5 将 `UIStepper` 换成 DesignLibrary 实现（`UIStepperDesignLibraryVisualElement` +
+  `UICoreHostingView<DesignLibraryStepper>`，无 `_UIStepperButton`）。本库对它的支持只依赖 KVO 与
+  `.valueChanged`、不碰私有视图结构，因此不受影响。
+- **表格 cell 上两个读回值不受控的属性**（链式只是直传，UIKit 会自行改写，**别拿读回值当断言**）：
+  - `UITableViewCell.separatorInset`：`left` 传 `16` 读回 `24`；`right` 传 `8` 在 iOS 18.0 读回 `8.0`、
+    在 26.5 读回 `16.0` —— **改写规则随系统版本变**。
+  - `indentationLevel` / `indentationWidth`：**不做钳位**，`-3` 读回 `-3`、`5` 读回 `5.0`。
+- **`backgroundView` 与 `backgroundConfiguration` 双向互斥、后设者赢**：设 `backgroundView(_:)` 会把
+  `backgroundConfiguration` 清成 `nil`，反向同理（`UITableViewCell` / `UICollectionViewCell` 实测一致）。
+  想稳定生效只能二选一。
+- `docs/工业级_代码治理方案.md` 中引用的验证脚手架（`.build/structprobe/`：8 个跨模块探针 + 1 个行为探针 app）为**本机路径，不入库**
 
 [0.1.0]: https://github.com/xxwang/fdy-swift/releases/tag/0.1.0

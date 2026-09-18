@@ -9,7 +9,7 @@ extension CGImage: FdyExtension {}
 // MARK: - 类型转换
 public extension CGImage {
     /// 将 `CGImage` 转换为 `UIImage`
-    func fdy_UIImage() -> UIImage? {
+    func fdy_toUIImage() -> UIImage? {
         return UIImage(cgImage: self)
     }
 }

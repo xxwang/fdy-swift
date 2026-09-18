@@ -109,10 +109,10 @@ public extension Decimal {
     /// - Example:
     ///   ```swift
     ///   let amount = Decimal(1234.56)
-    ///   print(amount.fdy_asCurrency()) // "$1,234.56" (en_US)
-    ///   print(amount.fdy_asCurrency(currencyCode: "JPY")) // "¥1,235"
+    ///   print(amount.fdy_toCurrencyString()) // "$1,234.56" (en_US)
+    ///   print(amount.fdy_toCurrencyString(currencyCode: "JPY")) // "¥1,235"
     ///   ```
-    func fdy_asCurrency(locale: Locale = .current, currencyCode: String? = nil) -> String {
+    func fdy_toCurrencyString(locale: Locale = .current, currencyCode: String? = nil) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.locale = locale

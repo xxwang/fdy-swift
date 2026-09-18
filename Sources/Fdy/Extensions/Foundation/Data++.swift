@@ -70,7 +70,7 @@ public extension Data {
     ///
     /// - Returns: 若数据是有效的图像格式(如 PNG、JPEG),则返回 `UIImage`;否则返回 `nil`
     /// - Note: 不包含缓存逻辑,频繁调用建议自行缓存结果
-    func fdy_UIImage() -> UIImage? {
+    func fdy_toUIImage() -> UIImage? {
         return UIImage(data: self)
     }
 }
@@ -134,9 +134,9 @@ public extension Data {
     /// - Example:
     ///   ```swift
     ///   let data = "Swift".data(using: .utf8)!
-    ///   let str = data.fdy_String()  // "Swift"
+    ///   let str = data.fdy_toString()  // "Swift"
     ///   ```
-    func fdy_string(encoding: String.Encoding = .utf8) -> String? {
+    func fdy_toString(encoding: String.Encoding = .utf8) -> String? {
         return String(data: self, encoding: encoding)
     }
 

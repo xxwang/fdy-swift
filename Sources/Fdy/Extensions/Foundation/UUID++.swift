@@ -8,7 +8,7 @@ extension UUID: FdyExtension {}
 // MARK: - 自定义
 public extension UUID {
     /// 返回一个`UUID`字符串
-    func fdy_String() -> String {
+    func fdy_toString() -> String {
         return self.uuidString
     }
 }

@@ -8,9 +8,9 @@ public extension DateComponents {
     ///
     /// - Example:
     ///   ```swift
-    ///   let date = DateComponents().fdy_date()
+    ///   let date = DateComponents().fdy_toDate()
     ///   ```
-    func fdy_date(using calendar: Calendar = .current) -> Date? {
+    func fdy_toDate(using calendar: Calendar = .current) -> Date? {
         return calendar.date(from: self)
     }
 }

@@ -27,7 +27,7 @@ public extension NSRange {
     ///
     /// - Note: 此方法已处理代理对(surrogate pairs)和组合字符等复杂 Unicode 情况
     ///
-    func fdy_range(in string: String) -> Range<String.Index>? {
+    func fdy_toRange(in string: String) -> Range<String.Index>? {
         // 提前排除无效输入
         guard self.location >= 0, self.length >= 0 else { return nil }
 

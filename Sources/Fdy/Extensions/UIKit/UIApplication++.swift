@@ -145,7 +145,7 @@ public extension UIApplication {
             // 按 1…3 段解析,不足补 0:"1.0" → 1.0.0,"1" → 1.0.0
             let comps = versionString.fdy_split(bySeparator: ".")
             let numbers = (0 ..< 3).map { index in
-                index < comps.count ? comps[index].fdy_Int() : 0
+                index < comps.count ? comps[index].fdy_toInt() : 0
             }
             self.major = numbers[0]
             self.minor = numbers[1]

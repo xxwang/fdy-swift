@@ -8,7 +8,7 @@ public extension String {
     ///
     /// - Parameter format: 日期格式,默认为 `"yyyy-MM-dd HH:mm:ss"`
     /// - Returns: 解析成功的 `Date?`,失败返回 `nil`
-    func fdy_date(format: String = "yyyy-MM-dd HH:mm:ss") -> Date? {
+    func fdy_toDate(format: String = "yyyy-MM-dd HH:mm:ss") -> Date? {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0) // UTC

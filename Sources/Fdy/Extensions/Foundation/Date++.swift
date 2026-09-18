@@ -219,9 +219,9 @@ public extension Date {
     ///   - locale: 指定地区
     ///   - timeZone: 指定时区,默认使用当前自动更新时区
     /// - Returns: 格式化后的字符串
-    func fdy_string(_ format: String = "yyyy-MM-dd HH:mm:ss",
-                    locale: Locale = .current,
-                    timeZone: TimeZone = .autoupdatingCurrent) -> String
+    func fdy_toString(_ format: String = "yyyy-MM-dd HH:mm:ss",
+                      locale: Locale = .current,
+                      timeZone: TimeZone = .autoupdatingCurrent) -> String
     {
         let formatter = DateFormatter.fdy_formatter(format: format, locale: locale, timeZone: timeZone)
         return formatter.string(from: self)
@@ -531,7 +531,7 @@ public extension Date {
 
     /// 获取英文月份全称(如 "January")
     var fdy_monthString: String {
-        self.fdy_string("MMMM")
+        self.fdy_toString("MMMM")
     }
 
     /// 获取本年第几周(ISO 周数,取决于日历配置)

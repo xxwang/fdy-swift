@@ -21,7 +21,7 @@ public extension String {
     /// - Parameter range: 基于 `String.Index` 的字符范围
     /// - Returns: 对应的 `NSRange`（基于 UTF-16 单元）
     /// - Note: 等价于 `NSRange(_:in:)`,保留以统一 `fdy_` 前缀;要求 `range` 是当前字符串的有效子范围
-    func fdy_nsRange(from range: Range<String.Index>) -> NSRange {
+    func fdy_toNSRange(from range: Range<String.Index>) -> NSRange {
         NSRange(range, in: self)
     }
 
@@ -64,7 +64,7 @@ public extension String {
     ///   - options: 字符串比较选项（如 `.caseInsensitive`）,默认为空
     /// - Returns: 所有匹配位置的 `NSRange` 数组（按出现顺序）
     func fdy_nsRanges(of substring: String, options: String.CompareOptions = []) -> [NSRange] {
-        self.fdy_ranges(of: substring, options: options).map { self.fdy_nsRange(from: $0) }
+        self.fdy_ranges(of: substring, options: options).map { self.fdy_toNSRange(from: $0) }
     }
 }
 

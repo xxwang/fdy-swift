@@ -6,7 +6,7 @@ public extension String {
     ///
     /// - Returns: Base64 编码字符串,或 `nil`（理论上 UTF-8 不会失败）
     var fdy_base64Encoded: String? {
-        self.fdy_Data()?.base64EncodedString()
+        self.fdy_toData()?.base64EncodedString()
     }
 
     /// 将 Base64 字符串解码为 UTF-8 字符串

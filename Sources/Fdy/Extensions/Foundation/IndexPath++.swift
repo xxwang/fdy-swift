@@ -16,9 +16,9 @@ public extension IndexPath {
     /// - Example:
     ///   ```swift
     ///   let ip = IndexPath(row: 2, section: 1)
-    ///   print(ip.fdy_String()) // [section: 1, row: 2]
+    ///   print(ip.fdy_toString()) // [section: 1, row: 2]
     ///   ```
-    func fdy_String() -> String {
+    func fdy_toString() -> String {
         if self.count == 2 {
             return "[section: \(self.section), row: \(self.row)]"
         } else {

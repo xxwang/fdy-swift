@@ -4,7 +4,7 @@ import UIKit
 public extension UIRectCorner {
     /// 将 `CACornerMask` 转换为 `UIRectCorner`
     /// - Returns: `UIRectCorner`
-    func fdy_cACornerMask() -> CACornerMask {
+    func fdy_toCACornerMask() -> CACornerMask {
         var corners: CACornerMask = []
         if self.contains(.topLeft) {
             corners.insert(.layerMinXMinYCorner)

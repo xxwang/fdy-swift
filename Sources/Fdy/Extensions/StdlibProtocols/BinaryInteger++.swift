@@ -4,7 +4,7 @@ import Foundation
 // MARK: - 类型转换
 public extension BinaryInteger {
     /// 转换为 `Bool`
-    func fdy_bool() -> Bool {
+    func fdy_toBool() -> Bool {
         self > 0
     }
 
@@ -13,40 +13,40 @@ public extension BinaryInteger {
     // 且与 `String.fdy_Int()`(解析失败返回 `0`,语义完全不同)同名,易混用。
 
     /// 转换为 `NSNumber`
-    func fdy_NSNumber() -> NSNumber {
+    func fdy_toNSNumber() -> NSNumber {
         NSNumber(value: Double(self))
     }
 
     /// 转换为 `NSDecimalNumber`(通过 `Double` 中转,注意精度损失)
-    func fdy_NSDecimalNumber() -> NSDecimalNumber {
-        NSDecimalNumber(string: self.fdy_String())
+    func fdy_toNSDecimalNumber() -> NSDecimalNumber {
+        NSDecimalNumber(string: self.fdy_toString())
     }
 
     /// 转换为 `Decimal`(经字符串中转,避免 `Decimal(Double(self))` 对大整数(>2^53)的精度丢失)
-    func fdy_Decimal() -> Decimal {
-        Decimal(string: self.fdy_String()) ?? .zero
+    func fdy_toDecimal() -> Decimal {
+        Decimal(string: self.fdy_toString()) ?? .zero
     }
 
     /// 转换为十进制字符串表示
-    func fdy_String() -> String {
+    func fdy_toString() -> String {
         String(self)
     }
 
     /// 尝试将当前值解释为 `Unicode` 码点,并返回对应的 `Character`
     ///
     /// - Returns: 有效的 `Character`,若码点无效则返回 `nil`
-    func fdy_Character() -> Character? {
+    func fdy_toCharacter() -> Character? {
         guard let scalar = UnicodeScalar(Int(self)) else { return nil }
         return Character(scalar)
     }
 
     /// 创建一个 `CGPoint`,`x` 和 `y`坐标均设为当前值(转换为 `Double`)
-    func fdy_CGPoint() -> CGPoint {
+    func fdy_toCGPoint() -> CGPoint {
         CGPoint(x: CGFloat(self), y: CGFloat(self))
     }
 
     /// 创建一个 `CGSize`,宽高均设为当前值(转换为 `CGFloat`)
-    func fdy_CGSize() -> CGSize {
+    func fdy_toCGSize() -> CGSize {
         CGSize(width: CGFloat(self), height: CGFloat(self))
     }
 }
@@ -148,10 +148,10 @@ public extension BinaryInteger {
     ///
     /// - Example:
     ///   ```swift
-    ///     let date = 1_609_459_200.fdy_date() // 2021-01-01 UTC
-    ///     let dateMs = 1_609_459_200_000.fdy_date(isUnix: false) // 同上
+    ///     let date = 1_609_459_200.fdy_toDate() // 2021-01-01 UTC
+    ///     let dateMs = 1_609_459_200_000.fdy_toDate(isUnix: false) // 同上
     ///     ```
-    func fdy_date(isUnix: Bool = true) -> Date {
+    func fdy_toDate(isUnix: Bool = true) -> Date {
         let interval = isUnix ? Double(self) : Double(self) / 1000.0
         return Date(timeIntervalSince1970: interval)
     }

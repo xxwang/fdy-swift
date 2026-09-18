@@ -12,7 +12,7 @@ public extension Encodable {
     /// 返回 `UTF-8`编码的`JSON`字符串表示
     /// - Parameter isFormat: 是否格式化(缩进+排序)
     /// - Returns: 成功返回`JSON`字符串,失败返回 `nil`
-    func fdy_string(format isFormat: Bool = false) -> String? {
+    func fdy_toJSONString(format isFormat: Bool = false) -> String? {
         if isFormat {
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

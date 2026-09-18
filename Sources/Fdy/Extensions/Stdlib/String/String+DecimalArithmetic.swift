@@ -31,8 +31,8 @@ public extension String {
 // MARK: 私有辅助工具
 public extension String {
     private func fdy_performOperation(_ other: String?, _ operation: FdyFunc2<NSDecimalNumber, NSDecimalNumber, NSDecimalNumber>) -> String {
-        let left = self.fdy_NSDecimalNumber()
-        let right = (other ?? "").fdy_NSDecimalNumber()
+        let left = self.fdy_toNSDecimalNumber()
+        let right = (other ?? "").fdy_toNSDecimalNumber()
         let result = operation(left, right)
         return result.stringValue
     }

@@ -4,7 +4,7 @@ import Foundation
 // MARK: - 类型转换
 public extension BinaryFloatingPoint {
     /// 将当前浮点数值转换为布尔值
-    func fdy_bool() -> Bool {
+    func fdy_toBool() -> Bool {
         self > 0
     }
 
@@ -12,33 +12,33 @@ public extension BinaryFloatingPoint {
     // 它们等价于 `Int(self)`、`Double(self)` 等系统构造器(后者更短),且与 `String.fdy_Int()` 同名易混。
 
     /// 将当前值包装为 `NSNumber` 对象
-    func fdy_NSNumber() -> NSNumber {
+    func fdy_toNSNumber() -> NSNumber {
         NSNumber(value: Double(self))
     }
 
     /// 将当前值转换为 `NSDecimalNumber`
-    func fdy_NSDecimalNumber() -> NSDecimalNumber {
-        NSDecimalNumber(string: self.fdy_String())
+    func fdy_toNSDecimalNumber() -> NSDecimalNumber {
+        NSDecimalNumber(string: self.fdy_toString())
     }
 
     /// 将当前值转换为 `Decimal`
-    func fdy_Decimal() -> Decimal {
-        self.fdy_NSDecimalNumber().decimalValue
+    func fdy_toDecimal() -> Decimal {
+        self.fdy_toNSDecimalNumber().decimalValue
     }
 
     /// 将当前值转换为字符串表示
-    func fdy_String() -> String {
+    func fdy_toString() -> String {
         String(describing: self)
     }
 
     /// 将当前值转换为 `CGPoint`,`x` 和 `y` 坐标均使用该值
-    func fdy_CGPoint() -> CGPoint {
+    func fdy_toCGPoint() -> CGPoint {
         let v = CGFloat(self)
         return CGPoint(x: v, y: v)
     }
 
     /// 将当前值转换为 `CGSize`,`width` 和 `height` 均使用该值
-    func fdy_CGSize() -> CGSize {
+    func fdy_toCGSize() -> CGSize {
         let v = CGFloat(self)
         return CGSize(width: v, height: v)
     }

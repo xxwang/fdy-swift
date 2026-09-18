@@ -7,7 +7,7 @@ extension CGPath: FdyExtension {}
 
 public extension CGPath {
     /// 创建当前路径的可变副本
-    func fdy_CGMutablePath() -> CGMutablePath {
+    func fdy_toCGMutablePath() -> CGMutablePath {
         let copy = CGMutablePath()
         copy.addPath(self)
         return copy

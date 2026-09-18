@@ -20,7 +20,7 @@ public extension NSAttributedString {
 // MARK: - 类型转换
 public extension NSAttributedString {
     /// 将当前不可变属性字符串转换为可变属性字符串
-    func fdy_NSMutableAttributedString() -> NSMutableAttributedString {
+    func fdy_toNSMutableAttributedString() -> NSMutableAttributedString {
         NSMutableAttributedString(attributedString: self)
     }
 }
@@ -34,7 +34,7 @@ public extension NSAttributedString {
     ///
     /// - Parameter substring: 要查找的子字符串
     /// - Returns: 对应的 `NSRange`
-    func fdy_nsRange(of substring: String) -> NSRange {
+    func fdy_toNSRange(of substring: String) -> NSRange {
         let str = self.string
         guard let range = str.range(of: substring) else {
             return Foundation.NSRange(location: NSNotFound, length: 0)

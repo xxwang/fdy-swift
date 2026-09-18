@@ -94,10 +94,10 @@ UILabel().fdy.do { print($0.text ?? "") }  // 副作用：仅执行闭包
 UILabel().fdy.then { $0.text = "hi" }      // 引用类型：配置并返回自身，可继续链式
 ```
 
-> `.fdy` 需要目标类型 conform `FdyExtension`。库内共 **29 条**（清单见文末「协议」一节）：
+> `.fdy` 需要目标类型 conform `FdyExtension`。库内共 **32 条**（清单见文末「协议」一节）：
 > `NSObject` 那条被所有类子类继承，`UIView` / `UIViewController` 等引用类型因此自动可用；
 > `CGPath` 那条则被子类 `CGMutablePath` 继承（Core Foundation 类型同样有 Swift 侧继承）。
-> 常用值类型（`CGPoint` / `[Int]` / `Data` 等 23 个）**已逐条登记**，可直接使用。
+> 常用值类型（`CGPoint` / `[Int]` / `Data` / `UIBackgroundConfiguration` 等）**已逐条登记**，可直接使用。
 
 ### Chain 链式配置
 
@@ -214,13 +214,40 @@ let submit = UIButton.plain()
 
 > - 背景组对应 `UIBackgroundConfiguration` 的属性，统一用 `background` 前缀；唯一改名的是
 >   `edgesAddingLayoutMarginsToBackgroundInsets` → `backgroundMarginEdges`（原名过长）。
-> - 未覆盖的只剩 `background.shadowProperties`（只读属性）。
+> - `background.shadowProperties` 已覆盖（`shadowColor` / `shadowOpacity` / `shadowRadius` / `shadowOffset` /
+>   `shadowPath`），见独立的 `Chain/UIKit/UIBackgroundConfiguration+Chain.swift`。
+>   **注意**：ObjC 头文件把 `shadowProperties` 标成了 `readonly`，但 Swift 侧是 `{ get set }`，
+>   `configuration.shadowProperties.radius = 4` 实测可编译 —— 以编译器为准。
 > - **多状态（高亮/选中/禁用）请配合 `configurationUpdateHandler(_:)`**：
 >   在 handler 里基于「外部只读模板」重建配置再写回，**不要在 handler 内读回 `button.configuration`** ——
 >   `automaticallyUpdatesConfiguration` 默认为 `true`，UIKit 会把派生后的配置写回，导致状态回退时残留旧值。
 >   另注意 UIKit 只对**颜色**派生状态样式，背景图/图标在各状态下完全相同，需要自己换。
 
-支持 Chain 的类型覆盖：`UIView`/`UIButton`/`UILabel`/`UITextField`/`UITextView`/`UIImageView`/`UICollectionView`/`UITableView`/`UIScrollView`/`UIStackView`/`UIViewController`/`CALayer`/`CAAnimation` 系列、`CAGradientLayer`、`MKMapView`、`WKWebView`、`NSAttributedString`、`Date`、`Timer`、`UIEdgeInsets`、`DateComponents`、`CGMutablePath` 等 60+ 类型。
+支持 Chain 的类型覆盖：`UIView`/`UIButton`/`UILabel`/`UITextField`/`UITextView`/`UIImageView`/`UICollectionView`/`UITableView`/`UIScrollView`/`UIStackView`/`UIViewController`/`CALayer`/`CAAnimation` 系列、`CAGradientLayer`、`MKMapView`、`WKWebView`、`NSAttributedString`、`Date`、`Timer`、`UIEdgeInsets`、`DateComponents`、`CGMutablePath`、**外观配置系**（`UIBarAppearance`/`UINavigationBarAppearance`/`UITabBarAppearance`/`UIBackgroundConfiguration`/`UIListContentConfiguration`/`UIContentUnavailableConfiguration`）等 60+ 类型。
+
+#### 外观配置系（6 个文件 / 138 个方法）
+
+导航栏与标签栏外观、列表内容与空态配置的链式方法。**class 与 struct 的语义不同**，这是最容易用错的一点：
+
+| 类型 | 文件 | 语义 | 方法数 |
+| --- | --- | --- | --- |
+| `UIBarAppearance`（基类） | `UIBarAppearance+Chain.swift` | 引用 —— 就地改，免 `build()` | 10 |
+| `UINavigationBarAppearance` | `UINavigationBarAppearance+Chain.swift` | 引用（另**继承**基类 10 个） | 13 |
+| `UITabBarAppearance` | `UITabBarAppearance+Chain.swift` | 引用（另**继承**基类 10 个） | 8 |
+| `UIBackgroundConfiguration` | `UIBackgroundConfiguration+Chain.swift` | **值** —— 须 `build()` 取回 | 19 |
+| `UIListContentConfiguration` | `UIListContentConfiguration+Chain.swift` | **值** | 45 |
+| `UIContentUnavailableConfiguration` | `UIContentUnavailableConfiguration+Chain.swift` | **值** | 43 |
+
+> - **继承**：基类那 10 个写在 `where Base: UIBarAppearance` 上，两个子类**自动拿到**，无需重复实现
+>   （双运行时探针 `S43` 钉的就是这条）。
+> - **嵌套 struct 轴按既有约定拍平加前缀**（先例：`UIButton.Configuration` 的 `backgroundCornerRadius`）：
+>   `textProperties.font` → `textFont(_:)`、`imageProperties.tintColor` → `imageTintColor(_:)`、
+>   `buttonProperties.role` → `buttonRole(_:)`、`shadowProperties.radius` → `shadowRadius(_:)`。
+> - **可用性**：`overrideUserInterfaceStyle` 需 `iOS 27`；`subtitleTextAttributes` /
+>   `largeSubtitleTextAttributes` / `UIToolbarAppearance.prominentButtonAppearance` 需 `iOS 26`。
+>   对应链式方法已带 `@available` 标注（反证实测：去掉标注即编译报错）。
+> - **未覆盖**：`UIToolbarAppearance`（仅 `buttonAppearance` / `prominentButtonAppearance` 两项自身属性）、
+>   `UITabBarItemAppearance`、`UIBarButtonItemAppearance` —— 父类方法已自动继承，自身属性留待后续批次。
 
 ### 可复用控件（`Sources/Fdy/Components/`）
 
@@ -337,7 +364,7 @@ numbers.fdy_removeDuplicates()          // 去重（原地修改，保持顺序�
 Character("a").fdy_uppercase()          // 字符转大写
 
 model.fdy_encode()                      // Codable → Data?
-model.fdy_string()                      // Codable → JSON 字符串
+model.fdy_toJSONString()                // Codable → JSON 字符串
 MyModel.fdy_decode(from: data)          // Data → Codable
 ```
 
@@ -681,7 +708,7 @@ Sources/
 - `FdySetupable` — MVVM 配置生命周期（成员均有空默认实现，按需重写）
 - `FdySkinable` — 主题皮肤响应（配合 `FdySkinManager` 做运行期切换）
 
-`FdyExtension` 的 conformance 全库 **29 条**，登记在各类型对应的扩展文件里：
+`FdyExtension` 的 conformance 全库 **32 条**，登记在各类型对应的扩展文件里：
 
 | 类型 | 登记处 | 是否被继承 |
 |------|--------|-----------|
@@ -691,7 +718,7 @@ Sources/
 | `UIButton.Configuration` | `Chain/UIKit/UIButton.Configuration+Chain.swift` | 否（Swift 侧是 **struct**） |
 | `Date` | `Extensions/Foundation/Date++.swift` | 否 |
 
-其余 24 条均逐一登记、不继承：
+其余 27 条均逐一登记、不继承：
 
 | 目录 | 类型 |
 |------|------|
@@ -699,6 +726,7 @@ Sources/
 | `Extensions/Stdlib/` | `Array` `Dictionary` `Character` `Bool` `Optional` `Range` `ClosedRange` |
 | `Extensions/Foundation/` | `Data` `Decimal` `DateComponents` `IndexPath` `Measurement` `NSRange` `URL` `URLRequest` `UUID` |
 | `Chain/UIGeometry/` | `UIEdgeInsets` |
+| `Chain/UIKit/` | `UIBackgroundConfiguration` `UIListContentConfiguration` `UIContentUnavailableConfiguration`（三者 Swift 侧均为 **struct**，与 `UIButton.Configuration` 同规则，漏登记即 `.fdy` 不可达） |
 
 > ⚠️ **`String` 漏登记不会编译失败，而是类型错误**：`"abc".fdy` 会经 `NSString` 桥接解析成
 > `FdyWrapper<NSString>` —— 能编译，但 `.build()` 返回 `NSString`。故必须显式登记。
