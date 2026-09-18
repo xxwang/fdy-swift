@@ -1,5 +1,10 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `Bool` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension Bool: FdyExtension {}
+
 // MARK: - 类型转换
 public extension Bool {
     /// 将布尔值转换为对应的整数值

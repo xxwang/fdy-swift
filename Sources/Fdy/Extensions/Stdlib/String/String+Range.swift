@@ -16,30 +16,13 @@ public extension String {
         NSRange(self.fdy_fullRange, in: self)
     }
 
-    /// 将 `NSRange` 安全转换为 `Range<String.Index>`
-    ///
-    /// - Parameter nsRange: 基于 UTF-16 的 NSRange
-    /// - Returns: 若范围有效且完全位于字符串内,则返回对应的 `Range<String.Index>`;否则返回 `nil`
-    /// - Note: 此方法是 Foundation `Range(_:in:)` 的安全封装
-    func fdy_range(from nsRange: NSRange) -> Range<String.Index>? {
-        Range(nsRange, in: self)
-    }
-
     /// 将 `Range<String.Index>` 转换为 `NSRange`
     ///
     /// - Parameter range: 基于 `String.Index` 的字符范围
     /// - Returns: 对应的 `NSRange`（基于 UTF-16 单元）
-    /// - Note: 要求 `range` 必须是当前字符串的有效子范围
+    /// - Note: 等价于 `NSRange(_:in:)`,保留以统一 `fdy_` 前缀;要求 `range` 是当前字符串的有效子范围
     func fdy_nsRange(from range: Range<String.Index>) -> NSRange {
         NSRange(range, in: self)
-    }
-
-    /// 查找子字符串在当前字符串中的首次出现位置（基于 `String.Index`）
-    ///
-    /// - Parameter substring: 要查找的子字符串
-    /// - Returns: 找到则返回范围,否则返回 `nil`
-    func fdy_subRange(of substring: String) -> Range<String.Index>? {
-        self.range(of: substring)
     }
 
     /// 查找子字符串在当前字符串中的首次出现位置（基于 `NSRange`）
@@ -178,7 +161,8 @@ public extension String {
     /// - Parameter from: 起始位置（UTF-16 索引）
     /// - Returns: 截取结果;若 `from` 越界,返回空字符串
     func fdy_substring(from: Int) -> String {
-        self.fdy_slice(from ..< self.utf16.count)
+        let start = min(max(0, from), self.utf16.count)
+        return self.fdy_slice(start ..< self.utf16.count)
     }
 
     /// 从开头截取到指定 UTF-16 索引（不包含）
@@ -198,7 +182,7 @@ public extension String {
     /// - Returns: 尽可能截取的有效子串;若 `length <= 0`,返回空字符串
     func fdy_substring(from: Int, length: Int) -> String {
         guard length > 0 else { return "" }
-        let start = max(0, from)
+        let start = min(max(0, from), self.utf16.count)
         let end = min(start + length, self.utf16.count)
         return self.fdy_slice(start ..< end)
     }
@@ -210,8 +194,8 @@ public extension String {
     ///   - to: 结束索引（不包含）
     /// - Returns: 有效范围内的子串
     func fdy_substring(from: Int, to: Int) -> String {
-        let start = max(0, min(from, to))
-        let end = min(max(from, to), self.utf16.count)
+        let end = min(max(0, max(from, to)), self.utf16.count)
+        let start = min(max(0, min(from, to)), end)
         return self.fdy_slice(start ..< end)
     }
 

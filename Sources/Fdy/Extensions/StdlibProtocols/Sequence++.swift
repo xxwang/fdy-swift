@@ -28,23 +28,6 @@ public extension Sequence {
     func fdy_reject(_ condition: (Element) throws -> Bool) rethrows -> [Element] {
         return try filter { try !condition($0) }
     }
-
-    /// 统计满足条件的元素个数
-    ///
-    /// - Parameter condition: 判断闭包
-    /// - Returns: 满足条件的元素数量
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [2, 4, 7].fdy_count { $0.isMultiple(of: 2) } // 2
-    ///     ```
-    func fdy_count(_ condition: (Element) throws -> Bool) rethrows -> Int {
-        var count = 0
-        for element in self where try condition(element) {
-            count += 1
-        }
-        return count
-    }
 }
 
 // MARK: - 遍历

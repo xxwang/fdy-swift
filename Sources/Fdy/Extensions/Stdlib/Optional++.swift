@@ -1,5 +1,10 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `Optional` 是泛型枚举,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension Optional: FdyExtension {}
+
 // MARK: - 可选值状态判断属性
 public extension Optional {
     /// 判断可选值是否为 `nil`
@@ -123,89 +128,62 @@ public extension Optional {
     }
 }
 
-// MARK: - 可选值自定义赋值运算符
-infix operator ?=: AssignmentPrecedence
-infix operator ??=: AssignmentPrecedence
-
+// MARK: - 可选值自定义赋值方法
 public extension Optional {
-    /// 仅当右侧可选值非 `nil` 时,将其解包并赋值给左侧
+    /// 仅当参数可选值非 `nil` 时,将其解包并赋值给当前可选值
     ///
-    /// - Note: 相当于 `if let rhs = rhs { lhs = rhs }`
+    /// - Note: 相当于 `if let value = other { self = value }`
     /// - Example:
     ///   ```swift
     ///   var target: String? = nil
     ///   let source: String? = "Hello"
-    ///   target ?= source  // target = "Hello"
+    ///   target.fdy_assignIfNotNil(source)  // target = "Hello"
     ///   let empty: String? = nil
-    ///   target ?= empty   // target 保持不变
+    ///   target.fdy_assignIfNotNil(empty)   // target 保持不变
     ///   ```
     @inlinable
-    static func ?= (lhs: inout Self, rhs: Self) {
-        if let rhsValue = rhs {
-            lhs = rhsValue
+    mutating func fdy_assignIfNotNil(_ other: Self) {
+        if let value = other {
+            self = value
         }
     }
 
-    /// 仅当左侧为 `nil` 时,使用右侧闭包的结果进行赋值（惰性求值）
+    /// 仅当当前可选值为 `nil` 时,使用参数闭包的结果进行赋值（惰性求值）
     ///
-    /// - Note: 右侧表达式仅在 `lhs == nil` 时求值
+    /// - Note: 参数表达式仅在 `self == nil` 时求值
     /// - Example:
     ///   ```swift
     ///   var cache: Int? = nil
-    ///   cache ??= expensiveComputation() // 调用 expensiveComputation()
-    ///   cache ??= anotherComputation()   // 不再调用,因为 cache 已有值
+    ///   cache.fdy_assignIfNil(expensiveComputation()) // 调用 expensiveComputation()
+    ///   cache.fdy_assignIfNil(anotherComputation())   // 不再调用,因为 cache 已有值
     ///   ```
     @inlinable
-    static func ??= (lhs: inout Self, rhs: @autoclosure () -> Self) {
-        if lhs == nil {
-            lhs = rhs()
+    mutating func fdy_assignIfNil(_ other: @autoclosure () -> Self) {
+        if self == nil {
+            self = other()
         }
     }
 }
 
-// MARK: - 可选 RawRepresentable 类型与原始值的比较重载
+// MARK: - 可选 RawRepresentable 类型与原始值的比较方法
 public extension Optional where Wrapped: RawRepresentable, Wrapped.RawValue: Equatable {
-    /// 允许直接比较 `Optional<Enum>` 与 `Optional<RawValue>` 是否相等
+    /// 判断当前 `Optional<Enum>` 的 `rawValue` 是否等于指定的可选原始值
     ///
-    /// - Parameters:
-    ///   - lhs: 可选枚举值
-    ///   - rhs: 可选原始值
+    /// - Note: 原 `==` 的两个方向（`Optional<Enum>` 与 `Optional<RawValue>` 互比）合并为本方法
+    /// - Parameter rawValue: 可选原始值
     /// - Returns: 若两者 `rawValue` 相等（或同为 `nil`）,则返回 `true`
     @inlinable
-    static func == (lhs: Self, rhs: Wrapped.RawValue?) -> Bool {
-        lhs?.rawValue == rhs
+    func fdy_isEqual(to rawValue: Wrapped.RawValue?) -> Bool {
+        self?.rawValue == rawValue
     }
 
-    /// 允许直接比较 `Optional<RawValue>` 与 `Optional<Enum>` 是否相等
+    /// 判断当前 `Optional<Enum>` 的 `rawValue` 是否不等于指定的可选原始值
     ///
-    /// - Parameters:
-    ///   - lhs: 可选原始值
-    ///   - rhs: 可选枚举值
-    /// - Returns: 若两者 `rawValue` 相等（或同为 `nil`）,则返回 `true`
-    @inlinable
-    static func == (lhs: Wrapped.RawValue?, rhs: Self) -> Bool {
-        lhs == rhs?.rawValue
-    }
-
-    /// 判断 `Optional<Enum>` 与 `Optional<RawValue>` 是否不相等
-    ///
-    /// - Parameters:
-    ///   - lhs: 可选枚举值
-    ///   - rhs: 可选原始值
+    /// - Note: 原 `!=` 的两个方向（`Optional<Enum>` 与 `Optional<RawValue>` 互比）合并为本方法
+    /// - Parameter rawValue: 可选原始值
     /// - Returns: 若 `rawValue` 不等或仅一方为 `nil`,则返回 `true`
     @inlinable
-    static func != (lhs: Self, rhs: Wrapped.RawValue?) -> Bool {
-        lhs?.rawValue != rhs
-    }
-
-    /// 判断 `Optional<RawValue>` 与 `Optional<Enum>` 是否不相等
-    ///
-    /// - Parameters:
-    ///   - lhs: 可选原始值
-    ///   - rhs: 可选枚举值
-    /// - Returns: 若 `rawValue` 不等或仅一方为 `nil`,则返回 `true`
-    @inlinable
-    static func != (lhs: Wrapped.RawValue?, rhs: Self) -> Bool {
-        lhs != rhs?.rawValue
+    func fdy_isNotEqual(to rawValue: Wrapped.RawValue?) -> Bool {
+        self?.rawValue != rawValue
     }
 }

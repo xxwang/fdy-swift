@@ -1,6 +1,7 @@
 import UIKit
 
-/// 应用专属的 UI 外观与默认行为配置中心
+/// 应用专属的 UI 外观与默认行为配置中心。访问 `UIAppearance` / `UIApplication`,必须在主线程使用,因此标注为 ``@MainActor``
+@MainActor
 public final class FdyAppearance {
     public static let shared = FdyAppearance()
     private init() {}
@@ -38,10 +39,14 @@ public extension FdyAppearance {
 public extension FdyAppearance {
     /// 强制整个 App 使用指定的界面主题(忽略系统设置)
     ///
+    /// - Note: `overrideUserInterfaceStyle` 非 `UI_APPEARANCE_SELECTOR`，实测经 `UIView.appearance()` 代理赋值**不生效**，
+    ///   故直接遍历窗口赋值；视图加入窗口后即继承该主题。
     /// - Parameter userInterfaceStyle: 要强制使用的主题(`.light` / `.dark`)
     func setupView(_ userInterfaceStyle: UIUserInterfaceStyle) {
-        let view = UIView.appearance()
-        view.overrideUserInterfaceStyle = userInterfaceStyle
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .forEach { $0.overrideUserInterfaceStyle = userInterfaceStyle }
     }
 
     /// 为所有 `UITableView` 应用推荐的默认布局行为：

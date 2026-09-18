@@ -3,6 +3,9 @@ import AdSupport
 import AppTrackingTransparency
 
 /// 提供常用辅助信息
+///
+/// - Note: 读取 `UIApplication` / `UIWindow` 的成员单独标注 ``@MainActor``；
+///   `className`、`deviceTokenStr` 等纯工具成员保持 `nonisolated`，避免把非 UI 调用方（如复用标识、类名）拖到主线程。
 public final class FdyHelper {
     public static let shared = FdyHelper()
     private init() {}
@@ -42,6 +45,7 @@ public extension FdyHelper {
     ///
     /// 判断依据：`key window` 的 `safeAreaInsets.bottom > 0`
     /// 注意：在 `iPad` 或非全面屏设备上返回 `false`
+    @MainActor
     var isIPhoneXSeries: Bool {
         let bottomInset = UIWindow.fdy_keyWindow?.safeAreaInsets.bottom ?? 0
         return isPhone && bottomInset > 0
@@ -140,6 +144,7 @@ public extension FdyHelper {
 // MARK: - 屏幕方向
 public extension FdyHelper {
     /// 获取当前界面方向
+    @MainActor
     var interfaceOrientation: UIInterfaceOrientation {
         let activeScene = UIApplication.shared.connectedScenes
             .first { $0.activationState == .foregroundActive } as? UIWindowScene
@@ -147,6 +152,7 @@ public extension FdyHelper {
     }
 
     /// 当前界面是否处于横屏状态
+    @MainActor
     var isLandscape: Bool {
         return self.interfaceOrientation.isLandscape
     }

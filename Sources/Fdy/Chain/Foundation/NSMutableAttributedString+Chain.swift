@@ -1,5 +1,21 @@
 import Foundation
 
+/// 在指定 range 上增量修改段落样式(保留其余字段)
+private func fdy_updateParagraphStyle(
+    in range: NSRange,
+    of attributedString: NSMutableAttributedString,
+    _ mutate: (NSMutableParagraphStyle) -> Void
+) {
+    let full = NSRange(location: 0, length: attributedString.length)
+    let target = (range.location == NSNotFound || range.length == 0) ? full : range
+    attributedString.enumerateAttribute(.paragraphStyle, in: target, options: []) { value, subRange, _ in
+        let style = (value as? NSParagraphStyle)?.mutableCopy() as? NSMutableParagraphStyle
+            ?? NSMutableParagraphStyle()
+        mutate(style)
+        attributedString.addAttribute(.paragraphStyle, value: style, range: subRange)
+    }
+}
+
 // MARK: - 链式设置属性(自定义)
 public extension FdyWrapper where Base: NSMutableAttributedString {
     /// 在指定位置插入一个图片附件
@@ -86,45 +102,47 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置段落内行与行之间的额外间距(line spacing)
+    /// 设置行间距(保留已有段落样式,不传 `alignment` 时不动对齐方式)
     ///
     /// - Parameters:
     ///   - lineSpacing: 行间距(单位：点)
-    ///   - alignment: 段落对齐方式,默认为左对齐
+    ///   - alignment: 段落对齐方式,默认为 `nil`(保持原样)
     ///   - for: 目标范围默认为整个字符串
     /// - Returns: `Self`
     @discardableResult
-    func lineSpacing(_ lineSpacing: CGFloat, alignment: NSTextAlignment = .left, for range: NSRange? = nil) -> Self {
-        let range = range ?? base.fdy_fullNSRange
-        let style = NSMutableParagraphStyle()
-        style.lineSpacing = lineSpacing
-        style.alignment = alignment
-        base.addAttribute(.paragraphStyle, value: style, range: range)
+    func lineSpacing(_ lineSpacing: CGFloat, alignment: NSTextAlignment? = nil, for range: NSRange? = nil) -> Self {
+        fdy_updateParagraphStyle(in: range ?? base.fdy_fullNSRange, of: base) { style in
+            style.lineSpacing = lineSpacing
+            if let alignment {
+                style.alignment = alignment
+            }
+        }
         return self
     }
 
-    /// 设置`固定行高`(通过最小/最大行高强制统一高度)
+    /// 设置`固定行高`(最小/最大行高一致,保留已有段落样式)
     ///
     /// - Parameters:
     ///   - lineHeight: 期望的行高(单位：点)
-    ///   - alignment: 段落对齐方式
+    ///   - alignment: 段落对齐方式,默认为 `nil`(保持原样)
     ///   - for: 目标范围
     /// - Returns: `Self`
     ///
     /// - Note: 实际渲染行高 = max(字体自然高度, lineHeight)
     ///         若需精确控制,请确保 `lineHeight` 大于等于字体高度
     @discardableResult
-    func fixedLineHeight(_ lineHeight: CGFloat, alignment: NSTextAlignment = .left, for range: NSRange? = nil) -> Self {
-        let range = range ?? base.fdy_fullNSRange
-        let style = NSMutableParagraphStyle()
-        style.minimumLineHeight = lineHeight
-        style.maximumLineHeight = lineHeight
-        style.alignment = alignment
-        base.addAttribute(.paragraphStyle, value: style, range: range)
+    func fixedLineHeight(_ lineHeight: CGFloat, alignment: NSTextAlignment? = nil, for range: NSRange? = nil) -> Self {
+        fdy_updateParagraphStyle(in: range ?? base.fdy_fullNSRange, of: base) { style in
+            style.minimumLineHeight = lineHeight
+            style.maximumLineHeight = lineHeight
+            if let alignment {
+                style.alignment = alignment
+            }
+        }
         return self
     }
 
-    /// 设置段落后的额外间距(paragraph spacing)
+    /// 设置段落间距(保留已有段落样式与对齐方式)
     ///
     /// - Parameters:
     ///   - spacing: 段落间距(单位：点)
@@ -132,22 +150,21 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     /// - Returns: `Self`
     @discardableResult
     func paragraphSpacing(_ spacing: CGFloat, for range: NSRange? = nil) -> Self {
-        let range = range ?? base.fdy_fullNSRange
-        let style = NSMutableParagraphStyle()
-        style.paragraphSpacing = spacing
-        base.addAttribute(.paragraphStyle, value: style, range: range)
+        fdy_updateParagraphStyle(in: range ?? base.fdy_fullNSRange, of: base) { style in
+            style.paragraphSpacing = spacing
+        }
         return self
     }
 
-    /// 设置首行缩进(仅第一行缩进)
+    /// 设置首行缩进(保留已有段落样式与对齐方式)
     ///
     /// - Parameter indent: 缩进宽度(单位：点)
     /// - Returns: `Self`
     @discardableResult
     func firstLineHeadIndent(_ indent: CGFloat) -> Self {
-        let style = NSMutableParagraphStyle()
-        style.firstLineHeadIndent = indent
-        base.addAttribute(.paragraphStyle, value: style, range: base.fdy_fullNSRange)
+        fdy_updateParagraphStyle(in: base.fdy_fullNSRange, of: base) { style in
+            style.firstLineHeadIndent = indent
+        }
         return self
     }
 

@@ -1,25 +1,4 @@
 import Foundation
-import CryptoKit
-
-public extension String {
-    /// 使用 Base64 字符串初始化 `String`
-    ///
-    /// - Parameter base64String: Base64 编码的字符串（可包含换行、空格等）
-    /// - Returns: 成功解码并以 UTF-8 解析的字符串,或 `nil`
-    /// - Note: 自动忽略非法字符（如空格、换行）,但`不自动补全 `=` 填充`
-    /// - Example:
-    ///   ```swift
-    ///   let str = String(base64: "SGVsbG8g8J+MjQ==") // Optional("Hello 😊")
-    ///   ```
-    init?(base64 base64String: String) {
-        guard let data = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters),
-              let string = String(data: data, encoding: .utf8)
-        else {
-            return nil
-        }
-        self = string
-    }
-}
 
 // MARK: - Base64 编解码扩展
 public extension String {
@@ -30,9 +9,16 @@ public extension String {
         self.fdy_Data()?.base64EncodedString()
     }
 
-    /// 尝试将字符串作为 Base64 进行解码（自动处理缺失的填充符 `=`）
+    /// 将 Base64 字符串解码为 UTF-8 字符串
     ///
-    /// - Returns: 解码后的 UTF-8 字符串,或 `nil`
+    /// - Returns: 解码后的字符串,或 `nil`
+    /// - Note: 容忍非法字符（空格、换行等,按 `.ignoreUnknownCharacters` 忽略）,
+    ///   并自动补全缺失的填充符 `=`;补全后仍无法解码则返回 `nil`
+    /// - Example:
+    ///   ```swift
+    ///   "SGVsbG8g8J+MjQ".fdy_base64Decoded  // Optional("Hello 😊")
+    ///   "SGVsbG8g8J+MjQ==".fdy_base64Decoded // Optional("Hello 😊")
+    ///   ```
     var fdy_base64Decoded: String? {
         // 第一次尝试：标准解码
         if let data = Data(base64Encoded: self, options: .ignoreUnknownCharacters),

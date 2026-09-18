@@ -21,25 +21,35 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置内容偏移量(`contentOffset`),自动限制在有效范围内
+    /// 设置内容偏移量(`contentOffset`),直传不做范围裁剪,需要裁剪请用 `contentOffsetClamped`
     ///
-    /// - Parameter offset: 目标偏移点即使传入超出范围的值,也会被裁剪至合法区间：
-    ///   - 最小 X：`-contentInset.left`
-    ///   - 最大 X：`contentSize.width + contentInset.right`
-    ///   - 最小 Y：`-contentInset.top`
-    ///   - 最大 Y：`contentSize.height + contentInset.bottom`
+    /// - Parameters:
+    ///   - offset: 目标偏移点
+    ///   - animated: 是否启用滚动动画
     /// - Returns: `Self`
     @discardableResult
-    func contentOffset(_ offset: CGPoint) -> Self {
-        let clampedX = min(
-            max(offset.x, -base.contentInset.left),
-            base.contentSize.width + base.contentInset.right
+    func contentOffset(_ offset: CGPoint, animated: Bool = false) -> Self {
+        base.setContentOffset(offset, animated: animated)
+        return self
+    }
+
+    /// 设置内容偏移量(`contentOffset`),并裁剪到合法滚动区间(考虑 `contentInset` 与 `bounds`)
+    ///
+    /// - Parameters:
+    ///   - offset: 目标偏移点,超出部分会被裁剪
+    ///   - animated: 是否启用滚动动画
+    /// - Returns: `Self`
+    @discardableResult
+    func contentOffsetClamped(_ offset: CGPoint, animated: Bool = false) -> Self {
+        let minX = -base.contentInset.left
+        let maxX = max(minX, base.contentSize.width - base.bounds.width + base.contentInset.right)
+        let minY = -base.contentInset.top
+        let maxY = max(minY, base.contentSize.height - base.bounds.height + base.contentInset.bottom)
+        let clamped = CGPoint(
+            x: min(max(offset.x, minX), maxX),
+            y: min(max(offset.y, minY), maxY)
         )
-        let clampedY = min(
-            max(offset.y, -base.contentInset.top),
-            base.contentSize.height + base.contentInset.bottom
-        )
-        base.contentOffset = CGPoint(x: clampedX, y: clampedY)
+        base.setContentOffset(clamped, animated: animated)
         return self
     }
 
@@ -237,12 +247,12 @@ public extension FdyWrapper where Base: UIScrollView {
 
 // MARK: - 链式方法(自定义)
 public extension FdyWrapper where Base: UIScrollView {
-    /// 滚动到内容顶部(考虑 `contentInset.top`)
+    /// 滚动到内容顶部(`y = -contentInset.top`)
     ///
     /// - Parameter animated: 是否启用滚动动画
     /// - Returns: `Self`
     @discardableResult
-    func scrollToEndTop(_ animated: Bool = true) -> Self {
+    func scrollToTop(animated: Bool = true) -> Self {
         base.setContentOffset(CGPoint(x: base.contentOffset.x, y: -base.contentInset.top), animated: animated)
         return self
     }
@@ -252,18 +262,18 @@ public extension FdyWrapper where Base: UIScrollView {
     /// - Parameter animated: 是否启用滚动动画
     /// - Returns: `Self`
     @discardableResult
-    func scrollToEndBottom(_ animated: Bool = true) -> Self {
+    func scrollToBottom(animated: Bool = true) -> Self {
         let maxY = max(0, base.contentSize.height - base.bounds.height) + base.contentInset.bottom
         base.setContentOffset(CGPoint(x: base.contentOffset.x, y: maxY), animated: animated)
         return self
     }
 
-    /// 滚动到内容最左侧(考虑 `contentInset.left`)
+    /// 滚动到内容最左侧(`x = -contentInset.left`)
     ///
     /// - Parameter animated: 是否启用滚动动画
     /// - Returns: `Self`
     @discardableResult
-    func scrollToEndLeft(_ animated: Bool = true) -> Self {
+    func scrollToLeft(animated: Bool = true) -> Self {
         base.setContentOffset(CGPoint(x: -base.contentInset.left, y: base.contentOffset.y), animated: animated)
         return self
     }
@@ -273,7 +283,7 @@ public extension FdyWrapper where Base: UIScrollView {
     /// - Parameter animated: 是否启用滚动动画
     /// - Returns: `Self`
     @discardableResult
-    func scrollToEndRight(_ animated: Bool = true) -> Self {
+    func scrollToRight(animated: Bool = true) -> Self {
         let maxX = max(0, base.contentSize.width - base.bounds.width) + base.contentInset.right
         base.setContentOffset(CGPoint(x: maxX, y: base.contentOffset.y), animated: animated)
         return self

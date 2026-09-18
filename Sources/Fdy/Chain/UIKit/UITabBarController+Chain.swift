@@ -2,11 +2,11 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UITabBarController {
-    /// 设置代理
+    /// 设置代理,传 `nil` 可清空
     /// - Parameter delegate: 代理对象
     /// - Returns: `Self`
     @discardableResult
-    func delegate(_ delegate: UITabBarControllerDelegate) -> Self {
+    func delegate(_ delegate: UITabBarControllerDelegate?) -> Self {
         base.delegate = delegate
         return self
     }

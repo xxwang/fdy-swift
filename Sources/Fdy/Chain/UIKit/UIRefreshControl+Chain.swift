@@ -13,15 +13,6 @@ public extension FdyWrapper where Base: UIRefreshControl {
         return self
     }
 
-    /// 设置刷新控件的主色调(影响 `spinner` 和文字颜色)
-    /// - Parameter color: 主色调
-    /// - Returns: `Self`
-    @discardableResult
-    func tintColor(_ color: UIColor?) -> Self {
-        base.tintColor = color
-        return self
-    }
-
     /// 绑定刷新事件回调
     /// - Parameters:
     ///   - target: 目标对象
@@ -36,14 +27,6 @@ public extension FdyWrapper where Base: UIRefreshControl {
 
 // MARK: - 链式方法(自定义)
 public extension FdyWrapper where Base: UIRefreshControl {
-    /// 将刷新控件添加到滚动视图或者其子类
-    /// - Parameter scrollView: 滚动视图或者其子类
-    /// - Returns: `Self`
-    @discardableResult
-    func add2(_ scrollView: UIScrollView) -> Self {
-        return self
-    }
-
     /// 开始刷新
     /// - Parameters:
     ///   - scrollView: 所属的 UIScrollView(如 UITableView / UICollectionView)
@@ -80,15 +63,16 @@ public extension FdyWrapper where Base: UIRefreshControl {
 
         guard let scrollView = base.superview as? UIScrollView else { return self }
 
-        // 仅当当前处于“被拉下”状态时才重置 contentOffset
+        // 仅当当前处于“被拉下”状态时才重置 contentOffset,回到真正的顶部(考虑 contentInset.top)
         let refreshOffset = -base.frame.height
         if scrollView.contentOffset.y <= refreshOffset {
+            let topOffset = -scrollView.contentInset.top
             if animated {
                 UIView.animate(withDuration: 0.25) {
-                    scrollView.contentOffset.y = 0
+                    scrollView.contentOffset.y = topOffset
                 }
             } else {
-                scrollView.contentOffset.y = 0
+                scrollView.contentOffset.y = topOffset
             }
         }
         return self

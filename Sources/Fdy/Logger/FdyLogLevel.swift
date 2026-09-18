@@ -18,7 +18,7 @@ public enum FdyLogLevel: Int, Comparable, CustomStringConvertible, CaseIterable 
     }
 
     /// 图标前缀（可选，增强可读性）
-    var icon: String {
+    public var icon: String {
         switch self {
         case .debug: return "👻"
         case .info: return "🌸"

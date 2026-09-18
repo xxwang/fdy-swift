@@ -147,19 +147,19 @@ public extension Collection where Element: BinaryInteger {
     }
 }
 
-// MARK: - Element: FloatingPoint
-public extension Collection where Element: FloatingPoint {
+// MARK: - Element: BinaryFloatingPoint
+public extension Collection where Element: BinaryFloatingPoint {
     /// 计算浮点数集合的算术平均值
     ///
-    /// - Returns: 平均值(与元素同类型)若集合为空,返回 `.zero`
+    /// - Returns: 平均值(`Double` 类型,与整数版返回类型保持一致);若集合为空,返回 `0.0`
     ///
     /// - Example:
     ///     ```swift
     ///     let temps = [36.5, 37.0, 36.8]
     ///     print(temps.fdy_average) // ≈ 36.766...
     ///     ```
-    var fdy_average: Element {
-        guard !isEmpty else { return .zero }
-        return reduce(.zero, +) / Element(count)
+    var fdy_average: Double {
+        guard !isEmpty else { return 0.0 }
+        return reduce(0.0) { $0 + Double($1) } / Double(count)
     }
 }

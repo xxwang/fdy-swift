@@ -98,29 +98,29 @@ public extension NSAttributedString {
     }
 }
 
-// MARK: - 运算符重载
+// MARK: - 运算方法
 public extension NSAttributedString {
-    /// 将右侧的 `NSAttributedString` 追加到左侧可变引用上
-    static func += (lhs: inout NSAttributedString, rhs: NSAttributedString) {
-        let mutable = NSMutableAttributedString(attributedString: lhs)
-        mutable.append(rhs)
-        lhs = NSAttributedString(attributedString: mutable)
-    }
-
-    /// 将右侧的普通字符串(无属性)追加到左侧属性字符串
-    static func += (lhs: inout NSAttributedString, rhs: String) {
-        lhs += NSAttributedString(string: rhs)
-    }
-
     /// 合并两个属性字符串,返回新的不可变实例
-    static func + (lhs: NSAttributedString, rhs: NSAttributedString) -> NSAttributedString {
-        let mutable = NSMutableAttributedString(attributedString: lhs)
-        mutable.append(rhs)
+    func fdy_adding(_ other: NSAttributedString) -> NSAttributedString {
+        let mutable = NSMutableAttributedString(attributedString: self)
+        mutable.append(other)
         return NSAttributedString(attributedString: mutable)
     }
 
     /// 将属性字符串与普通字符串合并(普通字符串无特殊属性)
-    static func + (lhs: NSAttributedString, rhs: String) -> NSAttributedString {
-        lhs + NSAttributedString(string: rhs)
+    func fdy_adding(_ other: String) -> NSAttributedString {
+        self.fdy_adding(NSAttributedString(string: other))
+    }
+}
+
+public extension NSMutableAttributedString {
+    /// 将另一个属性字符串追加到当前可变属性字符串
+    func fdy_add(_ other: NSAttributedString) {
+        self.append(other)
+    }
+
+    /// 将普通字符串(无属性)追加到当前可变属性字符串
+    func fdy_add(_ other: String) {
+        self.fdy_add(NSAttributedString(string: other))
     }
 }

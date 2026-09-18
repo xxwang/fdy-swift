@@ -8,44 +8,12 @@ public extension BinaryFloatingPoint {
         self > 0
     }
 
-    /// 将当前值转换为 `Int` 类型
-    func fdy_Int() -> Int {
-        Int(self)
-    }
-
-    /// 将当前值转换为 `Int64` 类型
-    func fdy_Int64() -> Int64 {
-        Int64(self)
-    }
-
-    /// 将当前值转换为 `UInt` 类型
-    func fdy_UInt() -> UInt {
-        UInt(self)
-    }
-
-    /// 将当前值转换为 `UInt64` 类型
-    func fdy_UInt64() -> UInt64 {
-        UInt64(self)
-    }
-
-    /// 将当前值转换为 `Float` 类型
-    func fdy_Float() -> Float {
-        Float(self)
-    }
-
-    /// 将当前值转换为 `Double` 类型
-    func fdy_Double() -> Double {
-        Double(self)
-    }
-
-    /// 将当前值转换为 `CGFloat` 类型
-    func fdy_CGFloat() -> CGFloat {
-        CGFloat(self)
-    }
+    // 刻意不提供 `fdy_Int()` / `fdy_Double()` / `fdy_CGFloat()` 一类转换方法:
+    // 它们等价于 `Int(self)`、`Double(self)` 等系统构造器(后者更短),且与 `String.fdy_Int()` 同名易混。
 
     /// 将当前值包装为 `NSNumber` 对象
     func fdy_NSNumber() -> NSNumber {
-        NSNumber(value: self.fdy_Double())
+        NSNumber(value: Double(self))
     }
 
     /// 将当前值转换为 `NSDecimalNumber`
@@ -65,13 +33,13 @@ public extension BinaryFloatingPoint {
 
     /// 将当前值转换为 `CGPoint`,`x` 和 `y` 坐标均使用该值
     func fdy_CGPoint() -> CGPoint {
-        let v = self.fdy_CGFloat()
+        let v = CGFloat(self)
         return CGPoint(x: v, y: v)
     }
 
     /// 将当前值转换为 `CGSize`,`width` 和 `height` 均使用该值
     func fdy_CGSize() -> CGSize {
-        let v = self.fdy_CGFloat()
+        let v = CGFloat(self)
         return CGSize(width: v, height: v)
     }
 }
@@ -113,7 +81,7 @@ public extension BinaryFloatingPoint {
     /// 将当前值四舍五入为最接近的整数,并转换为 `Int`
     /// - Returns: 四舍五入后的 `Int` 值
     func fdy_roundToInt() -> Int {
-        Foundation.lround(self.fdy_Double())
+        Foundation.lround(Double(self))
     }
 }
 

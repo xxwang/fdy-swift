@@ -124,65 +124,6 @@ public extension Calendar {
     }
 }
 
-// MARK: - 日期比较与判断
-public extension Calendar {
-    /// 判断两个日期是否是同一天(忽略时间部分)
-    /// - Parameters:
-    ///   - date1: 第一个日期
-    ///   - date2: 第二个日期
-    /// - Returns: `true` 表示是同一天
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let same = Calendar.current.fdy_isSameDay(date1, date2)
-    ///   ```
-    func fdy_isSameDay(_ date1: Date, _ date2: Date) -> Bool {
-        return self.isDate(date1, equalTo: date2, toGranularity: .day)
-    }
-
-    /// 判断指定日期是否是今天
-    /// - Parameter date: 要判断的日期
-    /// - Returns: `true` 表示是今天
-    func fdy_isToday(_ date: Date) -> Bool {
-        return self.isDateInToday(date)
-    }
-
-    /// 判断指定日期是否是昨天
-    /// - Parameter date: 要判断的日期
-    /// - Returns: `true` 表示是昨天
-    func fdy_isYesterday(_ date: Date) -> Bool {
-        return self.isDateInYesterday(date)
-    }
-
-    /// 判断指定日期是否是明天
-    /// - Parameter date: 要判断的日期
-    /// - Returns: `true` 表示是明天
-    func fdy_isTomorrow(_ date: Date) -> Bool {
-        return self.isDateInTomorrow(date)
-    }
-
-    /// 判断指定日期是否在本周内
-    /// - Parameter date: 要判断的日期
-    /// - Returns: `true` 表示在本周
-    func fdy_isThisWeek(_ date: Date) -> Bool {
-        return self.isDate(date, equalTo: Date(), toGranularity: .weekOfYear)
-    }
-
-    /// 判断指定日期是否在本月内
-    /// - Parameter date: 要判断的日期
-    /// - Returns: `true` 表示在本月
-    func fdy_isThisMonth(_ date: Date) -> Bool {
-        return self.isDate(date, equalTo: Date(), toGranularity: .month)
-    }
-
-    /// 判断指定日期是否在今年内
-    /// - Parameter date: 要判断的日期
-    /// - Returns: `true` 表示在今年
-    func fdy_isThisYear(_ date: Date) -> Bool {
-        return self.isDate(date, equalTo: Date(), toGranularity: .year)
-    }
-}
-
 // MARK: - 序数与范围
 public extension Calendar {
     /// 获取指定日期在当月中的第几周

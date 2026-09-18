@@ -92,14 +92,6 @@ public extension FdyWrapper where Base: UILabel {
         return self
     }
 
-    /// 根据内容调整尺寸
-    /// - Returns:`Self`
-    @discardableResult
-    func sizeToFit() -> Self {
-        base.sizeToFit()
-        return self
-    }
-
     /// 指定文本布局的最大宽度
     /// - Parameter width: 宽度
     /// - Returns: `Self`
@@ -127,20 +119,20 @@ public extension FdyWrapper where Base: UILabel {
         return self
     }
 
-    /// 设置文本阴影颜色
+    /// 设置文本阴影颜色(区别于 `UIView` 的图层阴影 `shadowColor`)
     /// - Parameter color: 阴影颜色
     /// - Returns: `Self`
     @discardableResult
-    func shadowColor(_ color: UIColor) -> Self {
+    func textShadowColor(_ color: UIColor) -> Self {
         base.shadowColor = color
         return self
     }
 
-    /// 设置文本阴影偏移
+    /// 设置文本阴影偏移(区别于 `UIView` 的图层阴影 `shadowOffset`)
     /// - Parameter offset: 阴影偏移量
     /// - Returns: `Self`
     @discardableResult
-    func shadowOffset(_ offset: CGSize) -> Self {
+    func textShadowOffset(_ offset: CGSize) -> Self {
         base.shadowOffset = offset
         return self
     }

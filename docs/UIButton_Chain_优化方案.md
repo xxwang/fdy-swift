@@ -1,5 +1,10 @@
 # UIButton 链式方法优化方案
 
+> ⚠️ **路径订正（2026-09-18）**：本文写作时目录为 `Sources/Fdy/Core/{Chain,Extensions,Protocols}`。
+> 该中间层已在提交 `7e8b14d`（「平铺 Core 中间层」）改为 `Sources/Fdy/{Chain,Extensions,Common,Components,Logger,Protocols}`。
+> 文内所有 `Core/…` 路径与 `文件:行号` 请按**当时**的树读，行号现已偏移。
+> 另：本文所议的「Chain 侧 32 处配置模板重复」已按方案 A（抽 helper）落地。
+
 ## 涉及的代码文件
 
 | 文件 | 定位 |

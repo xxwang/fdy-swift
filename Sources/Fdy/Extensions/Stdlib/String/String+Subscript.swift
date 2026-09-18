@@ -10,11 +10,11 @@ public extension String {
     /// - Example:
     ///   ```swift
     ///   var str = "Hello"
-    ///   print(str[safe: 1]) // Optional("e")
-    ///   str[safe: 0] = "J"
+    ///   print(str[fdy_safe: 1]) // Optional("e")
+    ///   str[fdy_safe: 0] = "J"
     ///   print(str)          // "Jello"
     ///   ```
-    subscript(safe index: Int) -> String? {
+    subscript(fdy_safe index: Int) -> String? {
         get {
             guard index >= 0, index < count else { return nil }
             let i = self.index(startIndex, offsetBy: index)
@@ -37,11 +37,11 @@ public extension String {
     /// - Example:
     ///   ```swift
     ///   var str = "Hello"
-    ///   print(str[range: 1..<4]) // Optional("ell")
-    ///   str[range: 0..<5] = "Hi"
-    ///   print(str)                   // "Hi"
+    ///   print(str[fdy_range: 1..<4]) // Optional("ell")
+    ///   str[fdy_range: 0..<5] = "Hi"
+    ///   print(str)        // "Hi"
     ///   ```
-    subscript<R>(range: R) -> String? where R: RangeExpression, R.Bound == Int {
+    subscript<R>(fdy_range range: R) -> String? where R: RangeExpression, R.Bound == Int {
         get {
             let swiftRange = range.relative(to: 0 ..< Int.max)
             guard swiftRange.lowerBound >= 0,
@@ -70,18 +70,15 @@ public extension String {
     /// 通过 `NSRange` 安全获取子字符串
     ///
     /// - Parameter nsRange: 基于 UTF-16 的 NSRange
-    /// - Returns: 对应子串;若范围无效（如越界）,返回空 `Substring` 而非崩溃
+    /// - Returns: 对应子串;若范围无效（如越界）则返回 `nil`（与同文件按整数范围访问的下标保持一致）
     /// - Note: 此下标永不抛出异常,适合处理来自 Foundation 或正则匹配的 NSRange
     /// - Example:
     ///   ```swift
     ///   let str = "Hello"
-    ///   let sub = str[range: NSRange(location: 1, length: 3)] // "ell"
+    ///   let sub = str[fdy_range: NSRange(location: 1, length: 3)] // Optional("ell")
     ///   ```
-    subscript(range: NSRange) -> Substring {
-        if let range = Range(range, in: self) {
-            return self[range]
-        } else {
-            return Substring("")
-        }
+    subscript(fdy_range nsRange: NSRange) -> String? {
+        guard let range = Range(nsRange, in: self) else { return nil }
+        return String(self[range])
     }
 }

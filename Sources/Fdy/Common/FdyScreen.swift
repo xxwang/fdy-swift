@@ -1,6 +1,7 @@
 import UIKit
 
-/// 屏幕尺寸信息
+/// 屏幕尺寸信息。读取 `UIApplication` / `UIScreen`，必须在主线程使用，因此标注为 ``@MainActor``
+@MainActor
 public final class FdyScreen {
     public static let shared = FdyScreen()
     private init() {}
@@ -94,7 +95,7 @@ public extension FdyScreen {
 // MARK: - 标签栏(TabBar)高度
 public extension FdyScreen {
     /// 标签栏高度
-    static var tabBarHeight: CGFloat = 49
+    static let tabBarHeight: CGFloat = 49
 
     /// 标签栏总高度 = 标签栏 + 底部安全区
     static var tabBarTotalHeight: CGFloat {
@@ -104,12 +105,9 @@ public extension FdyScreen {
 
 // MARK: - 适配比例计算(基于设计稿)
 public extension FdyScreen {
-    /// 宽度方向的缩放比例
-    /// - Note: 供 `fitWidth` / `fitLarger` / `fitSmaller` 等扩展使用，采用"短边/长边自适应"策略：
-    ///   - 竖屏：屏幕短边 / 设计稿短边
-    ///   - 横屏：屏幕长边 / 设计稿长边
-    /// 即横屏时它实际按"长边"计算，并非字面的宽度比例。如需严格按当前宽度缩放，请用 `screenWidth / sketchSize.width`。
-    static var widthRatio: CGFloat {
+    /// 适配比例：横屏取长边比、竖屏取短边比
+    /// - Note: 供 `fitWidth` / `fitLarger` / `fitSmaller` 等扩展使用。如需严格按当前宽度缩放，请用 `screenWidth / sketchSize.width`。
+    static var adaptiveRatio: CGFloat {
         // 一次性取屏幕宽高，避免在布局热路径上多次遍历 connectedScenes
         let screenW = self.screenWidth
         let screenH = self.screenHeight
@@ -219,7 +217,7 @@ public extension FdyScreen {
 private extension FdyScreen {
     /// 根据设计图宽度计算适配后的宽度
     static func calcWidth(from value: CGFloat) -> CGFloat {
-        return self.widthRatio * value
+        return self.adaptiveRatio * value
     }
 
     /// 根据设计图高度计算适配后的高度
@@ -239,47 +237,49 @@ private extension FdyScreen {
 }
 
 // MARK: - 整数适配扩展
+@MainActor
 public extension BinaryInteger {
     /// 适配宽度(将整数值按设计图宽度比例适配)
     var fitWidth: CGFloat {
-        FdyScreen.calcWidth(from: self.fdy_CGFloat())
+        FdyScreen.calcWidth(from: CGFloat(self))
     }
 
     /// 适配高度(将整数值按设计图高度比例适配)
     var fitHeight: CGFloat {
-        FdyScreen.calcHeight(from: self.fdy_CGFloat())
+        FdyScreen.calcHeight(from: CGFloat(self))
     }
 
     /// 适配最大值(根据设计图宽度和高度适配后的最大值)
     var fitLarger: CGFloat {
-        FdyScreen.calcMax(from: self.fdy_CGFloat())
+        FdyScreen.calcMax(from: CGFloat(self))
     }
 
     /// 适配最小值(根据设计图宽度和高度适配后的最小值)
     var fitSmaller: CGFloat {
-        FdyScreen.calcMin(from: self.fdy_CGFloat())
+        FdyScreen.calcMin(from: CGFloat(self))
     }
 }
 
 // MARK: - 浮动数字适配扩展
+@MainActor
 public extension BinaryFloatingPoint {
     /// 适配宽度(将浮动数字按设计图宽度比例适配)
     var fitWidth: CGFloat {
-        FdyScreen.calcWidth(from: self.fdy_CGFloat())
+        FdyScreen.calcWidth(from: CGFloat(self))
     }
 
     /// 适配高度(将浮动数字按设计图高度比例适配)
     var fitHeight: CGFloat {
-        FdyScreen.calcHeight(from: self.fdy_CGFloat())
+        FdyScreen.calcHeight(from: CGFloat(self))
     }
 
     /// 适配最大值(根据设计图宽度和高度适配后的最大值)
     var fitLarger: CGFloat {
-        FdyScreen.calcMax(from: self.fdy_CGFloat())
+        FdyScreen.calcMax(from: CGFloat(self))
     }
 
     /// 适配最小值(根据设计图宽度和高度适配后的最小值)
     var fitSmaller: CGFloat {
-        FdyScreen.calcMin(from: self.fdy_CGFloat())
+        FdyScreen.calcMin(from: CGFloat(self))
     }
 }

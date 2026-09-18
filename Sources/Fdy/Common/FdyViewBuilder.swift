@@ -2,9 +2,19 @@ import UIKit
 
 @resultBuilder
 public struct FdyViewBuilder {
+    /// 承接单个视图
+    public static func buildExpression(_ expression: UIView) -> [UIView] {
+        [expression]
+    }
+
+    /// 承接视图数组
+    public static func buildExpression(_ expression: [UIView]) -> [UIView] {
+        expression
+    }
+
     /// 构建多个子视图(基本用法)
-    public static func buildBlock(_ components: UIView...) -> [UIView] {
-        components
+    public static func buildBlock(_ components: [UIView]...) -> [UIView] {
+        components.flatMap(\.self)
     }
 
     /// 支持空闭包(无子视图)

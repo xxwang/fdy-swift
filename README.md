@@ -10,7 +10,7 @@ fdyG.logger.debug("hello")
 fdyG.helper.isPad            // -> Bool
 fdyG.perChecker.request(.camera) { result in ... }
 fdyG.queue.asyncMain { ... }
-fdyG.screen.width             // -> CGFloat
+fdyG.screen.width             // -> CGFloat（须主线程）
 fdyG.symbol.monochrome(for: "star", color: .red)
 
 // 链式配置视图（引用类型，无需 .build()）
@@ -28,7 +28,12 @@ let configuration = UIButton.Configuration.plain()
     .build()
 
 // 颜色便捷初始化
-let color = UIColor(hex: "#FF5722")
+// `fdy_` 前缀是刻意的：系统类型上的构造器若不带前缀，会与宿主项目（或另一个三方库）
+// 的同名构造器碰撞。实测两种表现：
+//   两个模块都声明 UIColor(hex:)  -> ambiguous use of 'init(hex:)'
+//   只有宿主自己声明             -> 不报错，宿主的实现静默胜出、库的版本被无声取代
+// 后者更难排查，所以前缀不是洁癖。
+let color = UIColor(fdy_hex: "#FF5722")
 
 // UserDefaults 属性包装器
 @FdyDataStore("userName", default: "")
@@ -58,7 +63,8 @@ Swift Package Manager：
 
 ```swift
 // Package.swift
-.package(url: "https://github.com/xxwang/Dy.git", branch: "main")
+.package(url: "https://github.com/xxwang/fdy-swift.git", branch: "Swift6")
+// 打 tag 发版后建议改用版本号：.package(url: "...fdy-swift.git", from: "0.1.0")
 
 // Xcode: File → Add Package Dependency → 输入仓库 URL
 ```
@@ -81,16 +87,17 @@ let v = UIView()
     .fdy.build()                          // 取出被包装的实例
 
 UIButton.Configuration.plain()
-    .fdy.with { $0.title = "确定" }        // 值类型：操作副本并返回新值（UILabel/CGPoint 等需自行加 conformance）
+    .fdy.with { $0.title = "确定" }        // 值类型：操作副本并返回新值
 
 UILabel().fdy.do { print($0.text ?? "") }  // 副作用：仅执行闭包
 
 UILabel().fdy.then { $0.text = "hi" }      // 引用类型：配置并返回自身，可继续链式
 ```
 
-> `.fdy` 需要目标类型 conform `FdyExtension`。库内只 conform 了 `NSObject`（因此所有 `UIView` / `UIViewController` 等引用类型自动继承）与 `Date`；
-> `UIButton.Configuration` 因为是 Swift **struct**（ObjC 侧 `UIButtonConfiguration` 虽是 `NSObject` 子类，Swift 桥接成了值类型）才单独补了一条 conformance。
-> 其余 struct（`CGPoint` / `[Int]` 等）默认拿不到 `.fdy`。
+> `.fdy` 需要目标类型 conform `FdyExtension`。库内共 **29 条**（清单见文末「协议」一节）：
+> `NSObject` 那条被所有类子类继承，`UIView` / `UIViewController` 等引用类型因此自动可用；
+> `CGPath` 那条则被子类 `CGMutablePath` 继承（Core Foundation 类型同样有 Swift 侧继承）。
+> 常用值类型（`CGPoint` / `[Int]` / `Data` 等 23 个）**已逐条登记**，可直接使用。
 
 ### Chain 链式配置
 
@@ -213,7 +220,7 @@ let submit = UIButton.plain()
 >   `automaticallyUpdatesConfiguration` 默认为 `true`，UIKit 会把派生后的配置写回，导致状态回退时残留旧值。
 >   另注意 UIKit 只对**颜色**派生状态样式，背景图/图标在各状态下完全相同，需要自己换。
 
-支持 Chain 的类型覆盖：`UIView`/`UIButton`/`UILabel`/`UITextField`/`UITextView`/`UIImageView`/`UICollectionView`/`UITableView`/`UIScrollView`/`UIStackView`/`UIViewController`/`CALayer`/`CAAnimation` 系列、`CAGradientLayer`、`MKMapView`、`WKWebView`、`NSAttributedString`、`Date`、`Timer`、`UIEdgeInsets` 等 60+ 类型。
+支持 Chain 的类型覆盖：`UIView`/`UIButton`/`UILabel`/`UITextField`/`UITextView`/`UIImageView`/`UICollectionView`/`UITableView`/`UIScrollView`/`UIStackView`/`UIViewController`/`CALayer`/`CAAnimation` 系列、`CAGradientLayer`、`MKMapView`、`WKWebView`、`NSAttributedString`、`Date`、`Timer`、`UIEdgeInsets`、`DateComponents`、`CGMutablePath` 等 60+ 类型。
 
 ### 可复用控件（`Sources/Fdy/Components/`）
 
@@ -288,8 +295,8 @@ UITableView.fdy.do { _ in /* $0 是 UIViewController.Type 元类型，用于配�
 ### UIKit
 
 ```swift
-UIColor(hex: "#FF5722")                // 3/4/6/8 位 hex（非可选）
-UIColor(argbHex: "#80FF5722")          // ARGB（含透明度，可选）
+UIColor(fdy_hex: "#FF5722")             // 3/4/6/8 位 hex（非可选）
+UIColor(fdy_argbHex: "#80FF5722")       // ARGB（含透明度，可选）
 color.fdy_alpha(0.5)                    // 透明度
 UIColor.fdy_random                      // 随机色
 
@@ -354,15 +361,18 @@ fdyG.logger.debug("hello")
 fdyG.helper.isPad                   // -> Bool
 fdyG.perChecker.request(.camera) { result in ... }
 fdyG.queue.asyncMain { ... }
-fdyG.screen.width                   // -> CGFloat
+fdyG.screen.width                   // -> CGFloat（须主线程）
 fdyG.symbol.monochrome(for: "star", color: .red)
 fdyG.path.documentsDirPath
-fdyG.haptic.mediumImpact()          // 主线程
-fdyG.appearance.initGlobalUI()      // 启动时一次性默认样式
-fdyG.skinManager.updateSkin()       // 运行期主题切换广播
+fdyG.haptic.mediumImpact()          // 须主线程
+fdyG.appearance.initGlobalUI()      // 启动时一次性默认样式（须主线程）
+fdyG.skinManager.updateSkin()       // 运行期主题切换广播（须主线程）
 fdyG.plist.read(from: url)
-fdyG.screenCaptureMonitor.start(onScreenshot: { ... }, onRecordingStart: nil, onRecordingStop: nil)
+fdyG.screenCaptureMonitor.start(onScreenshot: { ... }, onRecordingStart: nil, onRecordingStop: nil)   // 须主线程
 ```
+
+> `screen` / `appearance` / `skinManager` / `screenCaptureMonitor` / `haptic` 五个入口标了 `@MainActor`，
+> 须在主线程调用；其余入口（`logger` / `helper` / `perChecker` / `queue` / `path` / `plist` / `symbol` / `dataStore`）线程无关。
 
 > `fdyG` 聚合了下表所有带入口的成员。入选标准：**有状态的管理器 / 工具类**统一收进来，
 > 调用侧不必再记 `FdyXxx.shared`；纯静态工具（`FdyFactory` / `FdyViewBuilder`）与值类型
@@ -444,7 +454,8 @@ fdyG.helper.className(Self.self)
 
 ```swift
 let debouncedSearch = fdyG.queue.debounced(delay: 0.3) { performSearch() }
-searchBar.onTextChange = { _ in debouncedSearch() }   // 返回闭包，需自行调用
+// 返回的是普通闭包，需自行在事件回调里调用（此处以文本框的 publisher 为例）：
+// textField.fdy_textPublisher.sink { _ in debouncedSearch() }.store(in: &cancellables)
 
 fdyG.queue.executeSerially([task1, task2]) { print("完成") }
 fdyG.queue.executeConcurrently([...]) { print("完成") }
@@ -555,8 +566,8 @@ button.fdy_tapPublisher               // FdyControlEvent<Void>
 control.fdy_valueChangedPublisher
 
 // 手势
-view.fdy_tapGesturePublisher
-view.fdy_tapGesturePublisher(numberOfTaps: 2)   // 双击
+view.fdy_tapGesturePublisher()                   // 单击
+view.fdy_tapGesturePublisher(numberOfTaps: 2)    // 双击
 view.fdy_longPressGesturePublisher
 view.fdy_panGesturePublisher
 view.fdy_swipeGesturePublisher(.left)
@@ -582,7 +593,12 @@ textField.fdy_textPublisher
     .store(in: &cancellables)
 
 // 写回 / 绑定
-label.fdy_textPublisher.bind(from: viewModel.titlePublisher)
+// bind(from:) 形参是泛型 `P: Publisher where P.Output == Value, P.Failure == Never`，
+// Published / Subject / FdyControlEvent / map·filter 中间流都可**直传**，无需 .eraseToAnyPublisher()
+label.fdy_textPublisher.bind(from: viewModel.$title)
+
+// 库自有事件流直接喂给属性流（Output 都是 Bool），连 map 都不用
+toggleSwitch.fdy_isOnPublisher.bind(from: scrollView.fdy_didEndDraggingWithDecelerationPublisher)
 ```
 
 ### 语义与硬边界
@@ -642,7 +658,7 @@ fdyG.logger.error("解析失败")
 Sources/
 └── Fdy/
     ├── Fdy.swift                 # 模块入口（重导出 UIKit / Combine）
-    ├── Chain/                    # 链式 API（UIKit/Foundation/QuartzCore/MapKit/WebKit...）
+    ├── Chain/                    # 链式 API（UIKit/Foundation/QuartzCore/MapKit/WebKit/Stdlib...）
     ├── Combine/                  # UIKit 事件的 Combine 封装（FdyControlEvent / FdyControlProperty）
     ├── Common/                   # 工具类（FdyScreen/FdyHelper/FdyQueue/FdyTuples/@FdyDataStore...）
     ├── Components/               # 可复用控件（FdyButton / FdyTextView）
@@ -665,16 +681,37 @@ Sources/
 - `FdySetupable` — MVVM 配置生命周期（成员均有空默认实现，按需重写）
 - `FdySkinable` — 主题皮肤响应（配合 `FdySkinManager` 做运行期切换）
 
-`FdyExtension` 的 conformance 全库只有 3 条，且统一登记在**该类型的首个 Chain 文件**里：
+`FdyExtension` 的 conformance 全库 **29 条**，登记在各类型对应的扩展文件里：
 
 | 类型 | 登记处 | 是否被继承 |
 |------|--------|-----------|
 | `NSObject` | `Chain/Foundation/NSObject+Chain.swift` | **是** —— 类子类继承，`UIButton`/`UILabel`/`UIView` 等据此拿到 `.fdy` |
-| `Date` | `Chain/Foundation/Date+Chain.swift` | 否 |
+| `CGPath` | `Extensions/CoreGraphics/CGPath++.swift` | **是** —— `CGMutablePath` 作为**子类**继承（Core Foundation 类型同样有 Swift 侧继承） |
+| `String` | `Extensions/Stdlib/String/String++.swift` | 否（见下方陷阱说明） |
 | `UIButton.Configuration` | `Chain/UIKit/UIButton.Configuration+Chain.swift` | 否（Swift 侧是 **struct**） |
+| `Date` | `Extensions/Foundation/Date++.swift` | 否 |
 
-> 因此 `.fdy` 目前**不适用于** `CGPoint`、`Array`、`Dictionary` 等值类型
-> （写 `CGPoint(x:y:).fdy` 会报 `has no member 'fdy'`）；这类类型请直接用 `fdy_` 前缀扩展。
+其余 24 条均逐一登记、不继承：
+
+| 目录 | 类型 |
+|------|------|
+| `Extensions/CoreGraphics/` | `CGPoint` `CGSize` `CGRect` `CGVector` `CGAffineTransform` `CGColor` `CGImage` |
+| `Extensions/Stdlib/` | `Array` `Dictionary` `Character` `Bool` `Optional` `Range` `ClosedRange` |
+| `Extensions/Foundation/` | `Data` `Decimal` `DateComponents` `IndexPath` `Measurement` `NSRange` `URL` `URLRequest` `UUID` |
+| `Chain/UIGeometry/` | `UIEdgeInsets` |
+
+> ⚠️ **`String` 漏登记不会编译失败，而是类型错误**：`"abc".fdy` 会经 `NSString` 桥接解析成
+> `FdyWrapper<NSString>` —— 能编译，但 `.build()` 返回 `NSString`。故必须显式登记。
+>
+> 结构体漏登记则直接不可达（`has no member 'fdy'`）。
+> 本库 `UIEdgeInsets` / `DateComponents` 曾因漏登记，导致 34 个已写好的链式方法对外零可用。
+>
+> **Core Foundation 类型不必逐条登记** —— 它与类一样有 Swift 侧继承关系：给父类 `CGPath`
+> 登记后，子类 `CGMutablePath` 自动继承；重复声明会报
+> `conformance of 'CGMutablePath' to protocol 'FdyExtension' was already stated`。
+>
+> 值类型（`CGPoint` / `CGSize` / `CGRect` / `Array` / `Dictionary` / `Data` 等 23 个）**均已登记**，
+> `point.fdy.with { $0.x += 5 }` 可直接用。
 
 ## 文档
 

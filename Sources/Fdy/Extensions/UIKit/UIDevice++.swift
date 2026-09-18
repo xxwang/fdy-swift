@@ -10,6 +10,7 @@ import os.log
 // MARK: - 存储与内存信息
 public extension UIDevice {
     /// 总磁盘容量(字节)
+    /// - Note: 返回 `-1` 表示取值失败
     static var fdy_totalDiskCapacityInBytes: Int64 {
         guard let attrs = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory()),
               let space = attrs[.systemSize] as? NSNumber,
@@ -21,22 +22,28 @@ public extension UIDevice {
     }
 
     /// 可用磁盘容量(字节),优先使用重要用途容量
+    /// - Note: 返回 `-1` 表示取值失败
     static var fdy_freeDiskCapacityInBytes: Int64 {
         let homeURL = URL(fileURLWithPath: NSHomeDirectory())
         do {
             let values = try homeURL.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
-            return values.volumeAvailableCapacityForImportantUsage ?? 0
-        } catch {}
+            if let capacity = values.volumeAvailableCapacityForImportantUsage {
+                return capacity
+            }
+        } catch {
+            // 读取卷容量失败,静默降级到下面的 FileManager 兜底;兜底也失败则返回哨兵 -1
+        }
 
         if let attrs = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory()),
            let free = attrs[.systemFreeSize] as? NSNumber
         {
             return free.int64Value
         }
-        return 0
+        return -1
     }
 
     /// 已用磁盘容量(字节)
+    /// - Note: 返回 `-1` 表示取值失败(总容量或可用容量任一不可用)
     static var fdy_usedDiskCapacityInBytes: Int64 {
         let total = self.fdy_totalDiskCapacityInBytes
         let free = self.fdy_freeDiskCapacityInBytes
@@ -122,13 +129,8 @@ public extension UIDevice {
 
             guard getnameinfo(addr, socklen_t(saLen), &hostname, socklen_t(hostname.count), nil, 0, NI_NUMERICHOST) == 0 else { continue }
 
-            let ipString: String? = {
-                if #available(iOS 18.0, *) {
-                    return String(validating: hostname, as: UTF8.self)
-                } else {
-                    return String(cString: hostname)
-                }
-            }()
+            // 最低部署版本即 iOS 18.0,`String(validating:as:)` 恒可用 —— 原 `#available` 的 else 分支是死代码
+            let ipString = String(validating: hostname, as: UTF8.self)
 
             if let ip = ipString {
                 addresses.append(ip)
@@ -158,11 +160,8 @@ public extension UIDevice {
 
             guard getnameinfo(addr, socklen_t(saLen), &hostname, socklen_t(hostname.count), nil, 0, NI_NUMERICHOST) == 0 else { continue }
 
-            if #available(iOS 18.0, *) {
-                return String(validating: hostname, as: UTF8.self)
-            } else {
-                return String(cString: hostname)
-            }
+            // 最低部署版本即 iOS 18.0,原 `#available` 的 else 分支恒不可达
+            return String(validating: hostname, as: UTF8.self)
         }
         return nil
     }

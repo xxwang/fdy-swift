@@ -1,20 +1,12 @@
 import Combine
 import UIKit
 
-// MARK: - 绑定运算符
-precedencegroup FdyBindingPrecedence {
-    associativity: right
-    higherThan: AssignmentPrecedence
-}
-
-infix operator <<<: FdyBindingPrecedence
-
 // MARK: - FdyControlProperty
 
 /// 控件属性发布者（可读、可写）。
 ///
 /// - 订阅时**立即重放当前值**，此后在属性变化（用户操作或代码赋值）时持续发出；
-/// - 通过 `bind(from:)` 或 `<<<` 运算符可将上游 publisher 的值写回控件，实现双向绑定。
+/// - 通过 `bind(from:)` 可将上游 publisher 的值写回控件，实现双向绑定。
 ///
 /// 例（双向绑定）：
 /// ```swift
@@ -24,8 +16,8 @@ infix operator <<<: FdyBindingPrecedence
 ///     .sink { viewModel.name = $0 }
 ///     .store(in: &cancellables)
 ///
-/// // 写：viewModel -> 控件
-/// viewModel.$name <<< textField.fdy_textPublisher   // 或 textField.fdy_textPublisher.bind(from: viewModel.$name)
+/// // 写：viewModel -> 控件（无需 eraseToAnyPublisher）
+/// textField.fdy_textPublisher.bind(from: viewModel.$name)
 /// ```
 public struct FdyControlProperty<Value>: Publisher {
     public typealias Output = Value
@@ -46,18 +38,20 @@ public struct FdyControlProperty<Value>: Publisher {
     }
 
     /// 将上游 publisher 的值写回控件（绑定）。
-    /// - Parameter source: 发送 `Value` 的 publisher（`Failure` 须为 `Never`）。
+    ///
+    /// - Parameter source: 发送 `Value` 的 publisher（`Output` 须为 `Value`、`Failure` 须为 `Never`）。
     /// - Returns: 可取消的订阅，用于释放绑定。
-    public func bind(from source: AnyPublisher<Value, Never>) -> Cancellable {
+    ///
+    /// - Note: 形参是**泛型** `P: Publisher` 而非 `AnyPublisher`,因此 `Published.Publisher`、
+    ///   `Subject`、`FdyControlEvent` 以及 `map`/`filter` 等中间流都可**直接传入**,
+    ///   不需要 `.eraseToAnyPublisher()`。刻意收窄 `Failure == Never` —— `sink(receiveValue:)`
+    ///   本就要求上游永不失败,放宽到有 `Failure` 的类型会强迫调用侧处理一个不存在完成事件。
+    @discardableResult
+    public func bind<P: Publisher>(from source: P) -> Cancellable
+        where P.Output == Value, P.Failure == Never
+    {
         source.sink { [setter] value in
             setter(value)
         }
     }
-}
-
-/// 绑定运算符：`property <<< source` 等价于 `property.bind(from: source)`。
-public func <<< <V, P: Publisher>(property: FdyControlProperty<V>, source: P) -> Cancellable
-    where P.Output == V, P.Failure == Never
-{
-    property.bind(from: source.eraseToAnyPublisher())
 }

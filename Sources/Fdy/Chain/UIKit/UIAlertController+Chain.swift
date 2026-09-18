@@ -59,34 +59,24 @@ public extension FdyWrapper where Base: UIAlertController {
 
 // MARK: - 链式方法(自定义)
 public extension FdyWrapper where Base: UIAlertController {
-    /// 从指定的`viewController` 弹出`UIAlertController`
+    /// 从指定的`viewController` 弹出`UIAlertController`,返回 `Self` 表示已入队主线程展示
     /// - Parameters:
-    ///   - viewController: 指定的来源控制器
+    ///   - viewController: 指定的来源控制器,传 `nil` 时取当前顶层控制器
     ///   - animated: 是否启用动画
     /// - Returns: `Self`
     @discardableResult
     func show(from viewController: UIViewController? = nil, animated: Bool = true) -> Self {
-        if let vc = viewController {
-            if let presented = vc.presentedViewController, presented.isBeingPresented || presented.isBeingDismissed {
-                os_log(.error, "⚠️ [UIAlertController.show] 指定的 ViewController 正在处理其他弹窗,跳过本次弹窗")
-                return self
-            }
-            DispatchQueue.main.async {
-                vc.present(self.base, animated: animated)
-            }
-        } else {
-            guard let topVC = UIWindow.fdy_topViewController else {
+        DispatchQueue.main.async {
+            guard let target = viewController ?? UIWindow.fdy_topViewController else {
                 os_log(.error, "⚠️ [UIAlertController.show] 无法找到顶层 ViewController,弹窗未显示")
-                return self
+                return
             }
 
-            if let presented = topVC.presentedViewController, presented.isBeingPresented || presented.isBeingDismissed {
-                os_log(.error, "⚠️ [UIAlertController.show] 当前已有视图控制器正在展示或消失,跳过本次弹窗")
-                return self
+            if let presented = target.presentedViewController, presented.isBeingPresented || presented.isBeingDismissed {
+                os_log(.error, "⚠️ [UIAlertController.show] 目标 ViewController 正在处理其他弹窗,跳过本次弹窗")
+                return
             }
-            DispatchQueue.main.async {
-                topVC.present(self.base, animated: animated)
-            }
+            target.present(self.base, animated: animated)
         }
         return self
     }

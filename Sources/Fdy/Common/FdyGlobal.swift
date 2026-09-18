@@ -21,8 +21,8 @@ import Foundation
 public let fdyG = FdyGlobal()
 
 /// 全局工具聚合器
-public final class FdyGlobal: @unchecked Sendable {
-    /// 设备辅助信息
+public final class FdyGlobal {
+    /// 设备辅助信息（UI 相关成员为 ``@MainActor``）
     public var helper: FdyHelper {
         FdyHelper.shared
     }
@@ -37,8 +37,8 @@ public final class FdyGlobal: @unchecked Sendable {
         FdyQueue.shared
     }
 
-    /// 屏幕信息
-    public var screen: FdyScreen {
+    /// 屏幕信息（必须在主线程使用）
+    @MainActor public var screen: FdyScreen {
         FdyScreen.shared
     }
 
@@ -57,8 +57,8 @@ public final class FdyGlobal: @unchecked Sendable {
         FdyHaptic.shared
     }
 
-    /// 全局 UI 外观（App 启动时的**一次性**默认样式，走 `UIAppearance` 代理）
-    public var appearance: FdyAppearance {
+    /// 全局 UI 外观（App 启动时的**一次性**默认样式，走 `UIAppearance` 代理；必须在主线程使用）
+    @MainActor public var appearance: FdyAppearance {
         FdyAppearance.shared
     }
 
@@ -67,8 +67,8 @@ public final class FdyGlobal: @unchecked Sendable {
         FdySkinManager.shared
     }
 
-    /// 屏幕录制 / 截屏监听
-    public var screenCaptureMonitor: FdyScreenCaptureMonitor {
+    /// 屏幕录制 / 截屏监听（必须在主线程使用）
+    @MainActor public var screenCaptureMonitor: FdyScreenCaptureMonitor {
         FdyScreenCaptureMonitor.shared
     }
 

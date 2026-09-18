@@ -1,5 +1,10 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `Dictionary` 是泛型结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension Dictionary: FdyExtension {}
+
 // MARK: - 字典构造器
 public extension Dictionary {
     /// 根据 KeyPath 对序列分组构造字典,值为元素数组
@@ -122,11 +127,11 @@ public extension [String: Any] {
     /// - Example:
     ///   ```swift
     ///   var dict: [String: Any] = [:]
-    ///   dict[path: ["a", "b"]] = "hello"
-    ///   print(dict[path: ["a", "b"]]) // Optional("hello")
-    ///   dict[path: ["a", "b"]] = nil  // 删除该键
+    ///   dict[fdy_path: ["a", "b"]] = "hello"
+    ///   print(dict[fdy_path: ["a", "b"]]) // Optional("hello")
+    ///   dict[fdy_path: ["a", "b"]] = nil  // 删除该键
     ///   ```
-    subscript(path: [String]) -> Any? {
+    subscript(fdy_path path: [String]) -> Any? {
         get {
             guard !path.isEmpty else { return nil }
             var current: Any? = self
@@ -176,45 +181,30 @@ public extension Dictionary where Value: Equatable {
     }
 }
 
-// MARK: - 运算符重载
+// MARK: - 运算方法
 public extension Dictionary {
-    /// 合并两个字典（右侧值优先）
+    /// 合并另一个字典(右侧值优先),返回新字典
     ///
-    /// - Parameters:
-    ///   - lhs: 左侧字典
-    ///   - rhs: 右侧字典
-    /// - Returns: 合并后的新字典（`rhs` 中的值会覆盖 `lhs` 中的同名键）
-    static func + (lhs: [Key: Value], rhs: [Key: Value]) -> [Key: Value] {
-        lhs.merging(rhs, uniquingKeysWith: { _, new in new })
+    /// - Parameter other: 右侧字典
+    /// - Returns: 合并后的新字典(`other` 中的值会覆盖 `self` 中的同名键)
+    func fdy_merging(_ other: [Key: Value]) -> [Key: Value] {
+        self.merging(other, uniquingKeysWith: { _, new in new })
     }
 
-    /// 就地合并右侧字典到左侧（右侧值优先）
+    /// 就地合并另一个字典(右侧值优先)
     ///
-    /// - Parameters:
-    ///   - lhs: 左侧字典（将被修改）
-    ///   - rhs: 右侧字典
-    static func += (lhs: inout [Key: Value], rhs: [Key: Value]) {
-        rhs.forEach { lhs[$0] = $1 }
+    /// - Parameter other: 右侧字典
+    mutating func fdy_merge(_ other: [Key: Value]) {
+        other.forEach { self[$0] = $1 }
     }
 
     /// 从字典中移除指定键集合,返回新字典
     ///
-    /// - Parameters:
-    ///   - lhs: 原始字典
-    ///   - keys: 要移除的键序列
+    /// - Parameter keys: 要移除的键序列
     /// - Returns: 移除指定键后的新字典
-    static func - (lhs: [Key: Value], keys: some Sequence<Key>) -> [Key: Value] {
-        var result = lhs
+    func fdy_removing(keys: some Sequence<Key>) -> [Key: Value] {
+        var result = self
         keys.forEach { result.removeValue(forKey: $0) }
         return result
-    }
-
-    /// 就地从字典中移除指定键集合
-    ///
-    /// - Parameters:
-    ///   - lhs: 字典（将被修改）
-    ///   - keys: 要移除的键序列
-    static func -= (lhs: inout [Key: Value], keys: some Sequence<Key>) {
-        keys.forEach { lhs.removeValue(forKey: $0) }
     }
 }

@@ -3,6 +3,11 @@ import os.log
 import UIKit
 import UniformTypeIdentifiers
 
+// MARK: - 命名空间入口
+//
+// `URL` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension URL: FdyExtension {}
+
 // MARK: - 属性
 public extension URL {
     /// 检测应用是否能打开此 URL(需在` Info.plist` 中声明 `LSApplicationQueriesSchemes`)
@@ -175,21 +180,10 @@ public extension URL {
         let cmTime = CMTime(seconds: time, preferredTimescale: 600)
 
         return await withCheckedContinuation { continuation in
-            if #available(iOS 16.0, *) {
-                generator.generateCGImageAsynchronously(for: cmTime) { cgImage, _, error in
-                    if let cgImage, error == nil {
-                        continuation.resume(returning: UIImage(cgImage: cgImage))
-                    } else {
-                        // 可选：打印错误日志
-                        continuation.resume(returning: nil)
-                    }
-                }
-            } else {
-                var actualTime = CMTime.zero
-                do {
-                    let cgImage = try generator.copyCGImage(at: cmTime, actualTime: &actualTime)
+            generator.generateCGImageAsynchronously(for: cmTime) { cgImage, _, error in
+                if let cgImage, error == nil {
                     continuation.resume(returning: UIImage(cgImage: cgImage))
-                } catch {
+                } else {
                     continuation.resume(returning: nil)
                 }
             }
@@ -198,10 +192,6 @@ public extension URL {
 
     /// 路径组件追加
     func fdy_appendingPathComponent(_ path: String) -> URL {
-        if #available(iOS 16.0, *) {
-            return self.appending(component: path)
-        } else {
-            return self.appendingPathComponent(path)
-        }
+        self.appending(component: path)
     }
 }

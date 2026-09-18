@@ -52,10 +52,7 @@ public extension UIView {
     //   并在首次访问时把识别器加入手势列表（不可撤销的写副作用）。
     //   若不需要该行为，请自行创建并 `addGestureRecognizer`。
 
-    /// 点击手势
-    ///
-    /// - Parameter numberOfTaps: 需要的点击次数；不同次数各自缓存一个识别器，互不干扰
-    ///   （初版固定按 `"tap"` 缓存，无法同时注册单击与双击）。
+    /// 点击手势，`numberOfTaps` 取 1 即单击；不同次数各自缓存一个识别器，互不干扰
     func fdy_tapGesturePublisher(numberOfTaps: Int = 1) -> FdyControlEvent<UITapGestureRecognizer> {
         isUserInteractionEnabled = true
         return fdy_event(fdy_cachedGesture(key: "tap-\(numberOfTaps)") {
@@ -63,11 +60,6 @@ public extension UIView {
             recognizer.numberOfTapsRequired = numberOfTaps
             return recognizer
         })
-    }
-
-    /// 单击手势（等价于 `fdy_tapGesturePublisher(numberOfTaps: 1)`）
-    var fdy_tapGesturePublisher: FdyControlEvent<UITapGestureRecognizer> {
-        fdy_tapGesturePublisher()
     }
 
     /// 轻扫手势（可指定方向，不同方向各自缓存）

@@ -1,5 +1,10 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `IndexPath` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension IndexPath: FdyExtension {}
+
 // MARK: - 方法
 public extension IndexPath {
     /// 返回适合日志打印的可读字符串(仅适用于二维结构,如 UITableView / UICollectionView)

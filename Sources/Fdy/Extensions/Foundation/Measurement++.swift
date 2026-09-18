@@ -1,5 +1,11 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `Measurement` 是泛型结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+// 登记在无约束的 `Measurement` 上(conformance 不能写 `where` 子句),故 `Measurement<UnitAngle>` 等其他量纲同时获得。
+extension Measurement: FdyExtension {}
+
 // MARK: - 方法
 public extension Measurement<UnitAngle> {
     /// 创建一个以`角度(degrees)` 为单位的角度测量值

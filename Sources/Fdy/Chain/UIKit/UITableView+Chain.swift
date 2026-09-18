@@ -52,20 +52,20 @@ public extension FdyWrapper where Base: UITableView {
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UITableView {
-    /// 设置 `delegate`
+    /// 设置 `delegate`,传 `nil` 可清空
     /// - Parameter delegate: 代理对象
     /// - Returns: `Self`
     @discardableResult
-    func delegate(_ delegate: UITableViewDelegate) -> Self {
+    func delegate(_ delegate: UITableViewDelegate?) -> Self {
         base.delegate = delegate
         return self
     }
 
-    /// 设置 `dataSource`
+    /// 设置 `dataSource`,传 `nil` 可清空
     /// - Parameter dataSource: 数据源对象
     /// - Returns: `Self`
     @discardableResult
-    func dataSource(_ dataSource: UITableViewDataSource) -> Self {
+    func dataSource(_ dataSource: UITableViewDataSource?) -> Self {
         base.dataSource = dataSource
         return self
     }
@@ -146,13 +146,13 @@ public extension FdyWrapper where Base: UITableView {
     /// - Parameter style: 分割线样式
     /// - Returns: `Self`
     @discardableResult
-    func separatorStyle(_ style: UITableViewCell.SeparatorStyle = .none) -> Self {
+    func separatorStyle(_ style: UITableViewCell.SeparatorStyle) -> Self {
         base.separatorStyle = style
         return self
     }
 
     /// 设置表格头部视图(`tableHeaderView`)
-    /// - Parameter view: 列表头部视图
+    /// - Parameter view: 列表头部视图;传 `nil` 即移除
     /// - Returns: `Self`
     @discardableResult
     func tableHeaderView(_ view: UIView?) -> Self {
@@ -161,27 +161,11 @@ public extension FdyWrapper where Base: UITableView {
     }
 
     /// 设置表格尾部视图(`tableFooterView`)
-    /// - Parameter view: 列表尾部视图
+    /// - Parameter view: 列表尾部视图;传 `nil` 即移除
     /// - Returns: `Self`
     @discardableResult
     func tableFooterView(_ view: UIView?) -> Self {
         base.tableFooterView = view
-        return self
-    }
-
-    /// 移除表格头部视图
-    /// - Returns: `Self`
-    @discardableResult
-    func removeTableHeaderView() -> Self {
-        base.tableHeaderView = nil
-        return self
-    }
-
-    /// 移除表格尾部视图
-    /// - Returns: `Self`
-    @discardableResult
-    func removeTableFooterView() -> Self {
-        base.tableFooterView = nil
         return self
     }
 
@@ -207,40 +191,10 @@ public extension FdyWrapper where Base: UITableView {
         base.scrollToNearestSelectedRow(at: position, animated: animated)
         return self
     }
-
-    /// 设置 `contentOffset`
-    /// - Parameters:
-    ///   - offset: 偏移量
-    ///   - animated: 是否动画
-    /// - Returns: `Self`
-    @discardableResult
-    func contentOffset(_ offset: CGPoint, animated: Bool = false) -> Self {
-        base.setContentOffset(offset, animated: animated)
-        return self
-    }
 }
 
 // MARK: - 链式方法(自定义)
 public extension FdyWrapper where Base: UITableView {
-    /// 滚动到顶部
-    /// - Parameter animated: 是否动画
-    /// - Returns: `Self`
-    @discardableResult
-    func scrollToTop(animated: Bool = false) -> Self {
-        base.setContentOffset(.zero, animated: animated)
-        return self
-    }
-
-    /// 滚动到底部(安全处理 `contentSize` 未更新情况)
-    /// - Parameter animated: 是否动画
-    /// - Returns: `Self`
-    @discardableResult
-    func scrollToBottom(animated: Bool = false) -> Self {
-        let yOffset = max(0, base.contentSize.height - base.bounds.height)
-        base.setContentOffset(CGPoint(x: 0, y: yOffset), animated: animated)
-        return self
-    }
-
     /// 滚动到指定 `IndexPath`
     /// - Parameters:
     ///   - indexPath: 目标`IndexPath`

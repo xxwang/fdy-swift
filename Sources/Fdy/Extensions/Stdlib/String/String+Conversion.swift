@@ -1,5 +1,4 @@
 import Foundation
-import CoreGraphics
 
 #if canImport(UIKit)
     import UIKit
@@ -17,39 +16,11 @@ public extension String {
         }
     }
 
-    /// 转换为 `Int`,失败时返回 `0`
+    /// 转换为 `Int`
+    ///
+    /// - Note: 等价于 `Int(self) ?? 0`;解析失败时静默返回 `0`,无法与真实的 `"0"` 区分
     func fdy_Int() -> Int {
         Int(self) ?? 0
-    }
-
-    /// 转换为 `Int64`,失败时返回 `0`
-    func fdy_Int64() -> Int64 {
-        Int64(self) ?? 0
-    }
-
-    /// 转换为 `UInt`,失败时返回 `0`
-    func fdy_UInt() -> UInt {
-        UInt(self) ?? 0
-    }
-
-    /// 转换为 `UInt64`,失败时返回 `0`
-    func fdy_UInt64() -> UInt64 {
-        UInt64(self) ?? 0
-    }
-
-    /// 转换为 `Float`,失败时返回 `0.0`
-    func fdy_Float() -> Float {
-        Float(self) ?? 0
-    }
-
-    /// 转换为 `Double`,失败时返回 `0.0`
-    func fdy_Double() -> Double {
-        Double(self) ?? 0
-    }
-
-    /// 转换为 `CGFloat`,失败时返回 `0.0`
-    func fdy_CGFloat() -> CGFloat {
-        CGFloat(Double(self) ?? 0)
     }
 
     /// 转换为 `NSNumber`
@@ -123,7 +94,7 @@ public extension String {
 
     /// 将十六进制颜色字符串转换为 `UIColor`
     func fdy_hexColor() -> UIColor {
-        UIColor(hex: self)
+        UIColor(fdy_hex: self)
     }
 
     /// 从资源名加载 `UIImage`

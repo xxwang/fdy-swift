@@ -2,11 +2,11 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UITabBar {
-    /// 设置代理
+    /// 设置代理,传 `nil` 可清空
     /// - Parameter tabBarDelegate: 代理对象
     /// - Returns: `Self`
     @discardableResult
-    func delegate(_ delegate: any UITabBarDelegate) -> Self {
+    func delegate(_ delegate: (any UITabBarDelegate)?) -> Self {
         base.delegate = delegate
         return self
     }
@@ -20,29 +20,27 @@ public extension FdyWrapper where Base: UITabBar {
         let appearance = base.standardAppearance
         isTranslucent ? appearance.configureWithTransparentBackground() : appearance.configureWithOpaqueBackground()
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
     /// 设置标题字体
     /// - Parameters:
     ///   - font: 要设置的字体
-    ///   - state: 状态(如 `normal` 或 `selected`)
+    ///   - state: 状态(如 `normal` 或 `selected`),其余状态按 `normal` 处理
     /// - Returns: `Self`
     @discardableResult
     func titleFont(_ font: UIFont, for state: UIControl.State) -> Self {
         let appearance = base.standardAppearance
-        if state == .normal {
-            var attributes = appearance.stackedLayoutAppearance.normal.titleTextAttributes
-            attributes[.font] = font
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = attributes
-        } else if state == .selected {
+        if state == .selected {
             var attributes = appearance.stackedLayoutAppearance.selected.titleTextAttributes
             attributes[.font] = font
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = attributes
+        } else {
+            var attributes = appearance.stackedLayoutAppearance.normal.titleTextAttributes
+            attributes[.font] = font
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = attributes
         }
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
 
         return self
     }
@@ -50,22 +48,21 @@ public extension FdyWrapper where Base: UITabBar {
     /// 设置标题颜色
     /// - Parameters:
     ///   - color: 要设置的颜色
-    ///   - state: 状态(如 `normal` 或 `selected`)
+    ///   - state: 状态(如 `normal` 或 `selected`),其余状态按 `normal` 处理
     /// - Returns: `Self`
     @discardableResult
     func titleColor(_ color: UIColor?, for state: UIControl.State) -> Self {
         let appearance = base.standardAppearance
-        if state == .normal {
-            var attributes = appearance.stackedLayoutAppearance.normal.titleTextAttributes
-            attributes[.foregroundColor] = color
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = attributes
-        } else if state == .selected {
+        if state == .selected {
             var attributes = appearance.stackedLayoutAppearance.selected.titleTextAttributes
             attributes[.foregroundColor] = color
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = attributes
+        } else {
+            var attributes = appearance.stackedLayoutAppearance.normal.titleTextAttributes
+            attributes[.foregroundColor] = color
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = attributes
         }
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
 
         return self
     }
@@ -73,18 +70,17 @@ public extension FdyWrapper where Base: UITabBar {
     /// 设置图标颜色
     /// - Parameters:
     ///   - color: 要设置的颜色
-    ///   - state: 状态(如 `normal` 或 `selected`)
+    ///   - state: 状态(如 `normal` 或 `selected`),其余状态按 `normal` 处理
     /// - Returns: `Self`
     @discardableResult
     func iconColor(_ color: UIColor?, for state: UIControl.State) -> Self {
         let appearance = base.standardAppearance
-        if state == .normal {
-            appearance.stackedLayoutAppearance.normal.iconColor = color
-        } else if state == .selected {
+        if state == .selected {
             appearance.stackedLayoutAppearance.selected.iconColor = color
+        } else {
+            appearance.stackedLayoutAppearance.normal.iconColor = color
         }
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
@@ -97,7 +93,6 @@ public extension FdyWrapper where Base: UITabBar {
         appearance.backgroundColor = color
         appearance.backgroundEffect = nil
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
 
         return self
     }
@@ -111,7 +106,6 @@ public extension FdyWrapper where Base: UITabBar {
         appearance.backgroundImage = backgroundImage
         appearance.backgroundEffect = nil
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
 
         return self
     }
@@ -125,7 +119,6 @@ public extension FdyWrapper where Base: UITabBar {
         appearance.stackedLayoutAppearance.normal.titlePositionAdjustment = offset
         appearance.stackedLayoutAppearance.selected.titlePositionAdjustment = offset
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
@@ -137,15 +130,22 @@ public extension FdyWrapper where Base: UITabBar {
         let appearance = base.standardAppearance
         appearance.shadowImage = shadowImage?.withRenderingMode(.alwaysOriginal)
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
-    /// 设置滚动时外观与标准外观一致
+    /// 把 `standardAppearance` 复制给 `scrollEdgeAppearance`,使滚动到边缘时外观一致
     /// - Returns: `Self`
     @discardableResult
-    func scrollEdgeAppearance() -> Self {
-        let appearance = base.standardAppearance
+    func scrollEdgeAppearanceSynced() -> Self {
+        base.scrollEdgeAppearance = base.standardAppearance
+        return self
+    }
+
+    /// 设置滚动到边缘时的独立外观(`scrollEdgeAppearance`)
+    /// - Parameter appearance: 目标外观
+    /// - Returns: `Self`
+    @discardableResult
+    func scrollEdgeAppearance(_ appearance: UITabBarAppearance) -> Self {
         base.scrollEdgeAppearance = appearance
         return self
     }
@@ -162,7 +162,7 @@ public extension FdyWrapper where Base: UITabBar {
 
 // MARK: - 链式方法
 public extension FdyWrapper where Base: UITabBar {
-    /// 设置圆角
+    /// 设置圆角,等价于 `CALayer.fdy.roundedCorners(_:corners:)`
     /// - Parameters:
     ///   - corners: 需要设置圆角的角
     ///   - radius: 圆角半径

@@ -122,8 +122,9 @@ public extension FdyWrapper where Base: UIButton {
 // MARK: - 链式方法(传统 API)
 //
 // 基于 `UIControl.State` 的传统 setter(以及 `UIControl` 原生的 `addAction`)。
-// 其中 `backgroundImage` / `backgroundColor` 的两个重载 / `contentEdgeInsets` 在按钮持有配置时自动改走
-// `configuration` 路径 —— iOS 15 起这些传统属性会被 `UIButton.Configuration` 忽略。
+// iOS 15 起按钮持有 `UIButton.Configuration` 时传统 setter 大多失效 —— 其中 `backgroundImage(_:for:)` /
+// `backgroundColor(_:for:)` / `contentEdgeInsets(_:)` 已改为自动走 `configuration` 路径;
+// 其余方法在配置化按钮上的实际表现**逐条实测**并注明在各方法注释里(`title` / `titleColor` / `image` 无效,`font` 有效)。
 public extension FdyWrapper where Base: UIButton {
     /// 添加一个 `UIAction`
     /// - Parameters:
@@ -137,6 +138,7 @@ public extension FdyWrapper where Base: UIButton {
     }
 
     /// 设置按钮在指定状态下的普通文本标题
+    /// - Note: 配置化按钮上不生效(实测 `setTitle` 后 `configuration.title` 与 `titleLabel.text` 均不变)
     /// - Parameters:
     ///   - title: 标题字符串
     ///   - state: 按钮状态,默认为 `.normal`
@@ -148,6 +150,7 @@ public extension FdyWrapper where Base: UIButton {
     }
 
     /// 设置按钮在指定状态下的富文本标题
+    /// - Note: 同 ``title(_:for:)``,配置化按钮上不生效
     /// - Parameters:
     ///   - attributedTitle: 富文本对象,可为 `nil` 清除标题
     ///   - state: 按钮状态,默认为 `.normal`
@@ -159,6 +162,7 @@ public extension FdyWrapper where Base: UIButton {
     }
 
     /// 设置按钮在指定状态下的标题颜色
+    /// - Note: 配置化按钮上不生效(实测 `setTitleColor` 后 `titleLabel.textColor` 未变)
     /// - Parameters:
     ///   - color: 标题颜色
     ///   - state: 按钮状态,默认为 `.normal`
@@ -183,6 +187,7 @@ public extension FdyWrapper where Base: UIButton {
     }
 
     /// 设置按钮标题的字体
+    /// - Note: 直接写 `titleLabel.font`;配置化按钮上同样生效(实测),但不属于 `configuration`,改配置后可能被重置
     /// - Parameter font: 要应用的字体
     /// - Returns: `Self`
     @discardableResult
@@ -192,6 +197,7 @@ public extension FdyWrapper where Base: UIButton {
     }
 
     /// 设置按钮在指定状态下的前景图片
+    /// - Note: 配置化按钮上不生效,请改用配置侧 `configuration.image`
     /// - Parameters:
     ///   - image: 图片对象,可为 `nil` 清除图片
     ///   - state: 按钮状态,默认为 `.normal`
@@ -255,7 +261,7 @@ public extension FdyWrapper where Base: UIButton {
             return self
         }
 
-        if let image = UIImage(color: color)?.resizableImage(withCapInsets: .zero) {
+        if let image = UIImage(fdy_color: color)?.resizableImage(withCapInsets: .zero) {
             base.setBackgroundImage(image, for: state)
         } else {
             base.backgroundColor = color
@@ -263,7 +269,8 @@ public extension FdyWrapper where Base: UIButton {
         return self
     }
 
-    /// 设置按钮的纯色背景
+    /// 设置按钮的纯色背景(直接写 `backgroundColor`)
+    /// - Note: 无配置感知;配置化按钮请用 ``backgroundColor(_:for:)`` 走配置路径
     /// - Parameter color: 背景颜色
     /// - Returns: `Self`
     @discardableResult

@@ -290,6 +290,7 @@ public extension FdyQueue {
     ///       debouncedSearch() // 频繁输入，只执行最后一次
     ///   }
     ///   ```
+    @discardableResult
     func debounced(
         delay: TimeInterval,
         on queue: DispatchQueue = .main,

@@ -145,7 +145,7 @@ public extension UITextView {
                         continue
                     }
 
-                    let url = URL(string: "\(scheme)://\(keyword)")!
+                    guard let url = URL(string: "\(scheme)://\(keyword)") else { continue }
                     attributed.addAttribute(.link, value: url, range: fullRange)
                 }
             } catch {

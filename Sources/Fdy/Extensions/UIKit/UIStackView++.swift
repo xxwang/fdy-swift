@@ -14,13 +14,13 @@ public extension UIStackView {
     /// - Example:
     ///
     ///     let stackView = UIStackView(
-    ///         views: [label, button],
+    ///         fdy_views: [label, button],
     ///         axis: .vertical,
     ///         spacing: 8
     ///     )
     ///
     convenience init(
-        views: [UIView] = [],
+        fdy_views views: [UIView] = [],
         axis: NSLayoutConstraint.Axis = .horizontal,
         spacing: CGFloat = 0.0,
         distribution: UIStackView.Distribution = .fill,

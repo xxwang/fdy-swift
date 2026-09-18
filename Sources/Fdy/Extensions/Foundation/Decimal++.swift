@@ -1,5 +1,10 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `Decimal` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension Decimal: FdyExtension {}
+
 // MARK: - 数值判断
 public extension Decimal {
     /// 判断当前值是否大于零

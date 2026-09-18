@@ -22,17 +22,6 @@ public extension FdyWrapper where Base: UISwitch {
         return self
     }
 
-    /// 设置开关处于“关闭”状态时的背景颜色(即轨道颜色)
-    /// 对应 `UIView.tintColor` 属性(继承自父类)
-    ///
-    /// - Parameter color: 关闭时的颜色,传入 `nil` 将使用系统默认色
-    /// - Returns: 当前实例(支持链式调用)
-    @discardableResult
-    func tintColor(_ color: UIColor?) -> Self {
-        base.tintColor = color
-        return self
-    }
-
     /// 设置滑块`thumb`的颜色
     ///
     /// - Parameter color: 滑块颜色,传入 `nil` 将使用系统默认色

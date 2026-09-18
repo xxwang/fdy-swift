@@ -1,5 +1,10 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `DateComponents` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则本文件对外不可达。
+extension DateComponents: FdyExtension {}
+
 // MARK: - 链式设置
 public extension FdyWrapper where Base == DateComponents {
     /// 设置日历

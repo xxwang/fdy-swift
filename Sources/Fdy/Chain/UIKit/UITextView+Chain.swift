@@ -1,5 +1,4 @@
 import UIKit
-import os.log
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UITextView {
@@ -16,7 +15,6 @@ public extension FdyWrapper where Base: UITextView {
     /// - Returns: `Self`
     @discardableResult
     func clear() -> Self {
-        base.text = ""
         base.attributedText = NSAttributedString()
         return self
     }
@@ -66,11 +64,11 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置代理
+    /// 设置代理,传 `nil` 可清空
     /// - Parameter delegate: 要设置的代理对象
     /// - Returns: `Self`
     @discardableResult
-    func delegate(_ delegate: UITextViewDelegate) -> Self {
+    func delegate(_ delegate: UITextViewDelegate?) -> Self {
         base.delegate = delegate
         return self
     }
@@ -186,26 +184,23 @@ public extension FdyWrapper where Base: UITextView {
 
 // MARK: - 链式方法(自定义)
 public extension FdyWrapper where Base: UITextView {
-    /// 滚动到顶部
+    /// 滚动到文本开头(按 UTF-16 计算,emoji 安全)
     /// - Returns: `Self`
     @discardableResult
-    func scrollToTop() -> Self {
-        if !base.text.isEmpty {
-            let range = NSRange(location: 0, length: 1)
-            base.scrollRangeToVisible(range)
-        }
+    func scrollToTextStart() -> Self {
+        let length = base.textStorage.length
+        guard length > 0 else { return self }
+        base.scrollRangeToVisible(NSRange(location: 0, length: 1))
         return self
     }
 
-    /// 滚动到底部
+    /// 滚动到文本结尾(按 UTF-16 计算,emoji 安全)
     /// - Returns: `Self`
     @discardableResult
-    func scrollToBottom() -> Self {
-        if !base.text.isEmpty {
-            let end = base.text.count - 1
-            let range = NSRange(location: max(0, end), length: 1)
-            base.scrollRangeToVisible(range)
-        }
+    func scrollToTextEnd() -> Self {
+        let length = base.textStorage.length
+        guard length > 0 else { return self }
+        base.scrollRangeToVisible(NSRange(location: max(0, length - 1), length: 1))
         return self
     }
 

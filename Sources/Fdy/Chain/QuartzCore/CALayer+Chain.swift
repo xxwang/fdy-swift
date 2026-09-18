@@ -58,10 +58,10 @@ public extension FdyWrapper where Base: CALayer {
     }
 
     /// 设置是否裁剪子图层超出边界的内容
-    /// - Parameter masksToBounds: `true` 裁剪,`false` 不裁剪(默认)
+    /// - Parameter masksToBounds: `true` 裁剪,`false` 不裁剪
     /// - Returns: `Self`
     @discardableResult
-    func masksToBounds(_ masksToBounds: Bool = true) -> Self {
+    func masksToBounds(_ masksToBounds: Bool) -> Self {
         base.masksToBounds = masksToBounds
         return self
     }

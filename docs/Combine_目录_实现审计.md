@@ -5,6 +5,19 @@
 > 探针留档：`.build/probe/ime/App.swift`（文本通道）、`.build/probe/controls/App.swift`（值类控件）。
 > **只做只读诊断，源码一行未动。**
 
+> ⚠️ **2026-09-18 订正（本文两处「未验证」已失效）**
+>
+> 1. **手势 publisher 已端到端验证** —— 本文记「未跑（无触摸注入手段）」，现已用
+>    「读识别器私有 ivar `_targets` + 正向调 `ClosureTarget.invoke(_:)`」在 app 内闭环，
+>    **7 个全部触发**（iOS 18.0 / 26.5 逐行一致）。详见《修复优化方案》§9.3 订正块、
+>    `docs/工业级_代码治理方案.md` §8.6。
+> 2. **「8 个手势 publisher」实为 7 个** —— 2 个 `func` + 5 个 `var`；原文的检索只匹配了 `func`，
+>    漏掉全部属性访问器。
+> 3. **仍未做的是另一半**：`UIStepper` / `UISegmentedControl` 的**真实点击**（它们不经
+>    `UIGestureRecognizer`，上述手法覆盖不到）—— 本条仍然成立，需 XCUITest。
+> 4. 文中探针目录 `.build/probe/ime`、`.build/probe/controls` 等**已蒸发**（`.build/` 会被清理）；
+>    现行脚手架见 `docs/验证脚手架_本机重建指引.md`。
+
 ## 一、结论：一个统一规律 + 两类缺陷
 
 ### 统一规律

@@ -5,6 +5,7 @@ public extension FdyWrapper where Base: UISheetPresentationController {
     /// 设置代理
     /// - Parameter delegate: 代理对象
     /// - Returns: `Self`
+    @discardableResult
     func delegate(_ delegate: (any UISheetPresentationControllerDelegate)?) -> Self {
         base.delegate = delegate
         return self

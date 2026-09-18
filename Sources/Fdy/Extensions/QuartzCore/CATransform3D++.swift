@@ -8,7 +8,7 @@ public extension CATransform3D {
     ///   - ty: 沿 Y 轴的平移距离
     ///   - tz: 沿 Z 轴的平移距离
     @inlinable
-    init(tx: CGFloat, ty: CGFloat, tz: CGFloat) {
+    init(fdy_tx tx: CGFloat, ty: CGFloat, tz: CGFloat) {
         self = CATransform3DMakeTranslation(tx, ty, tz)
     }
 
@@ -18,7 +18,7 @@ public extension CATransform3D {
     ///   - sy: Y 轴缩放比例
     ///   - sz: Z 轴缩放比例
     @inlinable
-    init(sx: CGFloat, sy: CGFloat, sz: CGFloat) {
+    init(fdy_sx sx: CGFloat, sy: CGFloat, sz: CGFloat) {
         self = CATransform3DMakeScale(sx, sy, sz)
     }
 
@@ -30,7 +30,7 @@ public extension CATransform3D {
     ///   - z: 旋转轴向量的 Z 分量
     /// - Note: 若 `(x, y, z)` 为零向量,变换结果未定义
     @inlinable
-    init(angle: CGFloat, x: CGFloat, y: CGFloat, z: CGFloat) {
+    init(fdy_angle angle: CGFloat, x: CGFloat, y: CGFloat, z: CGFloat) {
         self = CATransform3DMakeRotation(angle, x, y, z)
     }
 }
@@ -161,23 +161,25 @@ public extension CATransform3D {
     }
 }
 
-// MARK: - 全局相等性运算符
-/// 支持直接比较两个 `CATransform3D` 是否相等
-/// - Parameters:
-///   - lhs: 左侧变换
-///   - rhs: 右侧变换
-/// - Returns: 如果所有矩阵元素相等,返回 `true`;否则返回 `false`
-@inlinable
-public func == (lhs: CATransform3D, rhs: CATransform3D) -> Bool {
-    return CATransform3DEqualToTransform(lhs, rhs)
-}
+// MARK: - 相等性判断
+public extension CATransform3D {
+    /// 判断与另一个变换是否相等
+    ///
+    /// 逐元素比较两个 `CATransform3D` 的所有矩阵元素
+    ///
+    /// - Parameter other: 用于比较的另一个变换
+    /// - Returns: 如果所有矩阵元素相等,返回 `true`;否则返回 `false`
+    @inlinable
+    func fdy_isEqual(to other: CATransform3D) -> Bool {
+        CATransform3DEqualToTransform(self, other)
+    }
 
-/// 支持不等比较
-/// - Parameters:
-///   - lhs: 左侧变换
-///   - rhs: 右侧变换
-/// - Returns: 如果两个变换不相等,返回 `true`
-@inlinable
-public func != (lhs: CATransform3D, rhs: CATransform3D) -> Bool {
-    return !(lhs == rhs)
+    /// 判断与另一个变换是否不等
+    ///
+    /// - Parameter other: 用于比较的另一个变换
+    /// - Returns: 如果两个变换不相等,返回 `true`
+    @inlinable
+    func fdy_isNotEqual(to other: CATransform3D) -> Bool {
+        !fdy_isEqual(to: other)
+    }
 }

@@ -36,22 +36,3 @@ public extension NSPredicate {
         return self.fdy_and(other.fdy_not())
     }
 }
-
-// MARK: - 运算符重载
-public extension NSPredicate {
-    /// 逻辑非：`!predicate`
-    static prefix func ! (rhs: NSPredicate) -> NSPredicate {
-        rhs.fdy_not()
-    }
-
-    /// 逻辑与：`p1 + p2`(约定俗成,但注意不是数学加法)
-    /// - ⚠️ 语义上 `&&` 更合适,但 Swift 不允许重载 `&&` 用于非 Bool 类型
-    static func + (lhs: NSPredicate, rhs: NSPredicate) -> NSPredicate {
-        lhs.fdy_and(rhs)
-    }
-
-    /// 逻辑或：`p1 | p2`
-    static func | (lhs: NSPredicate, rhs: NSPredicate) -> NSPredicate {
-        lhs.fdy_or(rhs)
-    }
-}

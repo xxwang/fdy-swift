@@ -13,12 +13,13 @@ public extension FdyWrapper where Base: CAShapeLayer {
     }
 
     /// 设置图层内容缩放比例(适配 Retina 屏幕)
-    /// - Parameter scale: 缩放因子,默认为主屏幕 scale
+    /// - Parameter scale: 缩放因子,`nil` 时取当前屏幕 scale
     /// - Important: 若不设置,高分辨率设备上路径可能模糊
     /// - Returns: `Self`
+    @MainActor
     @discardableResult
-    func contentsScale(_ scale: CGFloat = FdyScreen.screenScale) -> Self {
-        base.contentsScale = scale
+    func contentsScale(_ scale: CGFloat? = nil) -> Self {
+        base.contentsScale = scale ?? FdyScreen.screenScale
         return self
     }
 
@@ -31,30 +32,12 @@ public extension FdyWrapper where Base: CAShapeLayer {
         return self
     }
 
-    /// 设置填充颜色(使用 `CGColor`)
-    /// - Parameter color: 填充色;传 `nil` 可清除填充
-    /// - Returns: `Self`
-    @discardableResult
-    func fillColor(_ color: CGColor?) -> Self {
-        base.fillColor = color
-        return self
-    }
-
     /// 设置描边(笔触)颜色(使用 `UIColor`)
     /// - Parameter color: 描边色;传 `nil` 可清除描边
     /// - Returns: `Self`
     @discardableResult
     func strokeColor(_ color: UIColor?) -> Self {
         base.strokeColor = color?.cgColor
-        return self
-    }
-
-    /// 设置描边(笔触)颜色(使用 `CGColor`)
-    /// - Parameter color: 描边色;传 `nil` 可清除描边
-    /// - Returns: `Self`
-    @discardableResult
-    func strokeColor(_ color: CGColor?) -> Self {
-        base.strokeColor = color
         return self
     }
 

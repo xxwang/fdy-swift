@@ -15,7 +15,7 @@ public extension MKMultiPoint {
     ///
     /// - Example:
     ///   ```swift
-    ///   let polyline = MKPolyline(coordinates: myCoords)
+    ///   let polyline = MKPolyline(fdy_coordinates: myCoords)
     ///   let allCoords = polyline.fdy_coordinates
     ///   print("共有 \(allCoords.count) 个点")
     ///   ```

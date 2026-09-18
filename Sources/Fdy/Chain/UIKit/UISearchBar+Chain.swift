@@ -29,15 +29,6 @@ public extension FdyWrapper where Base: UISearchBar {
         return self
     }
 
-    /// 设置`tintColor`(影响光标、清除按钮、取消按钮等)
-    /// - Parameter color: 颜色
-    /// - Returns: `Self`
-    @discardableResult
-    func tintColor(_ color: UIColor?) -> Self {
-        base.tintColor = color
-        return self
-    }
-
     /// 设置搜索文本的字体和颜色(通过 `searchTextField` 的 `attributedPlaceholder` 或直接设置)
     /// - Parameter attributes: 属性
     /// - Returns: `Self`
@@ -65,13 +56,11 @@ public extension FdyWrapper where Base: UISearchBar {
     /// - Returns: `Self`
     @discardableResult
     func clear() -> Self {
-        base.text = ""
-        base.searchTextField.text = ""
         base.searchTextField.attributedText = nil
         return self
     }
 
-    /// 启用/禁用搜索栏
+    /// 启用/禁用搜索栏,禁用时同时把 `alpha` 置为 0.5 作为视觉反馈
     /// - Parameter isEnabled: 是否启用
     /// - Returns: `Self`
     @discardableResult

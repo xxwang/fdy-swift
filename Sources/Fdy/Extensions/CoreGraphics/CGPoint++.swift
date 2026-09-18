@@ -1,5 +1,10 @@
 import CoreGraphics
 
+// MARK: - 命名空间入口
+//
+// `CGPoint` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension CGPoint: FdyExtension {}
+
 // MARK: - 向量属性
 public extension CGPoint {
     /// 向量长度(到原点的距离)
@@ -16,7 +21,7 @@ public extension CGPoint {
     var fdy_normalized: CGPoint {
         let len = self.fdy_length
         guard len > 0 else { return .zero }
-        return self / len
+        return self.fdy_divided(by: len)
     }
 
     /// 与另一个向量的点积(dot product)
@@ -51,42 +56,46 @@ public extension CGPoint {
     }
 }
 
-// MARK: - 运算符重载
+// MARK: - 运算方法
 public extension CGPoint {
-    static func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
-        CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+    /// 与另一个点逐分量相加
+    func fdy_adding(_ other: CGPoint) -> CGPoint {
+        CGPoint(x: self.x + other.x, y: self.y + other.y)
     }
 
-    static func += (lhs: inout CGPoint, rhs: CGPoint) {
-        lhs = lhs + rhs
+    /// 将另一个点逐分量累加到自身
+    mutating func fdy_add(_ other: CGPoint) {
+        self = self.fdy_adding(other)
     }
 
-    static func - (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
-        CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
+    /// 与另一个点逐分量相减
+    func fdy_subtracting(_ other: CGPoint) -> CGPoint {
+        CGPoint(x: self.x - other.x, y: self.y - other.y)
     }
 
-    static func -= (lhs: inout CGPoint, rhs: CGPoint) {
-        lhs = lhs - rhs
+    /// 将另一个点逐分量从自身减去
+    mutating func fdy_subtract(_ other: CGPoint) {
+        self = self.fdy_subtracting(other)
     }
 
-    static func * (point: CGPoint, scalar: CGFloat) -> CGPoint {
-        CGPoint(x: point.x * scalar, y: point.y * scalar)
+    /// 对两个分量同时乘以标量
+    func fdy_scaled(by scalar: CGFloat) -> CGPoint {
+        CGPoint(x: self.x * scalar, y: self.y * scalar)
     }
 
-    static func * (scalar: CGFloat, point: CGPoint) -> CGPoint {
-        point * scalar
+    /// 对两个分量同时乘以标量(就地修改)
+    mutating func fdy_scale(by scalar: CGFloat) {
+        self = self.fdy_scaled(by: scalar)
     }
 
-    static func *= (point: inout CGPoint, scalar: CGFloat) {
-        point = point * scalar
-    }
-
-    static func / (point: CGPoint, scalar: CGFloat) -> CGPoint {
+    /// 对两个分量同时除以标量,标量为 0 时返回 `.zero`
+    func fdy_divided(by scalar: CGFloat) -> CGPoint {
         guard scalar != 0 else { return .zero }
-        return CGPoint(x: point.x / scalar, y: point.y / scalar)
+        return CGPoint(x: self.x / scalar, y: self.y / scalar)
     }
 
-    static func /= (point: inout CGPoint, scalar: CGFloat) {
-        point = point / scalar
+    /// 对两个分量同时除以标量(就地修改)
+    mutating func fdy_divide(by scalar: CGFloat) {
+        self = self.fdy_divided(by: scalar)
     }
 }

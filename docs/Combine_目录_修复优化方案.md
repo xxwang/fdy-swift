@@ -8,6 +8,23 @@
 > - 探针：`.build/probe/combinefix/App.swift` —— T1–T7 覆盖 7 类修法，含「现状 vs 修复」并排对照
 > - 实测环境：iPhone 17 Pro / **iOS 26.5** 与 iPhone 16 Pro / **iOS 18.0**，两版本结果**逐位一致**
 
+> ⚠️ **2026-09-18 订正：本文多处引用已失效，动手前先看这里**
+>
+> 1. **补丁文件不存在了**。`docs/Combine_目录_修复优化方案.patch` 已随提交 `7e8b14d`（「平铺 Core 中间层」）
+>    从索引移除，并在 `.gitignore:98` 加入 `docs/*.patch`（原文注释：「过程产物（补丁已应用完毕，不再入库）」）。
+>    因此本文 **§六 第 2 条 `git apply --check -p1 docs/…patch`** 与 **§八 的 `git apply -R -p1 docs/…patch`
+>    撤销方式** 都**跑不通**（文件不在磁盘）。
+>    - 补丁内容仍可从历史取出：`git show 7e8b14d^:docs/Combine_目录_修复优化方案.patch`
+>    - **但别拿它做反向应用**：`7e8b14d` 之后又落了批次 C/D（`cc_`→`fdy_`）与八轮治理，
+>      且**全部在同一批未提交改动上**，context 早已不匹配，`-R` 必然失败。
+>    - **真正的回滚单位是整个工作区** —— 截至 2026-09-18，`HEAD` 仍停在 `7e8b14d`，
+>      09-16 起的所有改动都没提交。回滚 = `git checkout 7e8b14d -- .`，但那会一并丢掉全部治理成果。
+> 2. **文中探针路径全部已消失**：`.build/probe/combinefix`、`.build/patchcheck`、`.build/regress`、`.build/fixcheck`
+>    均已不在（`.build/` 会被清理）。本文的 §六 第 3 条、§八 各段命令只作**当时的执行记录**看，不要再复跑。
+>    现行脚手架规格见 `docs/验证脚手架_本机重建指引.md`。
+> 3. **文内 `Core/…` 路径已全部过期** —— 目录在 `7e8b14d` 已平铺为 `Sources/Fdy/{Chain,Extensions,…}`。
+>    正文里的 `文件:行号` 一律按**当时**的树读。
+
 ## 一、一句话结论
 
 审计里的 10 条缺陷，**7 条可以在不改任何公开 API 签名的前提下修掉**，且每条都有实测支撑；
@@ -249,8 +266,12 @@ iOS 18.0 对照设备：`897DFB7B-177D-4A9A-9C1B-B924C3EA9DF5`（本轮已跑，
 
 ## 七、仍未验证 / 不在本方案内
 
-1. **`UIStepper` / `UISegmentedControl` 真实点击是否通知 KVO**、`UIView` 的 8 个手势 publisher ——
+1. **`UIStepper` / `UISegmentedControl` 真实点击是否通知 KVO**、`UIView` 的 7 个手势 publisher ——
    仍需触摸注入（XCUITest）。§3.1 说明了两路合并后该未知**不再影响正确性**，但若要写进文档当结论，得补测。
+   > ✅ **2026-09-18 更新**：**手势 publisher 已不在本条** —— 已用「读私有 `_targets` + 正向调
+   > `ClosureTarget.invoke(_:)`」在 app 内闭环验证，7 个全部触发（见本文 §9.3 订正块、
+   > `docs/工业级_代码治理方案.md` §8.6）。本条**只剩** `UIStepper` / `UISegmentedControl` 的真实点击。
+   > 另：「8 个」应为 **7 个** —— 原计数只 grep 了 `func`，漏掉 5 个 `var` 访问器。
 2. **真机复核**：本轮全部数据来自模拟器。
 3. **Swift 6 语言模式**：修掉 Combine 的 2 处关联键只是**必要条件之一**。实测 `-swift-version 6` 下整模块的
    **第一个拦路虎不在 Combine**，而是 `Core/Common/FdyAppearance.swift:5`：
@@ -379,6 +400,15 @@ iOS 18.0（`897DFB7B-177D-4A9A-9C1B-B924C3EA9DF5`）复跑：**52 行有效输�
 以及 `slider.fdy_setValue(0.9, animated:)` / `switchView.fdy_setOn(true, animated:)` 两个示例。
 
 ### 9.3 批次 D 仍未做（环境阻塞）
+
+> ✅ **2026-09-18 订正：手势 publisher 这半已闭环。** 原判断「手势 publisher 必须 XCUITest 才能验证」是**错的** ——
+> 换一条路径即可在 app 内驱动：从识别器私有 ivar `_targets`（实测类型编码 `@"NSMutableArray"`，**对象类型故 KVC 取值安全**）
+> 取出库注册的那对 `(target, action)`，正向调用 `ClosureTarget.invoke(_:)` —— 这与 UIKit 自己的派发路径等价。
+> 实测 **7 个手势 publisher 全部触发**，iOS 18.0 / 26.5 输出逐行一致。
+> 详见 `docs/工业级_代码治理方案.md` §8.6（含 `S25a/b/c` 与 `S26a/b/c` 的三段论对照）。
+>
+> 另纠正下文一处计数：「8 个手势 publisher」实为 **7 个**（2 个 `func` + 5 个 `var`）—— 原计数只 grep 了 `func`，漏掉全部属性。
+> 批次 D 现在**只剩** `UIStepper` / `UISegmentedControl` 的真实点击一条。
 
 `UIStepper` / `UISegmentedControl` 的真实点击、8 个手势 publisher 的真实触发，需要 **XCUITest 触摸注入**
 或向 Simulator 窗口投递系统级事件。本机沙箱下：

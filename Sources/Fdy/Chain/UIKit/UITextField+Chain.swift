@@ -105,7 +105,7 @@ public extension FdyWrapper where Base: UITextField {
     /// - Parameter enabled: 是否启用安全输入
     /// - Returns: `Self`
     @discardableResult
-    func secureTextEntry(_ enabled: Bool) -> Self {
+    func isSecureTextEntry(_ enabled: Bool) -> Self {
         base.isSecureTextEntry = enabled
         return self
     }
@@ -225,12 +225,11 @@ public extension FdyWrapper where Base: UITextField {
     /// - Returns: `Self`
     @discardableResult
     func clear() -> Self {
-        base.text = nil
         base.attributedText = nil
         return self
     }
 
-    /// 添加左侧内边距(通过 `leftView` 实现)
+    /// 添加左侧内边距(通过 `leftView` 实现),会覆盖 `leftView`,二者勿混用
     /// - Parameter padding: 左侧空白宽度
     /// - Returns: `Self`
     @discardableResult
@@ -245,7 +244,7 @@ public extension FdyWrapper where Base: UITextField {
         return self
     }
 
-    /// 添加右侧内边距(通过 `rightView` 实现)
+    /// 添加右侧内边距(通过 `rightView` 实现),会覆盖 `rightView`,二者勿混用
     /// - Parameter padding: 右侧空白宽度
     /// - Returns: `Self`
     @discardableResult
@@ -260,7 +259,7 @@ public extension FdyWrapper where Base: UITextField {
         return self
     }
 
-    /// 设置左侧自定义视图
+    /// 设置左侧自定义视图,会覆盖 `leftPadding`,二者勿混用
     /// - Parameters:
     ///   - view: 要显示的视图
     ///   - containerSize: 容器尺寸(建议宽高一致)
@@ -282,7 +281,7 @@ public extension FdyWrapper where Base: UITextField {
         return self
     }
 
-    /// 设置右侧自定义视图
+    /// 设置右侧自定义视图,会覆盖 `rightPadding`,二者勿混用
     /// - Parameters:
     ///   - view: 要显示的视图
     ///   - containerSize: 容器尺寸

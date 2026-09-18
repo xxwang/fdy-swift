@@ -1,12 +1,17 @@
 import CoreGraphics
 
+// MARK: - 命名空间入口
+//
+// `CGRect` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension CGRect: FdyExtension {}
+
 // MARK: - 构造方法
 public extension CGRect {
     /// 使用中心点和尺寸初始化矩形
     /// - Parameters:
     ///   - center: 矩形的中心坐标
     ///   - size: 矩形的尺寸
-    init(center: CGPoint, size: CGSize) {
+    init(fdy_center center: CGPoint, size: CGSize) {
         self.init(
             origin: CGPoint(
                 x: center.x - size.width / 2,
@@ -21,7 +26,7 @@ public extension CGRect {
     ///   - anchorPoint: 归一化锚点 (0～1),如 (0,0)=左上, (1,1)=右下
     ///   - size: 矩形尺寸
     ///   - position: 锚点在坐标系中的绝对位置
-    init(anchorPoint: CGPoint, size: CGSize, at position: CGPoint) {
+    init(fdy_anchorPoint anchorPoint: CGPoint, size: CGSize, at position: CGPoint) {
         self.init(
             origin: CGPoint(
                 x: position.x - size.width * anchorPoint.x,

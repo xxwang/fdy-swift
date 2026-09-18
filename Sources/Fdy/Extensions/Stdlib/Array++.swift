@@ -1,11 +1,16 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `Array` 是泛型结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension Array: FdyExtension {}
+
 // MARK: - 下标
 public extension Array {
     /// 安全下标访问,避免越界崩溃
     /// - Parameter index: 要访问的索引
     /// - Returns: 若索引有效则返回对应元素,否则返回 `nil`
-    subscript(safe index: Int) -> Element? {
+    subscript(fdy_safe index: Int) -> Element? {
         return indices.contains(index) ? self[index] : nil
     }
 }

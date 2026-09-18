@@ -63,15 +63,6 @@ public extension FdyWrapper where Base: UISegmentedControl {
         return self
     }
 
-    /// 设置`tintColor`(影响选中状态颜色、指示器等)
-    /// - Parameter color: 主色调
-    /// - Returns: `Self`
-    @discardableResult
-    func tintColor(_ color: UIColor?) -> Self {
-        base.tintColor = color
-        return self
-    }
-
     /// 设置分段标题的文本属性(如字体、颜色)
     /// - Parameters:
     ///   - attributes: 文本属性字典

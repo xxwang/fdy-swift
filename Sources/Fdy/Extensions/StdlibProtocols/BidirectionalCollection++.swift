@@ -13,11 +13,11 @@ public extension BidirectionalCollection {
     /// - Example:
     ///   ```swift
     ///   let arr = [10, 20, 30]
-    ///   print(arr[safe: 0])   // Optional(10)
-    ///   print(arr[safe: -1])  // Optional(30)
-    ///   print(arr[safe: 5])   // nil
+    ///   print(arr[fdy_safe: 0])   // Optional(10)
+    ///   print(arr[fdy_safe: -1])  // Optional(30)
+    ///   print(arr[fdy_safe: 5])   // nil
     ///   ```
-    subscript(safe offset: Int) -> Element? {
+    subscript(fdy_safe offset: Int) -> Element? {
         let count = self.count
         // 空集合直接返回 nil
         guard count > 0 else { return nil }
@@ -34,36 +34,5 @@ public extension BidirectionalCollection {
             index = self.index(startIndex, offsetBy: positiveIndex)
         }
         return self[index]
-    }
-}
-
-// MARK: - 获取元素
-public extension BidirectionalCollection {
-    /// 返回集合从头部截取指定数量的元素
-    /// - Parameter count: 要截取的元素数量
-    /// - Returns: 截取后的集合
-    ///
-    /// - Example:
-    ///
-    ///     let array = [1, 2, 3, 4, 5]
-    ///     print(array.fdy_prefix(count: 3)) // 输出:[1, 2, 3]
-    ///
-    func fdy_prefix(count: Int) -> Self.SubSequence {
-        guard count > 0 else { return self[self.startIndex ..< self.startIndex] }
-        return self.prefix(count)
-    }
-
-    /// 返回集合从尾部截取指定数量的元素
-    /// - Parameter count: 要截取的元素数量
-    /// - Returns: 截取后的集合
-    ///
-    /// - Example:
-    ///
-    ///     let array = [1, 2, 3, 4, 5]
-    ///     print(array.fdy_suffix(count: 3)) // 输出:[3, 4, 5]
-    ///
-    func fdy_suffix(count: Int) -> Self.SubSequence {
-        guard count > 0 else { return self[self.endIndex ..< self.endIndex] }
-        return self.suffix(count)
     }
 }

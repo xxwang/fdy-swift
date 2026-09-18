@@ -13,13 +13,13 @@ public extension RangeReplaceableCollection {
     ///
     /// - Example:
     ///     ```swift
-    ///     let strings = Array(expression: "Hi", count: 3)
+    ///     let strings = Array(fdy_expression: "Hi", count: 3)
     ///     // ["Hi", "Hi", "Hi"]
     ///
-    ///     let uuids = Array(expression: UUID(), count: 2)
+    ///     let uuids = Array(fdy_expression: UUID(), count: 2)
     ///     // [UUID(), UUID()] — 两个不同 UUID
     ///     ```
-    init(expression: @autoclosure () throws -> Element, count: Int) rethrows {
+    init(fdy_expression expression: @autoclosure () throws -> Element, count: Int) rethrows {
         precondition(count >= 0, "Count must be non-negative")
         self.init()
         guard count > 0 else { return }
@@ -40,10 +40,10 @@ public extension RangeReplaceableCollection {
     /// - Example:
     ///
     ///     var array = [10, 20, 30]
-    ///     array[offset: 1] = 25
+    ///     array[fdy_offset: 1] = 25
     ///     print(array) // 输出: [10, 25, 30]
     ///
-    subscript(offset: Int) -> Element {
+    subscript(fdy_offset offset: Int) -> Element {
         get {
             precondition(offset >= 0 && offset < count, "Index out of bounds")
             return self[index(startIndex, offsetBy: offset)]
@@ -55,17 +55,21 @@ public extension RangeReplaceableCollection {
         }
     }
 
-    /// 访问集合指定范围的元素
+    /// 访问集合指定范围的元素(返回切片)
     /// - Parameter range: 元素的范围
-    /// - Returns: 结果序列
+    /// - Returns: 结果切片 `SubSequence`
+    ///
+    /// - Note: 标签刻意用 `fdy_slice` 而非 `fdy_range` —— `String` 也是 `RangeReplaceableCollection`,
+    ///   若两条同名同约束(仅返回类型不同:`String?` vs `SubSequence`),重载会靠上下文返回类型消解,
+    ///   同一表达式 `str[fdy_range: r]` 会因标注不同而返回不同类型。切片用 `fdy_slice`、安全子串用 `fdy_range`。
     ///
     /// - Example:
     ///
     ///     var array = [1, 2, 3, 4]
-    ///     array[1..<3] = [9, 9]
+    ///     array[fdy_slice: 1..<3] = [9, 9]
     ///     print(array) // 输出: [1, 9, 9, 4]
     ///
-    subscript<R>(range range: R) -> SubSequence where R: RangeExpression, R.Bound == Int {
+    subscript<R>(fdy_slice range: R) -> SubSequence where R: RangeExpression, R.Bound == Int {
         get {
             let indexRange = range.relative(to: 0 ..< count)
             return self[index(startIndex, offsetBy: indexRange.lowerBound) ..< index(startIndex, offsetBy: indexRange.upperBound)]

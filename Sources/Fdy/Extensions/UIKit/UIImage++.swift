@@ -17,8 +17,8 @@ public extension UIImage {
     ///   - color: 图片填充颜色,默认为黑色
     ///   - size: 图片尺寸,默认为1x1像素
     ///   - cornerRadius: 圆角半径,默认为0表示直角矩形
-    convenience init?(color: UIColor = .black, size: CGSize = CGSize(width: 1, height: 1), cornerRadius: CGFloat = 0) {
-        UIGraphicsBeginImageContextWithOptions(size, false, FdyScreen.screenScale)
+    convenience init?(fdy_color color: UIColor = .black, size: CGSize = CGSize(width: 1, height: 1), cornerRadius: CGFloat = 0) {
+        UIGraphicsBeginImageContextWithOptions(size, false, UIScreen.main.scale)
         defer { UIGraphicsEndImageContext() }
 
         guard let context = UIGraphicsGetCurrentContext() else { return nil }
@@ -1580,11 +1580,11 @@ public extension UIImage {
 
         // 单色直接返回纯色图(带圆角)
         if colors.count == 1 {
-            return UIImage(color: colors[0], size: size, cornerRadius: cornerRadius)
+            return UIImage(fdy_color: colors[0], size: size, cornerRadius: cornerRadius)
         }
 
         let format = UIGraphicsImageRendererFormat.default()
-        format.scale = FdyScreen.screenScale // 使用主屏缩放,适合 UI 资源
+        format.scale = UIScreen.main.scale // 使用主屏缩放,适合 UI 资源
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
 
         return renderer.image { context in

@@ -1,5 +1,10 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `NSRange` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension NSRange: FdyExtension {}
+
 // MARK: - 类型转换
 public extension NSRange {
     /// 将 `NSRange`(基于 UTF-16)安全转换为 Swift 原生的 `Range<String.Index>`

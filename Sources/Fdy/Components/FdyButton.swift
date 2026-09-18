@@ -160,6 +160,7 @@ public extension FdyWrapper where Base: FdyButton {
     ///   请使用 `[weak self]` 避免循环引用泄漏。
     /// - Parameter block: 点击处理回调
     /// - Returns: `Self`
+    @discardableResult
     func clickBlock(_ block: @escaping FdyAction1<FdyButton>) -> Self {
         base.clickBlock = block
         base.removeTarget(base, action: #selector(FdyButton.clickHandler(_:)), for: .touchUpInside)

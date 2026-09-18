@@ -6,7 +6,7 @@ public extension UIBezierPath {
     /// - Parameters:
     ///   - from: 起点
     ///   - to: 终点
-    convenience init(from: CGPoint, to: CGPoint) {
+    convenience init(fdy_from from: CGPoint, to: CGPoint) {
         self.init()
         move(to: from)
         addLine(to: to)
@@ -14,7 +14,7 @@ public extension UIBezierPath {
 
     /// 使用多个点依次连线创建开放路径
     /// - Parameter points: 点数组,至少一个点
-    convenience init(points: [CGPoint]) {
+    convenience init(fdy_points points: [CGPoint]) {
         self.init()
         guard let first = points.first else { return }
         move(to: first)
@@ -26,7 +26,7 @@ public extension UIBezierPath {
     /// 使用至少三个点创建闭合多边形路径
     /// - Parameter points: 点数组,需 ≥3 个点
     /// - Returns: 成功时返回路径,否则返回 `nil`
-    convenience init?(polygonWithPoints points: [CGPoint]) {
+    convenience init?(fdy_polygonWithPoints points: [CGPoint]) {
         guard points.count >= 3 else { return nil }
         self.init()
         move(to: points[0])
@@ -40,7 +40,7 @@ public extension UIBezierPath {
     /// - Parameters:
     ///   - size: 椭圆的宽高
     ///   - centered: 若为 `true`,椭圆中心位于原点 (0,0);否则左上角在 (0,0)
-    convenience init(ovalOf size: CGSize, centered: Bool = false) {
+    convenience init(fdy_ovalOf size: CGSize, centered: Bool = false) {
         let origin = centered ? CGPoint(x: -size.width / 2, y: -size.height / 2) : .zero
         self.init(ovalIn: CGRect(origin: origin, size: size))
     }
@@ -49,7 +49,7 @@ public extension UIBezierPath {
     /// - Parameters:
     ///   - size: 矩形的宽高
     ///   - centered: 若为 `true`,矩形中心位于原点 (0,0);否则左上角在 (0,0)
-    convenience init(rectOf size: CGSize, centered: Bool = false) {
+    convenience init(fdy_rectOf size: CGSize, centered: Bool = false) {
         let origin = centered ? CGPoint(x: -size.width / 2, y: -size.height / 2) : .zero
         self.init(rect: CGRect(origin: origin, size: size))
     }

@@ -1,6 +1,11 @@
 import CoreGraphics
 import UIKit
 
+// MARK: - 命名空间入口
+//
+// `CGSize` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension CGSize: FdyExtension {}
+
 // MARK: - 属性
 public extension CGSize {
     /// 宽高比(width / height)
@@ -55,55 +60,62 @@ public extension CGSize {
     }
 }
 
-// MARK: - 运算符重载
+// MARK: - 运算方法
 public extension CGSize {
-    static func + (lhs: CGSize, rhs: CGSize) -> CGSize {
-        CGSize(width: lhs.width + rhs.width, height: lhs.height + rhs.height)
+    /// 与另一个尺寸逐分量相加
+    func fdy_adding(_ other: CGSize) -> CGSize {
+        CGSize(width: self.width + other.width, height: self.height + other.height)
     }
 
-    static func += (lhs: inout CGSize, rhs: CGSize) {
-        lhs = lhs + rhs
+    /// 将另一个尺寸逐分量累加到自身
+    mutating func fdy_add(_ other: CGSize) {
+        self = self.fdy_adding(other)
     }
 
-    static func - (lhs: CGSize, rhs: CGSize) -> CGSize {
-        CGSize(width: lhs.width - rhs.width, height: lhs.height - rhs.height)
+    /// 与另一个尺寸逐分量相减
+    func fdy_subtracting(_ other: CGSize) -> CGSize {
+        CGSize(width: self.width - other.width, height: self.height - other.height)
     }
 
-    static func -= (lhs: inout CGSize, rhs: CGSize) {
-        lhs = lhs - rhs
+    /// 将另一个尺寸逐分量从自身减去
+    mutating func fdy_subtract(_ other: CGSize) {
+        self = self.fdy_subtracting(other)
     }
 
-    static func * (lhs: CGSize, rhs: CGSize) -> CGSize {
-        CGSize(width: lhs.width * rhs.width, height: lhs.height * rhs.height)
+    /// 与另一个尺寸逐分量相乘
+    func fdy_multiplied(by other: CGSize) -> CGSize {
+        CGSize(width: self.width * other.width, height: self.height * other.height)
     }
 
-    static func *= (lhs: inout CGSize, rhs: CGSize) {
-        lhs = lhs * rhs
+    /// 与另一个尺寸逐分量相乘(就地修改)
+    mutating func fdy_multiply(by other: CGSize) {
+        self = self.fdy_multiplied(by: other)
     }
 
-    static func * (lhs: CGSize, scalar: CGFloat) -> CGSize {
-        CGSize(width: lhs.width * scalar, height: lhs.height * scalar)
+    /// 对宽高同时乘以标量
+    func fdy_scaled(by scalar: CGFloat) -> CGSize {
+        CGSize(width: self.width * scalar, height: self.height * scalar)
     }
 
-    static func * (scalar: CGFloat, rhs: CGSize) -> CGSize {
-        rhs * scalar
+    /// 对宽高同时乘以标量(就地修改)
+    mutating func fdy_scale(by scalar: CGFloat) {
+        self = self.fdy_scaled(by: scalar)
     }
 
-    static func *= (lhs: inout CGSize, scalar: CGFloat) {
-        lhs = lhs * scalar
-    }
-
-    static func / (lhs: CGSize, scalar: CGFloat) -> CGSize {
+    /// 对宽高同时除以标量,标量为 0 时返回 `.zero`
+    func fdy_divided(by scalar: CGFloat) -> CGSize {
         guard scalar != 0 else { return .zero }
-        return CGSize(width: lhs.width / scalar, height: lhs.height / scalar)
+        return CGSize(width: self.width / scalar, height: self.height / scalar)
     }
 
-    static func /= (lhs: inout CGSize, scalar: CGFloat) {
-        lhs = lhs / scalar
+    /// 对宽高同时除以标量(就地修改)
+    mutating func fdy_divide(by scalar: CGFloat) {
+        self = self.fdy_divided(by: scalar)
     }
 
-    static func / (lhs: CGSize, rhs: CGSize) -> CGSize {
-        guard rhs.width != 0, rhs.height != 0 else { return .zero }
-        return CGSize(width: lhs.width / rhs.width, height: lhs.height / rhs.height)
+    /// 与另一个尺寸逐分量相除,任一除数为 0 时返回 `.zero`
+    func fdy_divided(by other: CGSize) -> CGSize {
+        guard other.width != 0, other.height != 0 else { return .zero }
+        return CGSize(width: self.width / other.width, height: self.height / other.height)
     }
 }

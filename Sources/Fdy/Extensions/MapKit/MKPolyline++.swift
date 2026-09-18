@@ -17,10 +17,10 @@ public extension MKPolyline {
     ///       CLLocationCoordinate2D(latitude: 39.9042, longitude: 116.4074), // 北京
     ///       CLLocationCoordinate2D(latitude: 31.2304, longitude: 121.4737)  // 上海
     ///   ]
-    ///   let route = MKPolyline(coordinates: coords)
+    ///   let route = MKPolyline(fdy_coordinates: coords)
     ///   mapView.addOverlay(route)
     ///   ```
-    convenience init(coordinates: [CLLocationCoordinate2D]) {
+    convenience init(fdy_coordinates coordinates: [CLLocationCoordinate2D]) {
         var mutableCoordinates = coordinates
         self.init(coordinates: &mutableCoordinates, count: mutableCoordinates.count)
     }

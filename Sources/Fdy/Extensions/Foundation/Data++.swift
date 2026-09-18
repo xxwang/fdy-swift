@@ -1,5 +1,10 @@
 import UIKit
 
+// MARK: - 命名空间入口
+//
+// `Data` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension Data: FdyExtension {}
+
 // MARK: - 属性
 public extension Data {
     /// 根据文件头(Magic Number)推断资源的文件扩展名

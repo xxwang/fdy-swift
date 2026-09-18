@@ -52,7 +52,7 @@ public extension FdyLoadable where Self: UIViewController {
     ///   - bundle: 资源 `Bundle`(默认为类所在 `Bundle`)
     ///   - identifier: 控制器 ID(默认为类名)
     /// - Returns: 加载的控制器实例
-    static func ffdy_loadViewController(
+    static func fdy_loadViewController(
         from storyboardName: String = "Main",
         bundle: Bundle? = nil,
         identifier: String? = nil

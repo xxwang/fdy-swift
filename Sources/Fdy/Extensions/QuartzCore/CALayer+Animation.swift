@@ -259,7 +259,7 @@ public extension CALayer {
     /// - Parameters:
     ///   - angles: 旋转角度数组(弧度),默认为 `[-5°, +5°, -5°]`
     ///   - keyTimes: 时间比例数组,可选
-    ///   - duration: 动画总时长(秒),默认为 0.3
+    ///   - duration: 动画总时长(秒),默认为 0.25
     ///   - delay: 延迟时间(秒),默认为 0
     ///   - repeatCount: 重复次数,默认为 1
     ///   - removedOnCompletion: 是否在完成后移除动画,默认为 `true`
@@ -271,7 +271,7 @@ public extension CALayer {
             (-5).fdy_radians(),
         ],
         keyTimes: [NSNumber]? = nil,
-        duration: TimeInterval = 0.3,
+        duration: TimeInterval = 0.25,
         delay: TimeInterval = 0,
         repeatCount: Float = 1,
         removedOnCompletion: Bool = true,
@@ -469,12 +469,12 @@ public extension CALayer {
     /// - Parameters:
     ///   - type: 过渡类型(如 `.fade`, `.push` 等)
     ///   - subtype: 方向(如 `.fromLeft`),可选
-    ///   - duration: 动画时长(秒),默认为 0.35
+    ///   - duration: 动画时长(秒),默认为 0.25
     ///   - delay: 延迟时间(秒),默认为 0
     func fdy_addTransition(
         type: CATransitionType,
         subtype: CATransitionSubtype? = nil,
-        duration: CFTimeInterval = 0.35,
+        duration: CFTimeInterval = 0.25,
         delay: TimeInterval = 0
     ) {
         let transition = CATransition()

@@ -7,9 +7,9 @@ public extension UILabel {
     ///
     /// - Example:
     ///   ```swift
-    ///   let label = UILabel(text: "Hello")
+    ///   let label = UILabel(fdy_text: "Hello")
     ///   ```
-    convenience init(text: String?) {
+    convenience init(fdy_text text: String?) {
         self.init()
         self.text = text
     }
@@ -21,9 +21,9 @@ public extension UILabel {
     ///
     /// - Example:
     ///   ```swift
-    ///   let label = UILabel(text: "标题", style: .headline)
+    ///   let label = UILabel(fdy_text: "标题", style: .headline)
     ///   ```
-    convenience init(text: String, style: UIFont.TextStyle) {
+    convenience init(fdy_text text: String, style: UIFont.TextStyle) {
         self.init()
         self.font = .preferredFont(forTextStyle: style)
         self.text = text

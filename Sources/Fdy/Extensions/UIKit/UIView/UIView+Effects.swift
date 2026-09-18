@@ -1,6 +1,19 @@
 import UIKit
 import os.log
 
+/// 水印图层标记类型。
+///
+/// 刻意用**类型**而非 `layer.name` 标记归属：`name` 是普通字符串,宿主 App 或三方库
+/// 完全可能给自己的图层起同名,一旦撞名 `fdy_removeWatermark()` 会**静默删掉别人的图层**。
+/// 类型标记由本库独占,不存在撞车可能。
+private final class FdyWatermarkLayer: CALayer {}
+
+/// 粒子发射器标记类型,理由同上。
+///
+/// - Important: 旧实现用 `filter { $0.name == "emitter" || $0.name == nil }` 找自己的发射器,
+///   那个 `|| $0.name == nil` 会**连同宿主所有未命名的 `CAEmitterLayer` 一起删掉**。
+private final class FdyEmitterLayer: CAEmitterLayer {}
+
 extension UIView {
     /// 关联属性键
     fileprivate enum FdyKeys {
@@ -297,7 +310,7 @@ public extension UIView {
             let label = UILabel()
             label.textAlignment = .center
             label.textColor = .white
-            label.backgroundColor = UIColor(hex: "#EE0565")
+            label.backgroundColor = UIColor(fdy_hex: "#EE0565")
             label.font = .systemFont(ofSize: 10)
             label.clipsToBounds = true
             self.addSubview(label)
@@ -394,7 +407,6 @@ public extension UIView {
                 let x = CGFloat(c) * hSpacing - hSpacing / 2
                 let y = CGFloat(r) * vSpacing - vSpacing / 2
                 let layer = self.fdy_createWatermarkLayer(text: text, textColor: textColor, font: font, position: CGPoint(x: x, y: y), angle: angle)
-                layer.name = "dy.watermark"
                 self.layer.addSublayer(layer)
             }
         }
@@ -402,13 +414,14 @@ public extension UIView {
 
     private func fdy_removeWatermarkLayers() {
         self.layer.sublayers?.forEach {
-            if $0.name == "dy.watermark" {
+            // 按**类型**判定归属,与宿主的同名图层无关(旧版按 name 判定,会误删宿主图层)
+            if $0 is FdyWatermarkLayer {
                 $0.removeFromSuperlayer()
             }
         }
     }
 
-    private func fdy_createWatermarkLayer(text: String, textColor: UIColor, font: UIFont, position: CGPoint, angle: CGFloat) -> CALayer {
+    private func fdy_createWatermarkLayer(text: String, textColor: UIColor, font: UIFont, position: CGPoint, angle: CGFloat) -> FdyWatermarkLayer {
         let size = (text as NSString).boundingRect(
             with: CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude),
             options: .usesLineFragmentOrigin,
@@ -422,11 +435,12 @@ public extension UIView {
             (text as NSString).draw(at: .zero, withAttributes: [.font: font, .foregroundColor: textColor])
         }
 
-        let layer = CALayer()
+        let layer = FdyWatermarkLayer()
         layer.contents = image.cgImage
         layer.frame = CGRect(origin: position, size: size)
         layer.transform = CATransform3DMakeRotation(angle, 0, 0, 1)
-        layer.name = "dy.watermark.content"
+        // `name` 仅供调试器辨认,归属判定一律靠类型,不读它
+        layer.name = "fdy.watermark"
         return layer
     }
 }
@@ -664,8 +678,8 @@ public extension UIView {
     func fdy_startEmitter(config: UIView.FdyEmitterConfig) -> CAEmitterLayer {
         self.fdy_stopEmitter()
 
-        let emitter = CAEmitterLayer()
-        emitter.name = "emitter"
+        // 用子类实例,供 stop/pause/resume 按类型识别归属(不依赖 `name`,避免误伤宿主图层)
+        let emitter = FdyEmitterLayer()
         emitter.emitterPosition = CGPoint(
             x: self.bounds.width * config.position.x,
             y: self.bounds.height * config.position.y
@@ -751,16 +765,14 @@ public extension UIView {
     /// 停止并移除所有粒子发射器
     func fdy_stopEmitter() {
         self.layer.sublayers?
-            .compactMap { $0 as? CAEmitterLayer }
-            .filter { $0.name == "emitter" || $0.name == nil } // 兼容旧版
+            .compactMap { $0 as? FdyEmitterLayer }
             .forEach { $0.removeFromSuperlayer() }
     }
 
     /// 暂停粒子发射(保留已有粒子动画)
     func fdy_pauseEmitter() {
         self.layer.sublayers?
-            .compactMap { $0 as? CAEmitterLayer }
-            .filter { $0.name == "emitter" || $0.name == nil }
+            .compactMap { $0 as? FdyEmitterLayer }
             .forEach { emitter in
                 var rates = self.fdy_emitterOriginalRates
                 emitter.emitterCells?.forEach { cell in
@@ -774,8 +786,7 @@ public extension UIView {
     /// 恢复粒子发射
     func fdy_resumeEmitter() {
         self.layer.sublayers?
-            .compactMap { $0 as? CAEmitterLayer }
-            .filter { $0.name == "emitter" || $0.name == nil }
+            .compactMap { $0 as? FdyEmitterLayer }
             .forEach { emitter in
                 let rates = self.fdy_emitterOriginalRates
                 emitter.emitterCells?.forEach { cell in

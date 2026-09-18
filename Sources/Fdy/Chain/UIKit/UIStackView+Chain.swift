@@ -54,7 +54,7 @@ public extension FdyWrapper where Base: UIStackView {
     /// - Parameter enabled: 是否启用基线相对布局
     /// - Returns: `Self`
     @discardableResult
-    func baselineRelativeArrangement(_ enabled: Bool) -> Self {
+    func isBaselineRelativeArrangement(_ enabled: Bool) -> Self {
         base.isBaselineRelativeArrangement = enabled
         return self
     }
@@ -63,26 +63,8 @@ public extension FdyWrapper where Base: UIStackView {
     /// - Parameter enabled: 是否以布局边距为基准进行子视图排布
     /// - Returns: `Self`
     @discardableResult
-    func layoutMarginsRelativeArrangement(_ enabled: Bool) -> Self {
+    func isLayoutMarginsRelativeArrangement(_ enabled: Bool) -> Self {
         base.isLayoutMarginsRelativeArrangement = enabled
-        return self
-    }
-
-    /// 设置堆栈视图的布局边距
-    /// - Parameter margins: 四周边距(上、左、下、右)
-    /// - Returns: `Self`
-    @discardableResult
-    func layoutMargins(_ margins: UIEdgeInsets) -> Self {
-        base.layoutMargins = margins
-        return self
-    }
-
-    /// 设置是否继承父视图的布局边距
-    /// - Parameter preserves: 是否保留父视图的布局边距
-    /// - Returns: `Self`
-    @discardableResult
-    func preservesSuperviewLayoutMargins(_ preserves: Bool) -> Self {
-        base.preservesSuperviewLayoutMargins = preserves
         return self
     }
 }

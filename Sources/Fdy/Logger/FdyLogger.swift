@@ -71,10 +71,33 @@ public extension FdyLogger {
         self.queue.async { [weak self] in
             guard let self else { return }
             let context = FdyLogContext(file: file, function: function, line: line, date: date, level: level, items: items)
-            for destination in self.destinations {
-                guard level >= destination.minimumLevel else { continue }
-                destination.log(context: context)
-            }
+            self.dispatch(context)
+        }
+    }
+}
+
+// MARK: - 内部实现
+private extension FdyLogger {
+    /// 同步写日志，写完后刷盘（供 `fatal` 使用）
+    func logSynchronously(file: String, function: String, line: Int, date: Date, level: FdyLogLevel, items: [Any]) {
+        if level < minimumLevel {
+            return
+        }
+
+        queue.sync { [weak self] in
+            guard let self else { return }
+            let context = FdyLogContext(file: file, function: function, line: line, date: date, level: level, items: items)
+            self.dispatch(context)
+            // 串行队列保证写入先于刷盘，文件目标据此立即 synchronizeFile
+            self.destinations.forEach { $0.flush() }
+        }
+    }
+
+    /// 按各目标自身的 `minimumLevel` 分发（须在 `queue` 上调用）
+    func dispatch(_ context: FdyLogContext) {
+        for destination in destinations {
+            guard context.level >= destination.minimumLevel else { continue }
+            destination.log(context: context)
         }
     }
 }
@@ -101,9 +124,9 @@ public extension FdyLogger {
         self.log(file: file, function: function, line: line, date: Date(), level: .error, items: items)
     }
 
-    /// 致命错误
+    /// 致命错误（同步写，用于崩溃前）
     func fatal(_ items: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-        self.log(file: file, function: function, line: line, date: Date(), level: .fatal, items: items)
+        self.logSynchronously(file: file, function: function, line: line, date: Date(), level: .fatal, items: items)
     }
 }
 

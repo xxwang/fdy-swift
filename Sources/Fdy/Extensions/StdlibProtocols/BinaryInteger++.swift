@@ -8,44 +8,13 @@ public extension BinaryInteger {
         self > 0
     }
 
-    /// 转换为`Int`
-    func fdy_Int() -> Int {
-        Int(self)
-    }
-
-    /// 转换为`Int64`
-    func fdy_Int64() -> Int64 {
-        Int64(self)
-    }
-
-    /// 转换为`UInt`
-    func fdy_UInt() -> UInt {
-        UInt(self)
-    }
-
-    /// 转换为`UInt64`
-    func fdy_UInt64() -> UInt64 {
-        UInt64(self)
-    }
-
-    /// 转换为`Float`
-    func fdy_Float() -> Float {
-        Float(self)
-    }
-
-    /// 转换为`Double`
-    func fdy_Double() -> Double {
-        Double(self)
-    }
-
-    /// 转换为`CGFloat`
-    func fdy_CGFloat() -> CGFloat {
-        CGFloat(self)
-    }
+    // 刻意不提供 `fdy_Int()` / `fdy_Double()` / `fdy_CGFloat()` 一类转换方法:
+    // 它们等价于 `Int(self)`、`Double(self)` 等系统构造器(后者更短),
+    // 且与 `String.fdy_Int()`(解析失败返回 `0`,语义完全不同)同名,易混用。
 
     /// 转换为 `NSNumber`
     func fdy_NSNumber() -> NSNumber {
-        NSNumber(value: self.fdy_Double())
+        NSNumber(value: Double(self))
     }
 
     /// 转换为 `NSDecimalNumber`(通过 `Double` 中转,注意精度损失)

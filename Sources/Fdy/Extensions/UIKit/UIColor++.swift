@@ -8,7 +8,7 @@ public extension UIColor {
     /// - Parameters:
     ///   - hex: 十六进度颜色字符串
     ///   - alpha: 透明度
-    convenience init(hex: String, alpha: CGFloat = 1.0) {
+    convenience init(fdy_hex hex: String, alpha: CGFloat = 1.0) {
         let normalized = hex
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "#", with: "")
@@ -53,7 +53,7 @@ public extension UIColor {
     /// 使用 `ARGB` 十六进制字符串创建 `UIColor`(包含透明度)
     /// - Note: 支持格式：`#AARRGGBB`、`AARRGGBB`、`#ARGB`、`ARGB`
     /// - Parameter argbHex: 带透明度的ARGB十六进度颜色字符串
-    convenience init?(argbHex: String) {
+    convenience init?(fdy_argbHex argbHex: String) {
         let normalized = argbHex
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "#", with: "")
@@ -103,7 +103,7 @@ public extension UIColor {
     /// - Parameters:
     ///   - hex: `Int`类型十六进度颜色
     ///   - alpha: 透明度
-    convenience init(hex: Int, alpha: CGFloat = 1.0) {
+    convenience init(fdy_hex hex: Int, alpha: CGFloat = 1.0) {
         let r = CGFloat((hex >> 16) & 0xFF)
         let g = CGFloat((hex >> 8) & 0xFF)
         let b = CGFloat(hex & 0xFF)
@@ -121,7 +121,7 @@ public extension UIColor {
     ///   - g: 绿色
     ///   - b: 蓝色
     ///   - alpha: 透明度
-    convenience init(r: CGFloat, g: CGFloat, b: CGFloat, alpha: CGFloat = 1.0) {
+    convenience init(fdy_r r: CGFloat, g: CGFloat, b: CGFloat, alpha: CGFloat = 1.0) {
         self.init(
             red: (r.fdy_clamped(to: 0 ... 255)) / 255.0,
             green: (g.fdy_clamped(to: 0 ... 255)) / 255.0,
@@ -134,7 +134,7 @@ public extension UIColor {
     /// - Parameters:
     ///   - light: 浅色
     ///   - dark: 深色
-    convenience init(light: UIColor, dark: UIColor) {
+    convenience init(fdy_light light: UIColor, dark: UIColor) {
         self.init { traits in
             traits.userInterfaceStyle == .dark ? dark : light
         }
@@ -254,7 +254,7 @@ public extension UIColor {
     ///   - alpha: 透明度
     /// - Returns: `UIColor`
     static func fdy_color(from hex: String, alpha: CGFloat = 1.0) -> UIColor {
-        return UIColor(hex: hex, alpha: alpha)
+        return UIColor(fdy_hex: hex, alpha: alpha)
     }
 
     /// 转换为`CIColor`

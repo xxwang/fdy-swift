@@ -1,12 +1,17 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `Character` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension Character: FdyExtension {}
+
 // MARK: - 构造方法
 public extension Character {
     /// 使用 `ASCII` 码值`(0–127)`创建一个 `Character`
     ///
     /// - Parameter ascii: 有效的 `ASCII` 码值(`UInt8`)
     /// - Returns: 若在 0–127 范围内,返回对应字符;否则返回 `nil`
-    init?(ascii: UInt8) {
+    init?(fdy_ascii ascii: UInt8) {
         guard ascii <= 127 else { return nil }
         self = Character(UnicodeScalar(ascii))
     }
@@ -22,10 +27,10 @@ public extension Character {
     ///
     /// - Examples:
     ///   ```swift
-    ///   Character(unicodeScalars: "1F60A")                     // 😊
-    ///   Character(unicodeScalars: "U+1F1FA", "1F1F8")          // 🇺🇸
+    ///   Character(fdy_unicodeScalars: "1F60A")                     // 😊
+    ///   Character(fdy_unicodeScalars: "U+1F1FA", "1F1F8")          // 🇺🇸
     ///   ```
-    init?(unicodeScalars: String...) {
+    init?(fdy_unicodeScalars unicodeScalars: String...) {
         guard !unicodeScalars.isEmpty else { return nil }
 
         let cleanedCodes: [UInt32] = unicodeScalars.compactMap { str in
@@ -74,11 +79,6 @@ public extension Character {
 
 // MARK: - 类型转换
 public extension Character {
-    /// 将当前字符转换为`String`
-    func fdy_String() -> String {
-        return String(self)
-    }
-
     /// 返回当前字符的大写形式
     func fdy_uppercase() -> Character {
         return self.uppercased().first ?? self

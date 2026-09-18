@@ -2,22 +2,22 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UIWindow {
-    /// 设置窗口的根视图控制器(root view controller)
+    /// 设置窗口的根视图控制器(root view controller),传 `nil` 可清空
     ///
     /// - Parameter rootViewController: 要设置为根视图控制器的 `UIViewController` 实例
     /// - Returns: `Self`
     @discardableResult
-    func rootViewController(_ rootViewController: UIViewController) -> Self {
+    func rootViewController(_ rootViewController: UIViewController?) -> Self {
         base.rootViewController = rootViewController
         return self
     }
 
-    /// 关联窗口到指定的 `UIWindowScene`
+    /// 关联窗口到指定的 `UIWindowScene`,传 `nil` 可清空
     ///
     /// - Parameter windowScene: 与窗口绑定的场景对象(通常来自 `UISceneDelegate`)
     /// - Returns: `Self`
     @discardableResult
-    func windowScene(_ windowScene: UIWindowScene) -> Self {
+    func windowScene(_ windowScene: UIWindowScene?) -> Self {
         base.windowScene = windowScene
         return self
     }

@@ -8,7 +8,7 @@ public extension DateFormatter {
     ///   - locale: 地区,默认为 `en_US_POSIX`(推荐用于解析)
     ///   - timeZone: 时区,默认为 `UTC`
     convenience init(
-        format: String,
+        fdy_format format: String,
         locale: Locale = Locale(identifier: "en_US_POSIX"),
         timeZone: TimeZone = TimeZone(secondsFromGMT: 0)!
     ) {

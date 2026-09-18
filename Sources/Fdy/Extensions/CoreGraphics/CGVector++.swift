@@ -1,12 +1,17 @@
 import CoreGraphics
 
+// MARK: - 命名空间入口
+//
+// `CGVector` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension CGVector: FdyExtension {}
+
 // MARK: - 构造方法
 public extension CGVector {
     /// 根据角度(弧度)和长度创建一个向量
     /// - Parameters:
     ///   - angle: 从正 X 轴逆时针旋转的角度(单位：弧度)
     ///   - magnitude: 向量的长度
-    init(angle: CGFloat, magnitude: CGFloat) {
+    init(fdy_angle angle: CGFloat, magnitude: CGFloat) {
         self.init(dx: magnitude * cos(angle), dy: magnitude * sin(angle))
     }
 }
@@ -32,7 +37,7 @@ public extension CGVector {
     var fdy_normalized: CGVector {
         let length = self.fdy_magnitude
         guard length > 0 else { return .zero }
-        return self / length
+        return self.fdy_divided(by: length)
     }
 }
 
@@ -47,50 +52,50 @@ public extension CGVector {
     }
 }
 
-// MARK: - 运算符重载
+// MARK: - 运算方法
 public extension CGVector {
     /// 加法
-    static func + (lhs: CGVector, rhs: CGVector) -> CGVector {
-        CGVector(dx: lhs.dx + rhs.dx, dy: lhs.dy + rhs.dy)
+    func fdy_adding(_ other: CGVector) -> CGVector {
+        CGVector(dx: self.dx + other.dx, dy: self.dy + other.dy)
     }
 
-    static func += (lhs: inout CGVector, rhs: CGVector) {
-        lhs = lhs + rhs
+    /// 将另一个向量累加到自身(就地修改)
+    mutating func fdy_add(_ other: CGVector) {
+        self = self.fdy_adding(other)
     }
 
     /// 减法
-    static func - (lhs: CGVector, rhs: CGVector) -> CGVector {
-        CGVector(dx: lhs.dx - rhs.dx, dy: lhs.dy - rhs.dy)
+    func fdy_subtracting(_ other: CGVector) -> CGVector {
+        CGVector(dx: self.dx - other.dx, dy: self.dy - other.dy)
     }
 
-    static func -= (lhs: inout CGVector, rhs: CGVector) {
-        lhs = lhs - rhs
+    /// 将另一个向量从自身减去(就地修改)
+    mutating func fdy_subtract(_ other: CGVector) {
+        self = self.fdy_subtracting(other)
     }
 
     /// 标量乘法
-    static func * (vector: CGVector, scalar: CGFloat) -> CGVector {
-        CGVector(dx: vector.dx * scalar, dy: vector.dy * scalar)
+    func fdy_scaled(by scalar: CGFloat) -> CGVector {
+        CGVector(dx: self.dx * scalar, dy: self.dy * scalar)
     }
 
-    static func * (scalar: CGFloat, vector: CGVector) -> CGVector {
-        vector * scalar
-    }
-
-    static func *= (vector: inout CGVector, scalar: CGFloat) {
-        vector = vector * scalar
+    /// 标量乘法(就地修改)
+    mutating func fdy_scale(by scalar: CGFloat) {
+        self = self.fdy_scaled(by: scalar)
     }
 
     /// 标量除法
-    static func / (vector: CGVector, scalar: CGFloat) -> CGVector {
-        CGVector(dx: vector.dx / scalar, dy: vector.dy / scalar)
+    func fdy_divided(by scalar: CGFloat) -> CGVector {
+        CGVector(dx: self.dx / scalar, dy: self.dy / scalar)
     }
 
-    static func /= (vector: inout CGVector, scalar: CGFloat) {
-        vector = vector / scalar
+    /// 标量除法(就地修改)
+    mutating func fdy_divide(by scalar: CGFloat) {
+        self = self.fdy_divided(by: scalar)
     }
 
     /// 取反(方向相反,长度不变)
-    static prefix func - (vector: CGVector) -> CGVector {
-        CGVector(dx: -vector.dx, dy: -vector.dy)
+    func fdy_negated() -> CGVector {
+        CGVector(dx: -self.dx, dy: -self.dy)
     }
 }

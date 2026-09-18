@@ -1,5 +1,10 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `ClosedRange` 是泛型结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+extension ClosedRange: FdyExtension {}
+
 // MARK: - 整数闭区间 (Int) 的随机值扩展
 public extension ClosedRange<Int> {
     /// 返回区间内的一个随机整数

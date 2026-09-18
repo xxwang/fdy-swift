@@ -1,32 +1,5 @@
 import Foundation
 
-// MARK: - 正则匹配操作符
-/// 自定义正则匹配操作符 `=~`
-/// 优先级：高于加法,低于乘法
-infix operator =~: RegPrecedence
-precedencegroup RegPrecedence {
-    associativity: none
-    higherThan: AdditionPrecedence
-    lowerThan: MultiplicationPrecedence
-}
-
-public extension String {
-    /// 正则匹配操作符：检查字符串是否包含匹配正则表达式的内容
-    /// - Parameters:
-    ///   - lhs: 要匹配的字符串
-    ///   - rhs: 正则表达式模式
-    /// - Returns: 是否存在匹配
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "123abc" =～ "\\d+"  // true
-    ///   "abc" =～ "^\\d+$"   // false
-    ///   ```
-    static func =~ (lhs: String, rhs: String) -> Bool {
-        lhs.fdy_isMatch(pattern: rhs)
-    }
-}
-
 // MARK: - 正则扩展
 public extension String {
     /// 将字符串中的正则元字符转义为字面量

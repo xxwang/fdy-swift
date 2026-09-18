@@ -29,8 +29,8 @@ public extension UIView {
 
     /// 淡入淡出动画配置
     struct FdyFadeAnimationOptions {
-        /// 动画时长(默认 0.3 秒)
-        public var duration: TimeInterval = 0.3
+        /// 动画时长(默认 0.25 秒)
+        public var duration: TimeInterval = 0.25
         /// 动画延迟(默认 0)
         public var delay: TimeInterval = 0
         /// 动画曲线(默认 `.easeInOut`)

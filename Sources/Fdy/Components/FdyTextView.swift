@@ -32,10 +32,6 @@ open class FdyTextView: UITextView {
         self.bindEvents()
     }
 
-    deinit {
-        cancellables.removeAll()
-    }
-
     override open class func textView() -> Self {
         return Self()
     }

@@ -12,7 +12,7 @@ public extension CAGradientLayer {
     ///   - endPoint: 渐变终点(归一化坐标,默认底部中心 `(0.5, 1.0)`)
     ///   - type: 渐变类型(默认 `.axial` 线性渐变)
     convenience init(
-        frame: CGRect = .zero,
+        fdy_frame frame: CGRect = .zero,
         colors: [UIColor],
         locations: [CGFloat]? = nil,
         startPoint: CGPoint = CGPoint(x: 0.5, y: 0.0),

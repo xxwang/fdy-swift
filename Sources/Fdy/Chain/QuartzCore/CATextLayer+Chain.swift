@@ -62,12 +62,13 @@ public extension FdyWrapper where Base: CATextLayer {
     }
 
     /// 设置内容缩放比例,用于适配 Retina 屏幕
-    /// - Parameter scale: 缩放因子,默认为当前主屏幕缩放比例
+    /// - Parameter scale: 缩放因子,`nil` 时取当前屏幕 scale
     /// - Important: 若不设置,高分辨率屏幕可能出现模糊
     /// - Returns: `Self`
+    @MainActor
     @discardableResult
-    func contentsScale(_ scale: CGFloat = FdyScreen.screenScale) -> Self {
-        base.contentsScale = scale
+    func contentsScale(_ scale: CGFloat? = nil) -> Self {
+        base.contentsScale = scale ?? FdyScreen.screenScale
         return self
     }
 

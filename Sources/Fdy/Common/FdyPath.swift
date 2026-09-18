@@ -9,22 +9,22 @@ public final class FdyPath {
     public let tempDirPath: String = NSTemporaryDirectory()
 
     /// `Documents` 目录路径(用于用户可见文件,会被 iCloud 备份)
-    public lazy var documentsDirPath = Self.resolvePath(.documentDirectory)
+    public let documentsDirPath = FdyPath.resolvePath(.documentDirectory)
     /// `Library` 目录路径
-    public lazy var libraryDirPath = Self.resolvePath(.libraryDirectory)
+    public let libraryDirPath = FdyPath.resolvePath(.libraryDirectory)
     /// `Caches` 目录路径(用于可再生缓存,系统可能清除)
-    public lazy var cachesDirPath = Self.resolvePath(.cachesDirectory)
+    public let cachesDirPath = FdyPath.resolvePath(.cachesDirectory)
     /// `Application Support` 目录路径(用于应用支持文件,会被备份)
-    public lazy var applicationSupportDirPath = Self.resolvePath(.applicationSupportDirectory)
+    public let applicationSupportDirPath = FdyPath.resolvePath(.applicationSupportDirectory)
 
     /// `Documents` 目录 URL
-    public lazy var documentsDirURL = Self.resolveURL(.documentDirectory)
+    public let documentsDirURL = FdyPath.resolveURL(.documentDirectory)
     /// `Library` 目录 URL
-    public lazy var libraryDirURL = Self.resolveURL(.libraryDirectory)
+    public let libraryDirURL = FdyPath.resolveURL(.libraryDirectory)
     /// `Caches` 目录 URL
-    public lazy var cachesDirURL = Self.resolveURL(.cachesDirectory)
+    public let cachesDirURL = FdyPath.resolveURL(.cachesDirectory)
     /// `Application Support` 目录 URL
-    public lazy var applicationSupportDirURL = Self.resolveURL(.applicationSupportDirectory)
+    public let applicationSupportDirURL = FdyPath.resolveURL(.applicationSupportDirectory)
 
     public static let shared = FdyPath()
     private init() {}
@@ -113,13 +113,8 @@ public extension FdyPath {
 
     /// 在临时目录下构建文件 URL
     func url(inTemp relativePath: String) -> URL {
-        if #available(iOS 16.0, *) {
-            let tempDirUrl = URL(filePath: tempDirPath, directoryHint: .isDirectory)
-            return tempDirUrl.appendingPathComponent(relativePath)
-        } else {
-            let tempDirUrl = URL(fileURLWithPath: tempDirPath, isDirectory: true)
-            return tempDirUrl.appendingPathComponent(relativePath)
-        }
+        let tempDirUrl = URL(filePath: tempDirPath, directoryHint: .isDirectory)
+        return tempDirUrl.appendingPathComponent(relativePath)
     }
 }
 

@@ -5,11 +5,7 @@ import UIKit
 public extension UIApplication {
     /// 清除应用图标角标数字
     func fdy_clearBadgeNumber() {
-        if #available(iOS 17.0, *) {
-            UNUserNotificationCenter.current().setBadgeCount(0)
-        } else {
-            self.applicationIconBadgeNumber = 0
-        }
+        UNUserNotificationCenter.current().setBadgeCount(0)
     }
 }
 
@@ -18,12 +14,14 @@ public extension UIApplication {
     /// 使用内嵌 `StoreKit` 视图显示应用详情
     /// - Parameters:
     ///   - appId:应用的`ID`
-    ///   - from: 来源控制器
+    ///   - from: 来源控制器;不传时降级取 `keyWindow` 的根控制器,仍取不到则静默返回
     func fdy_showStoreProduct(
         for appId: String,
         from viewController: UIViewController? = nil
     ) {
-        guard !appId.isEmpty, let vc = viewController else { return }
+        guard !appId.isEmpty else { return }
+        let target = viewController ?? UIWindow.fdy_keyWindow?.rootViewController
+        guard let vc = target else { return }
 
         // 使用内嵌 StoreKit视图(适合审核规避)
         let storeVC = SKStoreProductViewController()
@@ -61,11 +59,7 @@ public extension UIApplication {
     /// 在应用内打开应用的`App Store评价`弹窗(一年最多3次)
     @MainActor func fdy_requestAppReview() {
         if let windowScene = UIWindow.fdy_keyWindow?.windowScene {
-            if #available(iOS 16.0, *) {
-                AppStore.requestReview(in: windowScene)
-            } else {
-                SKStoreReviewController.requestReview(in: windowScene)
-            }
+            AppStore.requestReview(in: windowScene)
         }
     }
 
@@ -127,11 +121,9 @@ public extension UIApplication {
 
     /// 打开通知设置页面
     func fdy_openNotificationSettings() {
-        if #available(iOS 16.0, *) {
-            if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
-                self.open(url)
-                return
-            }
+        if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+            self.open(url)
+            return
         }
         self.fdy_openSettings()
     }
@@ -150,18 +142,16 @@ public extension UIApplication {
 
         init(_ versionString: String) {
             self.versionString = versionString
+            // 按 1…3 段解析,不足补 0:"1.0" → 1.0.0,"1" → 1.0.0
             let comps = versionString.fdy_split(bySeparator: ".")
-            if comps.count >= 3 {
-                self.major = comps[0].fdy_Int()
-                self.minor = comps[1].fdy_Int()
-                self.patch = comps[2].fdy_Int()
-                self.isValid = true
-            } else {
-                self.major = 0
-                self.minor = 0
-                self.patch = 0
-                self.isValid = false
+            let numbers = (0 ..< 3).map { index in
+                index < comps.count ? comps[index].fdy_Int() : 0
             }
+            self.major = numbers[0]
+            self.minor = numbers[1]
+            self.patch = numbers[2]
+            // 主版本号非空即视为可解析
+            self.isValid = !comps.isEmpty && !comps[0].isEmpty
         }
 
         /// 比较是否比另一个版本更新

@@ -23,7 +23,7 @@ public extension Date {
     ///   - calendar: 用于解析组件的日历,默认为 `.current`
     ///   - components: 包含年、月、日等信息的 `DateComponents`
     /// - Returns: 若能成功解析为有效日期,则返回 `Date`;否则返回 `nil`
-    init?(calendar: Calendar? = .current, components: DateComponents) {
+    init?(fdy_calendar calendar: Calendar? = .current, components: DateComponents) {
         guard let cal = calendar,
               let date = cal.date(from: components) else { return nil }
         self = date
@@ -35,7 +35,7 @@ public extension Date {
     ///   - string: 日期字符串(如 `"2025-01-01T12:00:00.000Z"`)
     ///   - dateFormat: 日期格式若为 `nil`,则使用 ISO 8601 标准格式
     /// - Returns: 若字符串能被成功解析,则返回 `Date`;否则返回 `nil`
-    init?(string: String, dateFormat: String? = nil) {
+    init?(fdy_string string: String, dateFormat: String? = nil) {
         let formatter: DateFormatter = if let format = dateFormat {
             DateFormatter.fdy_formatter(format: format)
         } else {
@@ -51,7 +51,7 @@ public extension Date {
     ///   - timestamp: 时间戳数值
     ///   - isUnix: 是否为 Unix 时间戳(以秒为单位)若为 `false`,则视为毫秒时间戳
     /// - Returns: 对应的 `Date` 实例
-    init(timestamp: TimeInterval, isUnix: Bool = true) {
+    init(fdy_timestamp timestamp: TimeInterval, isUnix: Bool = true) {
         let interval = isUnix ? timestamp : timestamp / 1000.0
         self.init(timeIntervalSince1970: interval)
     }
@@ -341,10 +341,10 @@ public extension Date {
     }
 
     /// 所在年份是否为闰年
-    /// - Returns: 若年份满足闰年规则(能被4整除且不被100整除,或能被400整除),返回 `true`
+    /// - Returns: `true` 表示闰年
+    /// - Note: 转发到日历感知实现 `Calendar.fdy_isLeapYear(for:)`,避免硬编码公历规则在非公历下分叉
     func fdy_isLeapYear() -> Bool {
-        let year = Calendar.current.component(.year, from: self)
-        return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)
+        self.fdy_calendar.fdy_isLeapYear(for: self)
     }
 
     /// 判断是否与另一日期处于同一天
@@ -416,7 +416,7 @@ public extension Date {
     /// - Warning: 此值`不是标准 Unix 时间戳`,不可用于网络传输
     func fdy_localSec() -> TimeInterval {
         let offset = TimeZone.current.secondsFromGMT(for: self)
-        return self.timeIntervalSince1970 - offset.fdy_Double()
+        return self.timeIntervalSince1970 - Double(offset)
     }
 
     /// 从时间戳字符串创建 `Date`

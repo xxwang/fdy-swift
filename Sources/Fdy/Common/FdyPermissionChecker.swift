@@ -340,9 +340,13 @@ extension FdyPermissionChecker: CLLocationManagerDelegate {
     }
 
     private func finishLocationAuth(_ status: CLAuthorizationStatus) {
+        // `NSLock` 是非递归锁：持锁期间执行外部回调时，回调内若再次 `request(.location…)` 会立即死锁。
+        // 因此锁内只取数据并清空，回调放到锁外执行（同 `FdyQueue.executeOnce`）。
         locationCallbackLock.lock()
-        latestLocationCallback?(locationResult(for: status))
+        let callback = latestLocationCallback
         latestLocationCallback = nil
         locationCallbackLock.unlock()
+
+        callback?(locationResult(for: status))
     }
 }

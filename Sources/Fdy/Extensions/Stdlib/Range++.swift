@@ -1,5 +1,11 @@
 import Foundation
 
+// MARK: - 命名空间入口
+//
+// `Range` 是泛型结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
+// 登记在无约束的 `Range` 上(conformance 不能写 `where` 子句),故 `Range<Int>` 与 `Range<String.Index>` 同时获得。
+extension Range: FdyExtension {}
+
 // MARK: - 类型转换
 public extension Range<String.Index> {
     /// 将 `Range<String.Index>` 转换为 `NSRange`

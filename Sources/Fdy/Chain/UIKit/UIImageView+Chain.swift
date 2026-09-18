@@ -80,29 +80,30 @@ public extension FdyWrapper where Base: UIImageView {
 
 // MARK: - 链式方法(自定义)
 public extension FdyWrapper where Base: UIImageView {
-    /// 添加模糊背景
+    /// 添加模糊背景(会替换本库上一次添加的模糊视图,不影响使用者自行添加的模糊视图)
     /// - Parameter style: 模糊样式
     /// - Returns: `Self`
     @discardableResult
     func blur(_ style: UIBlurEffect.Style = .light) -> Self {
-        for subview in base.subviews where subview is UIVisualEffectView {
-            subview.removeFromSuperview()
-        }
+        removeBlur()
 
-        let blurEffect = UIBlurEffect(style: style)
-        let blurView = UIVisualEffectView(effect: blurEffect)
+        let blurView = UIVisualEffectView(effect: UIBlurEffect(style: style))
         blurView.frame = base.bounds
         blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        blurView.tag = FdyImageViewBlurViewTag
         base.addSubview(blurView)
         return self
     }
 
-    /// 移除模糊效果
+    /// 移除 `blur(_:)` 添加的模糊效果
     @discardableResult
     func removeBlur() -> Self {
-        for subview in base.subviews where subview is UIVisualEffectView {
+        for subview in base.subviews where subview.tag == FdyImageViewBlurViewTag {
             subview.removeFromSuperview()
         }
         return self
     }
 }
+
+/// `blur(_:)` 自建模糊视图的 `tag`,用于 `removeBlur()` 精确移除
+private let FdyImageViewBlurViewTag = 889971

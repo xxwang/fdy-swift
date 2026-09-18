@@ -1,5 +1,10 @@
 import UIKit
 
+// MARK: - 命名空间入口
+//
+// `UIEdgeInsets` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则本文件对外不可达。
+extension UIEdgeInsets: FdyExtension {}
+
 // MARK: - 链式修改：基于当前值生成新值
 public extension FdyWrapper where Base == UIEdgeInsets {
     /// 在当前边距基础上,向顶部增加指定偏移量

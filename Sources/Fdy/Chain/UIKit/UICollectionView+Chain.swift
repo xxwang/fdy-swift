@@ -2,20 +2,20 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UICollectionView {
-    /// 设置 `delegate`
+    /// 设置 `delegate`,传 `nil` 可清空
     /// - Parameter delegate: 代理对象
     /// - Returns: `Self`
     @discardableResult
-    func delegate(_ delegate: UICollectionViewDelegate) -> Self {
+    func delegate(_ delegate: UICollectionViewDelegate?) -> Self {
         base.delegate = delegate
         return self
     }
 
-    /// 设置 `dataSource`
+    /// 设置 `dataSource`,传 `nil` 可清空
     /// - Parameter dataSource: 数据源对象
     /// - Returns: `Self`
     @discardableResult
-    func dataSource(_ dataSource: UICollectionViewDataSource) -> Self {
+    func dataSource(_ dataSource: UICollectionViewDataSource?) -> Self {
         base.dataSource = dataSource
         return self
     }
@@ -69,6 +69,7 @@ public extension FdyWrapper where Base: UICollectionView {
     ///   - nib: `Nib` 对象
     ///   - kind: 视图种类
     ///   - viewType: 视图类型
+    @discardableResult
     func register(
         nib: UINib?,
         forSupplementaryViewOfKind kind: String,
@@ -104,17 +105,6 @@ public extension FdyWrapper where Base: UICollectionView {
         base.scrollRectToVisible(rect, animated: animated)
         return self
     }
-
-    /// 设置 `contentOffset`
-    /// - Parameters:
-    ///   - offset: 目标偏移量,默认为 .zero
-    ///   - animated: 是否动画
-    /// - Returns: `Self`
-    @discardableResult
-    func contentOffset(_ offset: CGPoint = .zero, animated: Bool = true) -> Self {
-        base.setContentOffset(offset, animated: animated)
-        return self
-    }
 }
 
 // MARK: - 链式方法(自定义)
@@ -140,25 +130,6 @@ public extension FdyWrapper where Base: UICollectionView {
             return self
         }
         base.scrollToItem(at: indexPath, at: scrollPosition, animated: animated)
-        return self
-    }
-
-    /// 滚动到顶部
-    /// - Parameter animated: 是否动画
-    /// - Returns: `Self`
-    @discardableResult
-    func scrollToTop(animated: Bool = true) -> Self {
-        base.setContentOffset(.zero, animated: animated)
-        return self
-    }
-
-    /// 滚动到底部
-    /// - Parameter animated: 是否动画
-    /// - Returns: `Self`
-    @discardableResult
-    func scrollToBottom(animated: Bool = true) -> Self {
-        let yOffset = max(0, base.contentSize.height - base.bounds.height)
-        base.setContentOffset(CGPoint(x: 0, y: yOffset), animated: animated)
         return self
     }
 }

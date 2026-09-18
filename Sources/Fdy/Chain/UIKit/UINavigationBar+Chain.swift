@@ -28,7 +28,6 @@ public extension FdyWrapper where Base: UINavigationBar {
         let appearance = base.standardAppearance
         appearance.titleTextAttributes[.font] = font
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
@@ -40,7 +39,6 @@ public extension FdyWrapper where Base: UINavigationBar {
         let appearance = base.standardAppearance
         appearance.largeTitleTextAttributes[.font] = font
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
@@ -52,7 +50,6 @@ public extension FdyWrapper where Base: UINavigationBar {
         let appearance = base.standardAppearance
         appearance.titleTextAttributes[.foregroundColor] = color
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
@@ -64,7 +61,6 @@ public extension FdyWrapper where Base: UINavigationBar {
         let appearance = base.standardAppearance
         appearance.largeTitleTextAttributes[.foregroundColor] = color
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
@@ -95,7 +91,6 @@ public extension FdyWrapper where Base: UINavigationBar {
         appearance.backgroundColor = color
         appearance.backgroundEffect = nil
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
@@ -108,7 +103,6 @@ public extension FdyWrapper where Base: UINavigationBar {
         appearance.backgroundImage = image
         appearance.backgroundEffect = nil
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
@@ -120,7 +114,6 @@ public extension FdyWrapper where Base: UINavigationBar {
         let appearance = base.standardAppearance
         appearance.shadowImage = image?.withRenderingMode(.alwaysOriginal)
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
@@ -132,16 +125,22 @@ public extension FdyWrapper where Base: UINavigationBar {
         let appearance = base.standardAppearance
         appearance.shadowColor = color
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 
-    /// 设置导航栏滚动时的外观与标准外观一致
+    /// 把 `standardAppearance` 复制给 `scrollEdgeAppearance`,使滚动到边缘时外观一致
     /// - Returns: `Self`
     @discardableResult
-    func scrollEdgeAppearance() -> Self {
-        let appearance = base.standardAppearance
-        base.standardAppearance = appearance
+    func scrollEdgeAppearanceSynced() -> Self {
+        base.scrollEdgeAppearance = base.standardAppearance
+        return self
+    }
+
+    /// 设置滚动到边缘时的独立外观(`scrollEdgeAppearance`)
+    /// - Parameter appearance: 目标外观
+    /// - Returns: `Self`
+    @discardableResult
+    func scrollEdgeAppearance(_ appearance: UINavigationBarAppearance) -> Self {
         base.scrollEdgeAppearance = appearance
         return self
     }
@@ -154,7 +153,6 @@ public extension FdyWrapper where Base: UINavigationBar {
         let appearance = base.standardAppearance
         appearance.titleTextAttributes = attributes
         base.standardAppearance = appearance
-        base.scrollEdgeAppearance = appearance
         return self
     }
 }

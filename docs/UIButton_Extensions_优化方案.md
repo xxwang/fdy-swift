@@ -1,5 +1,10 @@
 # UIButton 扩展方法优化方案（Extensions 侧）
 
+> ⚠️ **路径订正（2026-09-18）**：本文写作时目录为 `Sources/Fdy/Core/{Chain,Extensions,Protocols}`。
+> 该中间层已在提交 `7e8b14d`（「平铺 Core 中间层」）改为 `Sources/Fdy/{Chain,Extensions,Common,Components,Logger,Protocols}`，
+> 故正文里的 `Core/Extensions/UIKit/UIButton++.swift` 现为 `Sources/Fdy/Extensions/UIKit/UIButton++.swift`。
+> 文内 `文件:行号` 按**当时**的树读，行号现已偏移。文中「正处于迁移途中」的描述也已过时 —— 迁移早已完成。
+
 > **范围**：以 `Core/Extensions/UIKit/UIButton++.swift` 为核心，连带梳理 Chain 侧与 `FdyCreator` 工厂的一致性。
 > **关联**：Chain 侧 32 处配置模板重复的问题已有专文《UIButton_Chain_优化方案.md》，本文只做状态同步，不重复展开。
 > **前置状态**：当前分支 `Swift6`，`Package.swift` 仍为 `swiftLanguageMode(.v5)`；命名空间正处于 `fdy_` 前缀 → `.fdy` 命名空间的迁移途中。

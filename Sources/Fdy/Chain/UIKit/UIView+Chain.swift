@@ -64,6 +64,28 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
+    /// 设置控件的右边`x`坐标(移动 `maxX`)
+    /// - Parameter right: 要设置的值
+    /// - Returns: `Self`
+    @discardableResult
+    func right(_ right: CGFloat) -> Self {
+        var frame = base.frame
+        frame.origin.x = right - frame.width
+        base.frame = frame
+        return self
+    }
+
+    /// 设置控件的底部`y`坐标(移动 `maxY`)
+    /// - Parameter bottom: 要设置的值
+    /// - Returns: `Self`
+    @discardableResult
+    func bottom(_ bottom: CGFloat) -> Self {
+        var frame = base.frame
+        frame.origin.y = bottom - frame.height
+        base.frame = frame
+        return self
+    }
+
     /// 设置控件的`width`
     /// - Parameter width: 要设置的值
     /// - Returns: `Self`
@@ -604,7 +626,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 将当前视图从父视力中移除
+    /// 将当前视图从父视图中移除
     /// - Returns: `Self`
     @discardableResult
     func removeFromSuperview() -> Self {
@@ -691,9 +713,7 @@ public extension FdyWrapper where Base: UIView {
     /// - Returns: `Self`
     @discardableResult
     func updateTraitsIfNeeded() -> Self {
-        if #available(iOS 17.0, *) {
-            base.updateTraitsIfNeeded()
-        }
+        base.updateTraitsIfNeeded()
         return self
     }
 
