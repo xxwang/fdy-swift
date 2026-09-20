@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UIImageView {
-    /// 设置图像的`tintColor`(自动将图像转为模板模式)
+    /// 图像的`tintColor`(自动将图像转为模板模式)
     /// - Parameter color: 主色调
     /// - Returns: `Self`
     @discardableResult
@@ -14,7 +14,7 @@ public extension FdyWrapper where Base: UIImageView {
         return self
     }
 
-    /// 设置普通图片
+    /// 普通图片
     /// - Parameter image: 要设置的图片
     /// - Returns: `Self`
     @discardableResult
@@ -23,7 +23,7 @@ public extension FdyWrapper where Base: UIImageView {
         return self
     }
 
-    /// 设置高亮状态图片
+    /// 高亮状态图片
     /// - Parameter image: 要设置的高亮图片
     /// - Returns: `Self`
     @discardableResult
@@ -32,7 +32,7 @@ public extension FdyWrapper where Base: UIImageView {
         return self
     }
 
-    /// 设置高亮状态
+    /// 高亮状态
     /// - Parameter highlighted: 是否高亮
     /// - Returns: `Self`
     @discardableResult
@@ -41,7 +41,7 @@ public extension FdyWrapper where Base: UIImageView {
         return self
     }
 
-    /// 设置帧动画图片数组
+    /// 帧动画图片数组
     /// - Parameter images: 图片数组
     /// - Returns: `Self`
     @discardableResult
@@ -50,7 +50,7 @@ public extension FdyWrapper where Base: UIImageView {
         return self
     }
 
-    /// 设置高亮状态帧动画图片数组
+    /// 高亮状态帧动画图片数组
     /// - Parameter images: 图片数组
     /// - Returns: `Self`
     @discardableResult
@@ -59,7 +59,7 @@ public extension FdyWrapper where Base: UIImageView {
         return self
     }
 
-    /// 设置帧动画时长
+    /// 帧动画时长
     /// - Parameter duration: 动画时长(秒)
     /// - Returns: `Self`
     @discardableResult
@@ -68,7 +68,7 @@ public extension FdyWrapper where Base: UIImageView {
         return self
     }
 
-    /// 设置帧动画重复次数
+    /// 帧动画重复次数
     /// - Parameter count: 重复次数,0 表示无限循环
     /// - Returns: `Self`
     @discardableResult
@@ -96,11 +96,32 @@ public extension FdyWrapper where Base: UIImageView {
     }
 
     /// 移除 `blur(_:)` 添加的模糊效果
+    /// - Returns: `Self`
     @discardableResult
     func removeBlur() -> Self {
         for subview in base.subviews where subview.tag == FdyImageViewBlurViewTag {
             subview.removeFromSuperview()
         }
+        return self
+    }
+
+    /// 首选符号配置(用于 SF Symbols)
+    /// - Parameter preferredSymbolConfiguration: 符号配置,传 `nil` 用系统默认
+    /// - Returns: `Self`
+    @discardableResult
+    func preferredSymbolConfiguration(
+        _ preferredSymbolConfiguration: UIImage.SymbolConfiguration?
+    ) -> Self {
+        base.preferredSymbolConfiguration = preferredSymbolConfiguration
+        return self
+    }
+
+    /// 首选的图像动态范围
+    /// - Parameter preferredImageDynamicRange: 动态范围
+    /// - Returns: `Self`
+    @discardableResult
+    func preferredImageDynamicRange(_ preferredImageDynamicRange: UIImage.DynamicRange) -> Self {
+        base.preferredImageDynamicRange = preferredImageDynamicRange
         return self
     }
 }

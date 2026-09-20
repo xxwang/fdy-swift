@@ -5,12 +5,6 @@ public extension Calendar {
     /// 获取指定日期所在月份的总天数
     /// - Parameter date: 目标日期,默认为当前时间
     /// - Returns: 该月的天数(如 28, 29, 30, 31);若无法计算则返回 0
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let days = Calendar.current.fdy_daysInMonth(for: someDate)
-    ///   print("当月有 \(days) 天")
-    ///   ```
     func fdy_daysInMonth(for date: Date = Date()) -> Int {
         guard let range = self.range(of: .day, in: .month, for: date) else {
             return 0
@@ -23,13 +17,6 @@ public extension Calendar {
     ///   - year: 年份
     ///   - month: 月份(1-12)
     /// - Returns: 该月第一天的 `Date`,失败时返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let start = Calendar.current.fdy_startOfMonth(year: 2024, month: 12) {
-    ///       print("2024年12月开始: \(start)")
-    ///   }
-    ///   ```
     func fdy_startOfMonth(year: Int, month: Int) -> Date? {
         let comps = DateComponents(calendar: self, year: year, month: month, day: 1)
         return self.date(from: comps)
@@ -40,13 +27,6 @@ public extension Calendar {
     ///   - year: 年份
     ///   - month: 月份(1-12)
     /// - Returns: 该月最后时刻的 `Date`,失败时返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let end = Calendar.current.fdy_endOfMonth(year: 2024, month: 2) {
-    ///       print("2024年2月结束: \(end)")
-    ///   }
-    ///   ```
     func fdy_endOfMonth(year: Int, month: Int) -> Date? {
         guard let start = self.fdy_startOfMonth(year: year, month: month),
               let next = self.date(byAdding: .month, value: 1, to: start)
@@ -59,12 +39,6 @@ public extension Calendar {
     /// 判断指定日期所在年份是否为闰年
     /// - Parameter date: 目标日期,默认为当前时间
     /// - Returns: `true` 表示是闰年
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let isLeap = Calendar.current.fdy_isLeapYear(for: Date())
-    ///   print("今年是闰年吗？\(isLeap)")
-    ///   ```
     func fdy_isLeapYear(for date: Date = Date()) -> Bool {
         let daysInYear = self.range(of: .day, in: .year, for: date)?.count ?? 0
         return daysInYear == 366
@@ -78,13 +52,6 @@ public extension Calendar {
     /// - Returns: 本周第一天的 `Date`,失败时返回 `nil`
     ///
     /// - Note: 在美国日历中通常是周日,在中国日历中通常是周一
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let weekStart = Calendar.current.fdy_startOfWeek() {
-    ///       print("本周从: \(weekStart)")
-    ///   }
-    ///   ```
     func fdy_startOfWeek(for date: Date = Date()) -> Date? {
         let components = self.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
         return self.date(from: components)
@@ -93,13 +60,6 @@ public extension Calendar {
     /// 强制获取指定日期所在周的周一(忽略系统日历设置)
     /// - Parameter date: 目标日期,默认为当前时间
     /// - Returns: 本周周一的 `Date`,失败时返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let monday = Calendar.current.fdy_mondayOfWeek() {
-    ///       print("本周一是: \(monday)")
-    ///   }
-    ///   ```
     func fdy_mondayOfWeek(for date: Date = Date()) -> Date? {
         var cal = self
         cal.firstWeekday = 2 // Monday
@@ -110,12 +70,6 @@ public extension Calendar {
     /// 获取指定日期所在周的全部 7 天(从周日或周一开始,依日历而定)
     /// - Parameter date: 目标日期,默认为当前时间
     /// - Returns: 包含 7 个 `Date` 的数组
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let weekDates = Calendar.current.fdy_datesInWeek()
-    ///   weekDates.forEach { print($0) }
-    ///   ```
     func fdy_datesInWeek(for date: Date = Date()) -> [Date] {
         guard let start = self.fdy_startOfWeek(for: date) else { return [] }
         return (0 ..< 7).compactMap { offset in
@@ -129,12 +83,6 @@ public extension Calendar {
     /// 获取指定日期在当月中的第几周
     /// - Parameter date: 目标日期,默认为当前时间
     /// - Returns: 周序号(1 表示第一周)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let week = Calendar.current.fdy_weekOfMonth()
-    ///   print("今天是本月第 \(week) 周")
-    ///   ```
     func fdy_weekOfMonth(for date: Date = Date()) -> Int {
         return self.component(.weekOfMonth, from: date)
     }
@@ -145,13 +93,6 @@ public extension Calendar {
     ///   - year: 年份
     ///   - month: 月份(1-12)
     /// - Returns: 元组 `(start, end)`,`end` 精确到 23:59:59;失败返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let range = Calendar.current.fdy_rangeOfWeek(2, inMonth: 2024, 12) {
-    ///       print("第2周: \(range.start) ～ \(range.end)")
-    ///   }
-    ///   ```
     func fdy_rangeOfWeek(_ week: Int, inMonth year: Int, _ month: Int) -> (start: Date, end: Date)? {
         guard let firstDay = DateComponents(calendar: self, year: year, month: month, day: 1).date,
               let weekStart = self.date(byAdding: .weekOfMonth, value: week - 1, to: firstDay)
@@ -173,11 +114,6 @@ public extension Calendar {
     ///   - date: 起始日期,默认为当前时间
     ///   - count: 天数(必须 > 0)
     /// - Returns: `Date` 数组
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let next7Days = Calendar.current.fdy_nextDays(count: 7)
-    ///   ```
     func fdy_nextDays(from date: Date = Date(), count: Int) -> [Date] {
         guard count > 0 else { return [] }
         return (0 ..< count).compactMap { offset in
@@ -190,11 +126,6 @@ public extension Calendar {
     ///   - date: 结束日期,默认为当前时间
     ///   - count: 天数(必须 > 0)
     /// - Returns: `Date` 数组(最早日期在前)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let last7Days = Calendar.current.fdy_previousDays(count: 7)
-    ///   ```
     func fdy_previousDays(from date: Date = Date(), count: Int) -> [Date] {
         guard count > 0 else { return [] }
         return (0 ..< count).compactMap { offset in
@@ -203,14 +134,8 @@ public extension Calendar {
     }
 
     /// 生成从当前月开始的未来 12 个月的年月对
-    /// - Parameter from: 起始日期,默认为当前时间
+    /// - Parameter date: 起始日期,默认为当前时间
     /// - Returns: 数组,每个元素为 `(year, month)`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let months = Calendar.current.fdy_next12Months()
-    ///   months.forEach { print("\($0.year)-\($0.month)") }
-    ///   ```
     func fdy_next12Months(from date: Date = Date()) -> [(year: Int, month: Int)] {
         return (0 ..< 12).compactMap { offset in
             guard let future = self.date(byAdding: .month, value: offset, to: date),
@@ -234,11 +159,6 @@ public extension Calendar {
     ///   - birthDate: 出生日期
     ///   - referenceDate: 参考日期,默认为当前时间
     /// - Returns: 年龄(整数)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let age = Calendar.current.fdy_age(from: birthday)
-    ///   ```
     func fdy_age(from birthDate: Date, at referenceDate: Date = Date()) -> Int {
         return self.dateComponents([.year], from: birthDate, to: referenceDate).year ?? 0
     }
@@ -246,13 +166,6 @@ public extension Calendar {
     /// 获取指定日期所在季度的起止日期
     /// - Parameter date: 目标日期,默认为当前时间
     /// - Returns: 元组 `(start, end)`,`end` 精确到 23:59:59;失败返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let q = Calendar.current.fdy_quarterRange() {
-    ///       print("本季度: \(q.start) ～ \(q.end)")
-    ///   }
-    ///   ```
     func fdy_quarterRange(for date: Date = Date()) -> (start: Date, end: Date)? {
         let month = self.component(.month, from: date)
         let quarter = ((month - 1) / 3) + 1
@@ -276,26 +189,27 @@ public extension Calendar {
     ///   - components: 要获取的组件集合
     ///   - date: 目标日期
     /// - Returns: `DateComponents` 对象
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let comps = Calendar.current.fdy_components([.year, .month], from: Date())
-    ///   ```
     func fdy_components(_ components: Set<Calendar.Component>, from date: Date) -> DateComponents {
         return self.dateComponents(components, from: date)
     }
 
     /// 获取指定日期是星期几(1=星期日,2=星期一,..., 7=星期六)
+    /// - Parameter date: 日期,默认为 `Date()`
+    /// - Returns: 计算结果
     func fdy_weekday(for date: Date = Date()) -> Int {
         return self.component(.weekday, from: date)
     }
 
     /// 获取指定日期所在月的第一天(00:00:00)
+    /// - Parameter date: 日期,默认为 `Date()`
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_startOfMonth(for date: Date = Date()) -> Date? {
         return self.date(from: self.dateComponents([.year, .month], from: date))
     }
 
     /// 获取指定日期所在月的最后一天(23:59:59)
+    /// - Parameter date: 日期,默认为 `Date()`
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_endOfMonth(for date: Date = Date()) -> Date? {
         guard let startOfMonth = self.fdy_startOfMonth(for: date),
               let startOfNextMonth = self.date(byAdding: .month, value: 1, to: startOfMonth)
@@ -306,17 +220,24 @@ public extension Calendar {
     }
 
     /// 计算两个日期之间的天数差(endDate - startDate)
+    /// - Parameters:
+    ///   - startDate: 日期
+    ///   - endDate: 日期
     /// - Returns: 正数表示 endDate 在 startDate 之后,负数表示之前
     func fdy_daysBetween(startDate: Date, endDate: Date) -> Int {
         return self.dateComponents([.day], from: startDate, to: endDate).day ?? 0
     }
 
     /// 获取上一个月的同一天(自动调整无效日期)
+    /// - Parameter date: 日期,默认为 `Date()`
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_previousMonth(for date: Date = Date()) -> Date? {
         return self.date(byAdding: .month, value: -1, to: date)
     }
 
     /// 获取下一个月的同一天(自动调整无效日期)
+    /// - Parameter date: 日期,默认为 `Date()`
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_nextMonth(for date: Date = Date()) -> Date? {
         return self.date(byAdding: .month, value: 1, to: date)
     }

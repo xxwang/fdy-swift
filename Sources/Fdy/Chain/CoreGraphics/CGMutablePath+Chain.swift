@@ -1,11 +1,5 @@
 import CoreGraphics
 
-// MARK: - 命名空间入口
-//
-// `CGMutablePath` 是 `CGPath` 的**子类**(CF 类型同样有 Swift 侧的继承关系),`.fdy` 由父类 `CGPath`
-// 的 conformance 继承而来,**不要**在此重复声明 —— 重复会报
-// `conformance of 'CGMutablePath' to protocol 'FdyExtension' was already stated`。
-
 // MARK: - 链式语法(系统)
 public extension FdyWrapper where Base: CGMutablePath {
     /// 添加另一个路径到当前路径

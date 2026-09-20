@@ -3,7 +3,7 @@ import os.log
 
 // MARK: - 链式属性
 public extension FdyWrapper where Base: WKWebView {
-    /// 设置网页导航代理
+    /// 网页导航代理
     /// - Parameter delegate: 导航代理对象
     /// - Returns: `Self`
     @discardableResult
@@ -12,7 +12,7 @@ public extension FdyWrapper where Base: WKWebView {
         return self
     }
 
-    /// 设置UI代理
+    /// UI代理
     /// - Parameter delegate: UI代理对象
     /// - Returns: `Self`
     @discardableResult
@@ -32,7 +32,7 @@ public extension FdyWrapper where Base: WKWebView {
         return self
     }
 
-    /// 设置自定义 `User-Agent`
+    /// 自定义 `User-Agent`
     /// - Parameter userAgent: 自定义的 `User-Agent` 字符串
     /// - Returns: `Self`
     @discardableResult
@@ -182,6 +182,93 @@ public extension FdyWrapper where Base: WKWebView {
     @discardableResult
     func removeScriptMessageHandler(name: String) -> Self {
         base.configuration.userContentController.removeScriptMessageHandler(forName: name)
+        return self
+    }
+
+    /// 是否允许前进/后退手势
+    /// - Parameter allowsBackForwardNavigationGestures: 是否允许前进后退手势
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsBackForwardNavigationGestures(_ allowsBackForwardNavigationGestures: Bool) -> Self {
+        base.allowsBackForwardNavigationGestures = allowsBackForwardNavigationGestures
+        return self
+    }
+
+    /// 是否允许链接预览
+    /// - Parameter allowsLinkPreview: `true` 表示允许链接预览
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsLinkPreview(_ allowsLinkPreview: Bool) -> Self {
+        base.allowsLinkPreview = allowsLinkPreview
+        return self
+    }
+
+    /// 页面缩放比例(`1.0` 为原始大小)
+    /// - Parameter pageZoom: 页面缩放比例
+    /// - Returns: `Self`
+    @discardableResult
+    func pageZoom(_ pageZoom: CGFloat) -> Self {
+        base.pageZoom = pageZoom
+        return self
+    }
+
+    /// 内容媒体类型
+    /// - Parameter mediaType: 媒体类型,传 `nil` 清空
+    /// - Returns: `Self`
+    @discardableResult
+    func mediaType(_ mediaType: String?) -> Self {
+        base.mediaType = mediaType
+        return self
+    }
+
+    /// 交互状态(用于恢复滚动位置等)
+    /// - Parameter interactionState: 状态对象,传 `nil` 清空
+    /// - Returns: `Self`
+    @discardableResult
+    func interactionState(_ interactionState: Any?) -> Self {
+        base.interactionState = interactionState
+        return self
+    }
+
+    /// 页面下层背景色
+    /// - Parameter color: 颜色,传 `nil` 恢复默认
+    /// - Returns: `Self`
+    @discardableResult
+    func underPageBackgroundColor(_ color: UIColor?) -> Self {
+        base.underPageBackgroundColor = color
+        return self
+    }
+
+    /// 是否启用查找交互
+    /// - Parameter isFindInteractionEnabled: `true` 表示启用查找交互
+    /// - Returns: `Self`
+    @discardableResult
+    func isFindInteractionEnabled(_ isFindInteractionEnabled: Bool) -> Self {
+        base.isFindInteractionEnabled = isFindInteractionEnabled
+        return self
+    }
+
+    /// 是否允许 Safari 检查器调试
+    /// - Parameter isInspectable: 是否可被调试检查
+    /// - Returns: `Self`
+    @discardableResult
+    func isInspectable(_ isInspectable: Bool) -> Self {
+        base.isInspectable = isInspectable
+        return self
+    }
+}
+
+// MARK: - iOS 26.0 新增属性
+
+public extension FdyWrapper where Base: WKWebView {
+    /// 被遮挡区域的内容内边距
+    ///
+    /// - Parameter obscuredContentInsets: 内边距值
+    /// - Returns: `Self`
+    @available(iOS 26.0, *)
+    @discardableResult
+    func obscuredContentInsets(_ obscuredContentInsets: UIEdgeInsets) -> Self {
+        base.obscuredContentInsets = obscuredContentInsets
         return self
     }
 }

@@ -1,11 +1,6 @@
 import UIKit
 import WebKit
 
-// MARK: - 关于返回类型
-// 本文件工厂统一返回基类而非 `Self`：`Self.init` 要求初始化器为 `required`，
-// 而 `UIButton(configuration:)` 等 Swift-only 初始化器不满足该约束，改 `-> Self` 只能覆盖部分工厂、
-// 导致返回类型不一致，故保持现状。需要协变返回类型请按 `FdyButton.button()` 的方式覆写。
-
 // MARK: - UIView
 @objc extension UIView {
     /// 创建一个默认配置的 `UIView` 实例

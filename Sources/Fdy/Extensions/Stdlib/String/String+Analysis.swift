@@ -97,19 +97,17 @@ public extension String {
         return self.components(separatedBy: separators).filter { !$0.isEmpty }
     }
 
-    /// 将整数 UTF-16 索引安全转换为 `String.Index`
+    /// 将整数字符位置安全转换为 `String.Index`
     ///
-    /// - Parameter offset: UTF-16 索引（从 0 开始）
+    /// - Parameter offset: 字符位置（按 `Character` 序号,从 0 开始）
     /// - Returns: 对应的 `String.Index`;若越界,返回最近边界（`startIndex` 或 `endIndex`）
-    /// - Note: 使用 `samePosition(in:)` 确保在复杂 Unicode 下仍安全
     func fdy_index(at offset: Int) -> String.Index {
         if offset <= 0 {
             return self.startIndex
-        } else if offset >= self.utf16.count {
+        } else if offset >= self.count {
             return self.endIndex
         } else {
-            let utf16Index = self.utf16.index(self.utf16.startIndex, offsetBy: offset)
-            return utf16Index.samePosition(in: self) ?? self.endIndex
+            return self.index(self.startIndex, offsetBy: offset)
         }
     }
 }

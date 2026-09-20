@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置代理
+    /// 代理
     /// - Parameter delegate: 代理对象
     /// - Returns: `Self`
     @discardableResult
@@ -20,7 +20,7 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置是否取消传递触摸事件到视图
+    /// 是否取消传递触摸事件到视图
     /// - Parameter flag: 若为 true，则手势识别期间视图不会收到 touch 事件
     /// - Returns: `Self`
     @discardableResult
@@ -29,7 +29,7 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置是否延迟触发 touchesBegan
+    /// 是否延迟触发 touchesBegan
     /// - Parameter flag: 若为 true，系统会等待手势识别失败后再发送 touchesBegan
     /// - Returns: `Self`
     @discardableResult
@@ -38,7 +38,7 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置是否延迟触发 touchesEnded
+    /// 是否延迟触发 touchesEnded
     /// - Parameter flag: 若为 true，系统会短暂延迟 touchesEnded 以确认手势未激活
     /// - Returns: `Self`
     @discardableResult
@@ -47,7 +47,7 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置允许的触摸类型（如直接触摸、间接触摸）
+    /// 允许的触摸类型（如直接触摸、间接触摸）
     /// - Parameter types: 触摸类型数组（使用 `UITouch.TouchType` 的 rawValue）
     /// - Returns: `Self`
     @discardableResult
@@ -56,7 +56,7 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置允许的按压类型（用于 tvOS 或外接键盘）
+    /// 允许的按压类型（用于 tvOS 或外接键盘）
     /// - Parameter types: 按压类型数组
     /// - Returns: `Self`
     @discardableResult
@@ -65,7 +65,7 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置是否要求独占触摸类型
+    /// 是否要求独占触摸类型
     /// - Parameter flag: 若为 true，则仅当所有触摸匹配指定类型时才触发
     /// - Returns: `Self`
     @discardableResult
@@ -74,7 +74,7 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置手势识别器的名称（用于调试或无障碍）
+    /// 手势识别器的名称（用于调试或无障碍）
     /// - Parameter name: 名称字符串
     /// - Returns: `Self`
     @discardableResult
@@ -108,7 +108,7 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置当前手势必须在另一个手势失败后才能识别
+    /// 当前手势必须在另一个手势失败后才能识别
     /// - Parameter otherGestureRecognizer: 被依赖的手势识别器
     /// - Returns: `Self`
     @discardableResult
@@ -138,12 +138,12 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
         return self
     }
 
-    /// 设置手势识别成功(`.recognized`)时的回调
+    /// 手势识别成功(`.recognized`)时的回调
+    /// - Parameter block: 回调闭包
+    /// - Returns: `Self`
     /// - Warning: 闭包被手势识别器**强引用**（通过关联对象存储）。若闭包内使用 `self`，
     ///   请务必使用 `[weak self]`（如 `{ [weak self] recognizer in ... }`），
     ///   否则 `view → gesture → block → self → view` 会造成循环引用泄漏。
-    /// - Parameter block: 回调闭包
-    /// - Returns: `Self`
     @discardableResult
     func onRecognized(_ block: @escaping FdyAction1<UIGestureRecognizer>) -> Self {
         base.fdy_recognizedBlock = block
@@ -153,10 +153,10 @@ public extension FdyWrapper where Base: UIGestureRecognizer {
     }
 
     /// 监听手势状态变化(如 `began`, `changed`, `ended` 等)
-    /// - Warning: 闭包被手势识别器**强引用**。若闭包内使用 `self`，
-    ///   请使用 `[weak self]` 避免循环引用泄漏。
     /// - Parameter block: 回调闭包
     /// - Returns: `Self`
+    /// - Warning: 闭包被手势识别器**强引用**。若闭包内使用 `self`，
+    ///   请使用 `[weak self]` 避免循环引用泄漏。
     @discardableResult
     func onStateChanged(_ block: @escaping FdyAction1<UIGestureRecognizer.State>) -> Self {
         base.fdy_stateChangedBlock = block

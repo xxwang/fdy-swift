@@ -1,7 +1,6 @@
 import UIKit
 
 // MARK: - 触觉反馈工具
-/// 触觉反馈管理器。必须在主线程使用，因此标注为 ``@MainActor``
 @MainActor
 public final class FdyHaptic {
     /// 触觉反馈类型
@@ -27,7 +26,6 @@ public final class FdyHaptic {
 // MARK: - 触觉反馈方法
 public extension FdyHaptic {
     /// 触发触觉反馈
-    /// - Parameter haptic: 触觉反馈类型
     func haptic(_ feedback: Feedback) {
         switch feedback {
         case let .impact(style): // 触觉反馈

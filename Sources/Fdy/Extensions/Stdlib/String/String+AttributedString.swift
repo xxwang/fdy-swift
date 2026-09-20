@@ -57,6 +57,12 @@ public extension String {
     }
 
     /// 高亮显示关键字
+    /// - Parameters:
+    ///   - keyword: 关键词
+    ///   - highlightColor: 颜色
+    ///   - normalColor: 颜色
+    ///   - options: 选项集合,默认为 `[]`
+    /// - Returns: 可变富文本
     func fdy_highlightKeyword(
         keyword: String,
         highlightColor: UIColor,

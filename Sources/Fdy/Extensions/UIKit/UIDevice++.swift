@@ -10,6 +10,7 @@ import os.log
 // MARK: - 存储与内存信息
 public extension UIDevice {
     /// 总磁盘容量(字节)
+    /// - Returns: 计算结果
     /// - Note: 返回 `-1` 表示取值失败
     static var fdy_totalDiskCapacityInBytes: Int64 {
         guard let attrs = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory()),
@@ -22,6 +23,7 @@ public extension UIDevice {
     }
 
     /// 可用磁盘容量(字节),优先使用重要用途容量
+    /// - Returns: 计算结果
     /// - Note: 返回 `-1` 表示取值失败
     static var fdy_freeDiskCapacityInBytes: Int64 {
         let homeURL = URL(fileURLWithPath: NSHomeDirectory())
@@ -43,6 +45,7 @@ public extension UIDevice {
     }
 
     /// 已用磁盘容量(字节)
+    /// - Returns: 计算结果
     /// - Note: 返回 `-1` 表示取值失败(总容量或可用容量任一不可用)
     static var fdy_usedDiskCapacityInBytes: Int64 {
         let total = self.fdy_totalDiskCapacityInBytes
@@ -53,6 +56,7 @@ public extension UIDevice {
     }
 
     /// 物理内存总量(字节)
+    /// - Returns: 计算结果
     static var fdy_physicalMemoryInBytes: UInt64 {
         return ProcessInfo.processInfo.physicalMemory
     }
@@ -61,12 +65,14 @@ public extension UIDevice {
 // MARK: - 设备控制(如闪光灯)
 public extension UIDevice {
     /// 闪光灯当前是否开启
+    /// - Returns: 是否满足条件
     static var fdy_isTorchOn: Bool {
         guard let device = AVCaptureDevice.default(for: .video) else { return false }
         return device.torchMode == .on
     }
 
-    /// 设置闪光灯开关状态
+    /// 闪光灯开关状态
+    /// - Parameter isOn: 开关状态
     /// - 自动处理配置锁和权限
     static func fdy_setTorchMode(_ isOn: Bool) {
         guard let device = AVCaptureDevice.default(for: .video),
@@ -87,6 +93,7 @@ public extension UIDevice {
     /// 获取当前连接的 Wi-Fi 网络信息(SSID 和 BSSID)
     /// ⚠️ 需在 Xcode Capabilities 中启用 "Access WiFi Information"
     /// ⚠️ 后台或未连接 VPN 时可能返回 (nil, nil)
+    /// - Returns: Wi-Fi 信息
     static var fdy_connectedWiFiNetwork: (ssid: String?, bssid: String?) {
         guard let interfaces = CNCopySupportedInterfaces() as? [String] else {
             return (nil, nil)
@@ -105,6 +112,7 @@ public extension UIDevice {
     }
 
     /// 获取设备所有活动网络接口的 IP 地址(IPv4 + IPv6,不含 loopback)
+    /// - Returns: 字符串数组
     static var fdy_allIPAddresses: [String] {
         var addresses: [String] = []
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
@@ -140,6 +148,7 @@ public extension UIDevice {
     }
 
     /// 获取 Wi-Fi 接口(en0)的 IP 地址(通常用于局域网通信)
+    /// - Returns: 处理后的字符串,不可用时返回 `nil`
     static var fdy_wifiIPAddress: String? {
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
         guard getifaddrs(&ifaddr) == 0, let firstAddr = ifaddr else { return nil }

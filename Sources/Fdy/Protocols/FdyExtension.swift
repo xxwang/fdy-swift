@@ -9,11 +9,13 @@ public protocol FdyExtension {
 // MARK: - 提供命名空间入口
 public extension FdyExtension {
     /// 实例`命名空间`入口
+    /// - Returns: 包装对象
     var fdy: FdyWrapper<Self> {
         FdyWrapper(self)
     }
 
     /// 类型`命名空间`入口
+    /// - Returns: 包装对象
     static var fdy: FdyWrapper<Self.Type> {
         FdyWrapper(Self.self)
     }
@@ -32,6 +34,7 @@ public final class FdyWrapper<Base> {
 // MARK: - 值类型与引用类型通用的方法
 public extension FdyWrapper {
     /// 获取配置完成的实例
+    /// - Returns: 配置完成的实例
     @discardableResult
     func build() -> Base {
         self.base
@@ -42,17 +45,6 @@ public extension FdyWrapper {
     ///
     /// - Parameter block: 接收一个可变副本的闭包
     /// - Returns: 修改后的副本
-    ///
-    /// - Example:
-    /// ```
-    /// let point = CGPoint(x: 10, y: 20)
-    ///     .fdy
-    ///     .with {
-    ///         $0.x += 5
-    ///         $0.y *= 2
-    ///     }
-    /// point 现在是 (15, 40),原始值未被修改(因为是值类型)
-    /// ```
     @inlinable
     func with(_ block: (inout Base) throws -> Void) rethrows -> Base {
         var copy = base
@@ -63,13 +55,6 @@ public extension FdyWrapper {
     /// 对当前值执行操作,不返回新值(仅用于副作用,如打印、验证等)
     ///
     /// - Parameter block: 接收当前值的闭包
-    ///
-    /// - Example:
-    /// ```
-    /// [1, 2, 3]
-    ///     .fdy
-    ///     .do { print("数组内容:\($0)") }
-    /// ```
     @inlinable
     func `do`(_ block: (Base) throws -> Void) rethrows {
         try block(base)
@@ -80,17 +65,6 @@ public extension FdyWrapper {
     ///
     /// - Parameter block: 配置当前对象的闭包
     /// - Returns: 当前对象本身(`self`)
-    ///
-    /// - Example:
-    /// ```
-    /// let label = UILabel()
-    /// .fdy
-    /// .then {
-    ///     $0.text = "Hello"
-    ///     $0.textColor = .red
-    ///     $0.textAlignment = .center
-    /// }
-    /// ```
     @inlinable
     @discardableResult
     func then(_ block: (Base) throws -> Void) rethrows -> Self {

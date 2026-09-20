@@ -5,22 +5,13 @@ import os.log
 public extension UITextView {
     /// 限制输入字符数,并可选通过正则表达式过滤输入内容,支持中英文、表情符号(以 Unicode 字符计数)
     ///
-    /// - Note: 此方法应在 `textView(_:shouldChangeTextIn:replacementText:)` 中调用
-    ///
     /// - Parameters:
     ///   - range: 将被替换的文本范围(基于 `NSRange`)
     ///   - text: 新输入的文本(可能为空字符串,表示删除)
     ///   - maxCharacters: 允许的最大字符数(按 `String.count` 计算)
     ///   - regexPattern: 可选的正则表达式,用于限制允许输入的字符类型(如仅字母数字)若为 `nil`,不限制
     /// - Returns: `true` 表示允许变更,`false` 表示拒绝
-    ///
-    /// -   Example:
-    ///
-    ///   ```swift
-    ///   func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-    ///       return textView.fdy_inputRestrictions(in: range, newText: text, maxLength: 100)
-    ///   }
-    ///   ```
+    /// - Note: 此方法应在 `textView(_:shouldChangeTextIn:replacementText:)` 中调用
     func fdy_inputRestrictions(
         in range: NSRange,
         newText text: String,
@@ -79,12 +70,11 @@ public extension UITextView {
 
     /// 添加带可选超链接的文本
     ///
-    /// - Note: 若 `linkURL` 无效或为空,将作为普通文本追加
-    ///
     /// - Parameters:
     ///   - text: 要追加的文本
     ///   - font: 文本字体(默认使用当前 `font`)
     ///   - linkURL: 可选的 `URL` 字符串,若提供则整段文本变为可点击链接
+    /// - Note: 若 `linkURL` 无效或为空,将作为普通文本追加
     func fdy_addLinkText(
         _ text: String,
         font: UIFont? = nil,

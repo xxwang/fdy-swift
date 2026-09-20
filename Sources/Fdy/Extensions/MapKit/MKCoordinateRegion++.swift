@@ -4,6 +4,7 @@ import MapKit
 public extension MKCoordinateRegion {
     /// 获取当前区域的左上角地理坐标(最大纬度,最小经度)
     ///
+    /// - Returns: 地理坐标
     /// - Note:
     ///   - 假设区域不跨越国际日期变更线(±180° 经度)
     ///   - 不适用于极地附近(纬度 > 85°)的高精度场景
@@ -16,6 +17,7 @@ public extension MKCoordinateRegion {
 
     /// 获取当前区域的右下角地理坐标(最小纬度,最大经度)
     ///
+    /// - Returns: 地理坐标
     /// - Note: 同 `topLeftCoordinate`,有相同限制
     var fdy_bottomRightCoordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(
@@ -32,19 +34,12 @@ public extension MKCoordinateRegion {
     /// - Parameters:
     ///   - coordinates: 非空坐标数组
     ///   - margin: 四周额外留白距离(单位：米)默认 100 米
-    ///
     /// - Returns: 包含所有点并带有边距的区域
     ///
     /// - Important:
     ///   - `不支持跨越国际日期变更线(±180°)的坐标集合`
     ///   - 若输入为单点,会基于 `margin` 自动创建合理可视区域
     ///   - 边距通过近似地球球面模型转换为经纬度跨度
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let coords = [CLLocationCoordinate2D(latitude: 39.9, longitude: 116.4)]
-    ///   let region = MKCoordinateRegion.fdy_boundingRegion(for: coords, margin: 500)
-    ///   ```
     static func fdy_boundingRegion(
         for coordinates: [CLLocationCoordinate2D],
         margin: CLLocationDistance = 100

@@ -25,11 +25,6 @@ public extension String {
     ///
     /// - Parameter basePath: 基础路径,默认为当前用户主目录(`NSHomeDirectory()`)
     /// - Returns: 是否成功创建目录(若已存在也返回 `true`)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "Documents/MyApp/Cache".fdy_createDirectories()
-    ///   ```
     func fdy_createDirectories(in basePath: String = NSHomeDirectory()) -> Bool {
         let fullPath: String = if self.starts(with: "/") || self.starts(with: "~") {
             // 绝对路径或用户路径,直接使用

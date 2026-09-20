@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性(布局)
 public extension FdyWrapper where Base: UIView {
-    /// 设置控件的`frame`
+    /// 控件的`frame`
     /// - Parameter frame: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的`bounds`
+    /// 控件的`bounds`
     /// - Parameter bounds: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -20,7 +20,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的`origin`
+    /// 控件的`origin`
     /// - Parameter origin: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -31,7 +31,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的`size`
+    /// 控件的`size`
     /// - Parameter size: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -42,7 +42,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的`x`坐标
+    /// 控件的`x`坐标
     /// - Parameter left: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -53,7 +53,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的顶部`y`坐标
+    /// 控件的顶部`y`坐标
     /// - Parameter top: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -64,7 +64,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的右边`x`坐标(移动 `maxX`)
+    /// 控件的右边`x`坐标(移动 `maxX`)
     /// - Parameter right: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -75,7 +75,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的底部`y`坐标(移动 `maxY`)
+    /// 控件的底部`y`坐标(移动 `maxY`)
     /// - Parameter bottom: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -86,7 +86,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的`width`
+    /// 控件的`width`
     /// - Parameter width: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -97,7 +97,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的`height`
+    /// 控件的`height`
     /// - Parameter height: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -108,7 +108,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的`center`
+    /// 控件的`center`
     /// - Parameter center: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -117,7 +117,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的中心点`x`坐标
+    /// 控件的中心点`x`坐标
     /// - Parameter centerX: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -128,7 +128,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置控件的中心点`y`坐标
+    /// 控件的中心点`y`坐标
     /// - Parameter centerY: 要设置的值
     /// - Returns: `Self`
     @discardableResult
@@ -151,7 +151,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置自动调整掩码（Autoresizing Mask）
+    /// 自动调整掩码（Autoresizing Mask）
     /// - Parameter mask: 自动调整规则
     /// - Returns: `Self`
     @discardableResult
@@ -160,7 +160,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置布局边距
+    /// 布局边距
     /// - Parameter margins: 边距
     /// - Returns: `Self`
     @discardableResult
@@ -169,7 +169,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置是否保留父视图的布局边距
+    /// 是否保留父视图的布局边距
     /// - Parameter preserves: `true` 保留父视图边距
     /// - Returns: `Self`
     @discardableResult
@@ -178,7 +178,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置方向性布局边距
+    /// 方向性布局边距
     /// - Parameter margins: 方向性边距
     /// - Returns: `Self`
     @discardableResult
@@ -187,7 +187,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置是否从安全区域插入布局边距
+    /// 是否从安全区域插入布局边距
     /// - Parameter insets: `true` 从安全区域插入
     /// - Returns: `Self`
     @discardableResult
@@ -196,7 +196,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置是否裁剪超出部分
+    /// 是否裁剪超出部分
     /// - Parameter clipsToBounds: 是否裁剪超出部分,`true`裁剪,`false`不裁剪
     /// - Returns: `Self`
     @discardableResult
@@ -205,7 +205,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置`tag`
+    /// `tag`
     /// - Parameter tag: 要设置的`tag`数值
     /// - Returns: `Self`
     @discardableResult
@@ -214,7 +214,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置内容填充模式
+    /// 内容填充模式
     /// - Parameter mode: 填充模式,例如`.scaleAspectFit`或`.scaleToFill`
     /// - Returns: `Self`
     @discardableResult
@@ -223,7 +223,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置是否允许用户交互
+    /// 是否允许用户交互
     /// - Parameter enabled: 是否允许交互,`true`表示允许交互,`false`表示禁用交互
     /// - Returns: `Self`
     @discardableResult
@@ -232,7 +232,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置多点触控是否启用
+    /// 多点触控是否启用
     /// - Parameter enabled: `true` 启用多点触控
     /// - Returns: `Self`
     @discardableResult
@@ -241,7 +241,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置是否独占触摸（阻止其他视图接收触摸）
+    /// 是否独占触摸（阻止其他视图接收触摸）
     /// - Parameter exclusive: `true` 独占触摸
     /// - Returns: `Self`
     @discardableResult
@@ -250,7 +250,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置自动调整子视图尺寸
+    /// 自动调整子视图尺寸
     /// - Parameter resizes: `true` 自动调整子视图
     /// - Returns: `Self`
     @discardableResult
@@ -259,7 +259,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置界面样式
+    /// 界面样式
     /// - Parameter style: 设置界面风格
     /// - Returns: `Self`
     @discardableResult
@@ -268,7 +268,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置是否隐藏视图
+    /// 是否隐藏视图
     /// - Parameter isHidden: 是否隐藏视图,`true`表示隐藏,`false`表示显示
     /// - Returns: `Self`
     @discardableResult
@@ -277,7 +277,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置是否不透明（用于性能优化）
+    /// 是否不透明（用于性能优化）
     /// - Parameter opaque: `true` 表示完全不透明，可提升渲染性能
     /// - Returns: `Self`
     @discardableResult
@@ -286,7 +286,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置透明度
+    /// 透明度
     /// - Parameter alpha: 透明度值,范围为`0.0`到`1.0`,`0.0`为完全透明,`1.0`为完全不透明
     /// - Returns: `Self`
     @discardableResult
@@ -295,7 +295,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置`backgroundColor`
+    /// `backgroundColor`
     /// - Parameter color: 背景颜色
     /// - Returns: `Self`
     @discardableResult
@@ -304,7 +304,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置`tintColor`
+    /// `tintColor`
     /// - Parameter tintColor: 调整视图的 tintColor
     /// - Returns: `Self`
     @discardableResult
@@ -313,7 +313,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置着色调整模式
+    /// 着色调整模式
     /// - Parameter mode: 调整模式（自动/正常/变暗）
     /// - Returns: `Self`
     @discardableResult
@@ -322,7 +322,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置变换
+    /// 变换
     /// - Parameter transform: 变换
     /// - Returns: `Self`
     @discardableResult
@@ -331,7 +331,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置3D变换
+    /// 3D变换
     /// - Parameter transform3D: 3D变换
     /// - Returns: `Self`
     @discardableResult
@@ -358,7 +358,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置圆角配置
+    /// 圆角配置
     /// - Parameter configuration: 圆角配置对象
     /// - Returns: `Self`
     @discardableResult
@@ -368,7 +368,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置恢复标识符
+    /// 恢复标识符
     /// - Parameter identifier: 恢复标识符字符串，用于状态恢复
     /// - Returns: `Self`
     @discardableResult
@@ -377,7 +377,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置焦点组标识符
+    /// 焦点组标识符
     /// - Parameter identifier: 焦点组的唯一标识符
     /// - Returns: `Self`
     @discardableResult
@@ -386,7 +386,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置焦点组优先级
+    /// 焦点组优先级
     /// - Parameter priority: 焦点组的优先级
     /// - Returns: `Self`
     @discardableResult
@@ -395,7 +395,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置焦点效果
+    /// 焦点效果
     /// - Parameter effect: 应用于视图的焦点视觉效果
     /// - Returns: `Self`
     @discardableResult
@@ -404,7 +404,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置语义内容属性
+    /// 语义内容属性
     /// - Parameter attribute: 内容的语义方向属性（如强制从左到右）
     /// - Returns: `Self`
     @discardableResult
@@ -413,7 +413,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置内容缩放因子
+    /// 内容缩放因子
     /// - Parameter factor: 内容的缩放比例，影响绘制分辨率
     /// - Returns: `Self`
     @discardableResult
@@ -422,7 +422,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置锚点
+    /// 锚点
     /// - Parameter point: 图层变换的锚点，取值范围 [0,1]
     /// - Returns: `Self`
     @discardableResult
@@ -431,7 +431,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置是否在绘制前清空上下文
+    /// 是否在绘制前清空上下文
     /// - Parameter clear: 是否清空，默认为 true
     /// - Returns: `Self`
     @discardableResult
@@ -440,7 +440,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置遮罩视图
+    /// 遮罩视图
     /// - Parameter mask: 用作遮罩的视图，其 alpha 通道决定可见区域
     /// - Returns: `Self`
     @discardableResult
@@ -449,7 +449,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置手势识别器数组
+    /// 手势识别器数组
     /// - Parameter recognizers: 手势识别器列表
     /// - Returns: `Self`
     @discardableResult
@@ -458,7 +458,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置运动效果数组
+    /// 运动效果数组
     /// - Parameter effects: 应用于视图的运动效果（如倾斜、摇晃）
     /// - Returns: `Self`
     @discardableResult
@@ -470,7 +470,7 @@ public extension FdyWrapper where Base: UIView {
 
 // MARK: - 链式设置图层属性
 public extension FdyWrapper where Base: UIView {
-    /// 设置`layer.borderColor`
+    /// `layer.borderColor`
     /// - Parameter color: 边框颜色
     /// - Returns: `Self`
     @discardableResult
@@ -479,7 +479,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置`layer.borderWidth`
+    /// `layer.borderWidth`
     /// - Parameter width: 边框宽度
     /// - Returns: `Self`
     @discardableResult
@@ -497,7 +497,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置光栅化比例
+    /// 光栅化比例
     /// - Parameter scale: 光栅化比例,通常为当前主屏幕 scale(`FdyScreen.screenScale`)
     /// - Returns: `Self`
     @discardableResult
@@ -506,7 +506,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置阴影颜色
+    /// 阴影颜色
     /// - Parameter color: 阴影颜色
     /// - Returns: `Self`
     @discardableResult
@@ -515,7 +515,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置阴影偏移
+    /// 阴影偏移
     /// - Parameter offset: 阴影的偏移量,正值表示偏向右下,负值偏向左上
     /// - Returns: `Self`
     @discardableResult
@@ -524,7 +524,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置阴影圆角
+    /// 阴影圆角
     /// - Parameter radius: 阴影的圆角半径,设置为`0`表示没有圆角
     /// - Returns: `Self`
     @discardableResult
@@ -533,7 +533,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置阴影不透明度
+    /// 阴影不透明度
     /// - Parameter opacity: 阴影的透明度,范围是`0.0`到`1.0`,`0.0`表示完全透明,`1.0`表示完全不透明
     /// - Returns: `Self`
     @discardableResult
@@ -542,7 +542,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置阴影路径
+    /// 阴影路径
     /// - Parameter path: 用于阴影的`CGPath`路径,通常设置为视图的`boundingPath`,以优化阴影渲染性能
     /// - Returns: `Self`
     @discardableResult
@@ -551,7 +551,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置`layer.cornerRadius`
+    /// `layer.cornerRadius`
     /// - Parameter cornerRadius: 圆角半径,设置为0表示没有圆角
     /// - Returns: `Self`
     @discardableResult
@@ -560,7 +560,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置`layer.maskedCorners`
+    /// `layer.maskedCorners`
     /// - Parameter maskedCorners: 要设置的角
     /// - Returns: `Self`
     @discardableResult
@@ -569,7 +569,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置是否`layer.masksToBounds`
+    /// 是否`layer.masksToBounds`
     /// - Parameter masksToBounds: 是否裁切,`true`表示裁切,`false`表示不裁切
     /// - Returns: `Self`
     @discardableResult
@@ -578,7 +578,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置圆角曲线风格
+    /// 圆角曲线风格
     /// - Parameter curve: `.circular`(默认) 或 `.continuous`(更顺滑)
     /// - Returns: `Self`
     @discardableResult
@@ -587,7 +587,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置图层透明度(独立于 `alpha`,不影响子视图)
+    /// 图层透明度(独立于 `alpha`,不影响子视图)
     /// - Parameter opacity: 透明度值,范围 [0, 1]
     /// - Returns: `Self`
     @discardableResult
@@ -596,7 +596,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置 Z 轴层级(影响同级视图渲染/事件顺序)
+    ///  Z 轴层级(影响同级视图渲染/事件顺序)
     /// - Parameter zPosition: Z 轴位置,越大越靠前
     /// - Returns: `Self`
     @discardableResult
@@ -605,7 +605,7 @@ public extension FdyWrapper where Base: UIView {
         return self
     }
 
-    /// 设置图层名称(Xcode View Hierarchy 中可见)
+    /// 图层名称(Xcode View Hierarchy 中可见)
     /// - Parameter name: 图层名称,用于调试
     /// - Returns: `Self`
     @discardableResult
@@ -618,7 +618,7 @@ public extension FdyWrapper where Base: UIView {
 // MARK: - 链式方法
 public extension FdyWrapper where Base: UIView {
     /// 添加子控件到当前视图上
-    /// - Parameter subviews: 要添加的子控件数组
+    /// - Parameter subview: 视图
     /// - Returns: `Self`
     @discardableResult
     func addSubview(_ subview: UIView) -> Self {
@@ -944,10 +944,10 @@ public extension FdyWrapper where Base: UIView {
 // MARK: - 链式手势(自定义)
 public extension FdyWrapper where Base: UIView {
     /// 添加单击手势
-    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
-    ///   请使用 `[weak self]` 避免循环引用泄漏。
     /// - Parameter block: 手势触发时的回调
     /// - Returns: `Self`
+    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
+    ///   请使用 `[weak self]` 避免循环引用泄漏。
     @discardableResult
     func onTapGestureRecognizer(_ block: @escaping FdyAction1<UITapGestureRecognizer>) -> Self {
         let tap = UITapGestureRecognizer()
@@ -962,12 +962,12 @@ public extension FdyWrapper where Base: UIView {
     }
 
     /// 添加长按手势
-    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
-    ///   请使用 `[weak self]` 避免循环引用泄漏。
     /// - Parameters:
     ///   - minimumDuration: 最小按压时长
     ///   - block: 手势触发时的回调
     /// - Returns: `Self`
+    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
+    ///   请使用 `[weak self]` 避免循环引用泄漏。
     @discardableResult
     func onLongPressGestureRecognizer(minimumDuration: TimeInterval = 0.5, _ block: @escaping FdyAction1<UILongPressGestureRecognizer>) -> Self {
         let longPress = UILongPressGestureRecognizer.longPressGestureRecognizer()
@@ -983,10 +983,10 @@ public extension FdyWrapper where Base: UIView {
     }
 
     /// 添加拖动手势(平移)
-    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
-    ///   请使用 `[weak self]` 避免循环引用泄漏。
     /// - Parameter block: 手势进行中持续回调(began/changed/ended 各触发一次)
     /// - Returns: `Self`
+    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
+    ///   请使用 `[weak self]` 避免循环引用泄漏。
     @discardableResult
     func onPanGestureRecognizer(_ block: @escaping FdyAction1<UIPanGestureRecognizer>) -> Self {
         let pan = UIPanGestureRecognizer.panGestureRecognizer()
@@ -1001,12 +1001,12 @@ public extension FdyWrapper where Base: UIView {
     }
 
     /// 添加从屏幕边缘开始的拖动手势
-    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
-    ///   请使用 `[weak self]` 避免循环引用泄漏。
     /// - Parameters:
     ///   - edges: 触发边缘
     ///   - block: 手势触发时的回调
     /// - Returns: `Self`
+    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
+    ///   请使用 `[weak self]` 避免循环引用泄漏。
     @discardableResult
     func onScreenEdgePanGestureRecognizer(edges: UIRectEdge, _ block: @escaping FdyAction1<UIScreenEdgePanGestureRecognizer>) -> Self {
         let screenEdgePan = UIScreenEdgePanGestureRecognizer.screenEdgePanGestureRecognizer()
@@ -1022,12 +1022,12 @@ public extension FdyWrapper where Base: UIView {
     }
 
     /// 添加滑动手势(轻扫)
-    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
-    ///   请使用 `[weak self]` 避免循环引用泄漏。
     /// - Parameters:
     ///   - direction: 滑动方向
     ///   - block: 手势触发时回调
     /// - Returns: `Self`
+    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
+    ///   请使用 `[weak self]` 避免循环引用泄漏。
     @discardableResult
     func onSwipeGestureRecognizer(direction: UISwipeGestureRecognizer.Direction = .right,
                                   _ block: @escaping FdyAction1<UISwipeGestureRecognizer>) -> Self
@@ -1045,10 +1045,10 @@ public extension FdyWrapper where Base: UIView {
     }
 
     /// 添加捏合手势(用于缩放)
-    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
-    ///   请使用 `[weak self]` 避免循环引用泄漏。
     /// - Parameter block: 手势进行中持续回调(began/changed/ended 各触发一次)
     /// - Returns: `Self`
+    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
+    ///   请使用 `[weak self]` 避免循环引用泄漏。
     @discardableResult
     func onPinchGestureRecognizer(_ block: @escaping FdyAction1<UIPinchGestureRecognizer>) -> Self {
         let pinch = UIPinchGestureRecognizer.pinchGestureRecognizer()
@@ -1063,10 +1063,10 @@ public extension FdyWrapper where Base: UIView {
     }
 
     /// 添加旋转手势
-    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
-    ///   请使用 `[weak self]` 避免循环引用泄漏。
     /// - Parameter block: 手势进行中持续回调(began/changed/ended 各触发一次)
     /// - Returns: `Self`
+    /// - Warning: 闭包被内部手势识别器**强引用**。若闭包内使用 `self`，
+    ///   请使用 `[weak self]` 避免循环引用泄漏。
     @discardableResult
     func onRotationGestureRecognizer(_ block: @escaping FdyAction1<UIRotationGestureRecognizer>) -> Self {
         let rotation = UIRotationGestureRecognizer.rotationGestureRecognizer()

@@ -3,6 +3,7 @@ import WebKit
 // MARK: - 属性
 public extension WKWebViewConfiguration {
     /// 默认的 `WKWebViewConfiguration` 配置实例
+    /// - Returns: Web 视图配置
     static func fdy_default() -> WKWebViewConfiguration {
         let configuration = WKWebViewConfiguration()
         // 是否允许视频在网页内联播放(而非强制全屏)

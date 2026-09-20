@@ -44,12 +44,6 @@ public extension NumberFormatter {
     ///   - string: 源字符串(如 `"12345.67"`)
     ///   - style: 目标格式样式,默认为 `.decimal`
     /// - Returns: 格式化后的字符串;若无法解析则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let result = NumberFormatter.fdy_reformat("12345.6", style: .currency)
-    ///   // 可能返回 "$12,345.60"(取决于 locale)
-    ///   ```
     static func fdy_reformat(_ string: String, style: NumberFormatter.Style = .decimal) -> String? {
         let parser = NumberFormatter()
         parser.numberStyle = .decimal // 使用宽松解析
@@ -67,17 +61,6 @@ public extension NumberFormatter {
     ///   - string: 源字符串数值
     ///   - configure: 用于配置 `NumberFormatter` 的闭包
     /// - Returns: 格式化结果;若解析或格式化失败则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let result = NumberFormatter.fdy_customFormat("1234567") { formatter in
-    ///       formatter.numberStyle = .decimal
-    ///       formatter.groupingSeparator = " "
-    ///       formatter.groupingSize = 3
-    ///       formatter.minimumFractionDigits = 2
-    ///   }
-    ///   // 返回 "1 234 567.00"
-    ///   ```
     static func fdy_customFormat(_ string: String, configure: (inout NumberFormatter) -> Void) -> String? {
         // 第一步：解析字符串为 NSNumber
         let parser = NumberFormatter()
@@ -125,7 +108,7 @@ public extension NumberFormatter {
         }
     }
 
-    /// 设置整数和小数位数限制
+    /// 整数和小数位数限制
     ///
     /// - Parameters:
     ///   - string: 源字符串

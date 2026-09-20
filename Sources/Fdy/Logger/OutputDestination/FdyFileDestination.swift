@@ -135,7 +135,11 @@ private extension FdyFileDestination {
         queue.async { [weak self] in
             guard let self else { return }
 
-            self.fileHandle.closeFile()
+            // ⚠️ 不在此处 `closeFile()`：若「重新打开」失败（磁盘满 / 权限变化 / 文件被占用），旧句柄
+            // 会留在**已关闭**状态，而向已关闭的 `FileHandle` 写入或 `synchronizeFile()` 会抛
+            // `NSFileHandleOperationException` 直接终止进程（实测），`log()`/`flush()`/`teardown()`
+            // 三条公开路径都会踩到。改为「先拿新句柄、再关旧句柄」：失败路径上 `fileHandle` 都保持可用。
+            let previous = self.fileHandle
 
             // 轮转历史文件: file.log → file.1.log, file.1.log → file.2.log ...
             for i in stride(from: self.maxRotatedFiles - 1, through: 1, by: -1) {
@@ -150,10 +154,17 @@ private extension FdyFileDestination {
             try? FileManager.default.removeItem(atPath: backup)
             try? FileManager.default.moveItem(atPath: self.filePath, toPath: backup)
 
-            // 重新打开当前文件写入
+            // 重新打开当前文件写入;仅在成功换上新句柄后才关闭旧句柄
             FileManager.default.createFile(atPath: self.filePath, contents: nil)
             if let newHandle = FileHandle(forWritingAtPath: self.filePath) {
                 self.fileHandle = newHandle
+                previous.closeFile()
+            } else {
+                os_log(
+                    .error,
+                    "FdyFileDestination: 轮转后重开失败,日志继续写入历史文件 %{public}@",
+                    backup
+                )
             }
 
             self.sizeLock.lock()

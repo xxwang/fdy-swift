@@ -4,13 +4,6 @@ import Foundation
 public extension NSPredicate {
     /// 返回当前谓词的逻辑非(NOT)
     /// - Returns: 一个表示 `NOT (self)` 的复合谓词
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let pred = NSPredicate(format: "age > 18")
-    ///   let notPred = pred.fdy_not()
-    ///   // 等价于 "NOT (age > 18)"
-    ///   ```
     func fdy_not() -> NSPredicate {
         return NSCompoundPredicate(notPredicateWithSubpredicate: self)
     }

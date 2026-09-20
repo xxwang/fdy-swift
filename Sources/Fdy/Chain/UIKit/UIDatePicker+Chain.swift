@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UIDatePicker {
-    /// 设置时区
+    /// 时区
     /// - Parameter timeZone: 时区
     /// - Returns: `Self`
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UIDatePicker {
         return self
     }
 
-    /// 设置日期选择器模式
+    /// 日期选择器模式
     /// - Parameter mode: 模式
     /// - Returns: `Self`
     @discardableResult
@@ -20,7 +20,7 @@ public extension FdyWrapper where Base: UIDatePicker {
         return self
     }
 
-    /// 设置首选样式
+    /// 首选样式
     /// - Parameter style: 样式
     /// - Returns: `Self`
     @discardableResult
@@ -29,7 +29,7 @@ public extension FdyWrapper where Base: UIDatePicker {
         return self
     }
 
-    /// 设置当前日期
+    /// 当前日期
     /// - Parameters:
     ///   - date: 日期
     ///   - animated: 是否动画
@@ -44,7 +44,7 @@ public extension FdyWrapper where Base: UIDatePicker {
         return self
     }
 
-    /// 设置最小日期
+    /// 最小日期
     /// - Parameter date: 最小日期
     /// - Returns: `Self`
     @discardableResult
@@ -53,7 +53,7 @@ public extension FdyWrapper where Base: UIDatePicker {
         return self
     }
 
-    /// 设置最大日期
+    /// 最大日期
     /// - Parameter date: 最大日期
     /// - Returns: `Self`
     @discardableResult
@@ -62,17 +62,17 @@ public extension FdyWrapper where Base: UIDatePicker {
         return self
     }
 
-    /// 设置分钟间隔
-    /// - Note: 必须为 1–30 之间且能整除 60 的整数,如 1, 5, 10, 15, 30
+    /// 分钟间隔
     /// - Parameter interval: 间隔时间
     /// - Returns: `Self`
+    /// - Note: 必须为 1–30 之间且能整除 60 的整数,如 1, 5, 10, 15, 30
     @discardableResult
     func minuteInterval(_ interval: Int) -> Self {
         base.minuteInterval = interval
         return self
     }
 
-    /// 设置区域
+    /// 区域
     /// - Parameter locale: 区域
     /// - Returns: `Self`
     @discardableResult
@@ -81,7 +81,7 @@ public extension FdyWrapper where Base: UIDatePicker {
         return self
     }
 
-    /// 设置日历
+    /// 日历
     /// - Parameter calendar: 日历对象
     /// - Returns: `Self`
     @discardableResult
@@ -90,10 +90,10 @@ public extension FdyWrapper where Base: UIDatePicker {
         return self
     }
 
-    /// 设置倒计时时长
-    /// - Note: 仅在`.countDownTimer`模式下有效
+    /// 倒计时时长
     /// - Parameter duration: 时长
     /// - Returns: `Self`
+    /// - Note: 仅在`.countDownTimer`模式下有效
     @discardableResult
     func countDownDuration(_ duration: TimeInterval) -> Self {
         base.countDownDuration = duration

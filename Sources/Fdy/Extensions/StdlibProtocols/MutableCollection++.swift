@@ -7,16 +7,6 @@ public extension MutableCollection {
     /// - Parameters:
     ///   - value: 要设置的新值
     ///   - keyPath: 指向可写属性的 `WritableKeyPath`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     struct Item {
-    ///         var name: String
-    ///     }
-    ///     var items = [Item(name: "A"), Item(name: "B")]
-    ///     items.fdy_setAll("Default", for: \.name)
-    ///     print(items) // [Item(name: "Default"), Item(name: "Default")]
-    ///     ```
     mutating func fdy_setAll<Value>(_ value: Value, for keyPath: WritableKeyPath<Element, Value>) {
         for index in indices {
             self[index][keyPath: keyPath] = value
@@ -31,14 +21,6 @@ public extension MutableCollection where Self: RandomAccessCollection {
     /// - Parameters:
     ///   - keyPath: 用于提取排序依据的 `KeyPath`
     ///   - compare: 自定义比较闭包,返回 `true` 表示第一个元素应排在前面
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     struct Item { var score: Int }
-    ///     var items = [Item(score: 30), Item(score: 10), Item(score: 20)]
-    ///     items.fdy_sort(by: \.score, with: >)
-    ///     // 结果: [30, 20, 10]
-    ///     ```
     mutating func fdy_sort<T>(by keyPath: KeyPath<Element, T>, with compare: (T, T) -> Bool) {
         sort { compare($0[keyPath: keyPath], $1[keyPath: keyPath]) }
     }
@@ -46,14 +28,6 @@ public extension MutableCollection where Self: RandomAccessCollection {
     /// 根据指定属性对集合进行升序排序(要求属性符合 `Comparable`)
     ///
     /// - Parameter keyPath: 指向 `Comparable` 属性的 `KeyPath`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     struct Person { var age: Int }
-    ///     var people = [Person(age: 30), Person(age: 20)]
-    ///     people.fdy_sort(by: \.age)
-    ///     // 结果: [Person(age: 20), Person(age: 30)]
-    ///     ```
     mutating func fdy_sort(by keyPath: KeyPath<Element, some Comparable>) {
         sort { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
     }
@@ -65,21 +39,6 @@ public extension MutableCollection where Self: RandomAccessCollection {
     ///   - secondary: 次排序属性(`Comparable`)
     ///
     /// - Note: 先按 `primary` 排序,相等时再按 `secondary` 排序
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     struct Task {
-    ///         var priority: Int
-    ///         var name: String
-    ///     }
-    ///     var tasks = [
-    ///         Task(priority: 2, name: "B"),
-    ///         Task(priority: 1, name: "A"),
-    ///         Task(priority: 2, name: "A")
-    ///     ]
-    ///     tasks.fdy_sort(by: \.priority, and: \.name)
-    ///     // 结果: [Task(1,"A"), Task(2,"A"), Task(2,"B")]
-    ///     ```
     mutating func fdy_sort(
         by primary: KeyPath<Element, some Comparable>,
         and secondary: KeyPath<Element, some Comparable>
@@ -102,17 +61,6 @@ public extension MutableCollection where Self: RandomAccessCollection {
     ///   - k3: 第三排序属性
     ///
     /// - Note: 依次比较,前一属性相等时才比较下一属性
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     struct Record {
-    ///         var group: Int
-    ///         var name: String
-    ///         var id: Int
-    ///     }
-    ///     var records = [...]
-    ///     records.fdy_sort(by: \.group, and: \.name, and: \.id)
-    ///     ```
     mutating func fdy_sort(
         by k1: KeyPath<Element, some Comparable>,
         and k2: KeyPath<Element, some Comparable>,

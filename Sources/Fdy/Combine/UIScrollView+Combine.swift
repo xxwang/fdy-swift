@@ -2,13 +2,6 @@ import Combine
 import UIKit
 
 // MARK: - UIScrollView 滚动事件发布者（delegate 代理）
-
-/// `UIScrollViewDelegate` 代理：接管滚动回调并转发给原有的 `delegate`，
-/// 同时通过 `PassthroughSubject` 对外暴露各滚动事件，供 Combine 订阅。
-///
-/// - Note: 仅本文件使用，故声明为 `private`，不作为模块 API 暴露（初版为 internal 且无前缀）。
-/// - Note: `originalDelegate` 是 `weak` —— 原 delegate 被释放后转发链自然断开，
-///   不会造成泄漏，但原 delegate 此后也收不到回调。
 private final class FdyScrollViewDelegateProxy: NSObject, UIScrollViewDelegate {
     weak var originalDelegate: UIScrollViewDelegate?
 
@@ -110,47 +103,56 @@ public extension UIScrollView {
     }
 
     /// 滚动中（contentOffset 变化）
+    /// - Returns: 控件事件发布者
     var fdy_didScrollPublisher: FdyControlEvent<Void> {
         FdyControlEvent(fdy_delegateProxy.didScroll.eraseToAnyPublisher())
     }
 
     /// 即将开始拖拽
+    /// - Returns: 控件事件发布者
     var fdy_willBeginDraggingPublisher: FdyControlEvent<Void> {
         FdyControlEvent(fdy_delegateProxy.willBeginDragging.eraseToAnyPublisher())
     }
 
     /// 结束拖拽（丢弃 `willDecelerate`，需要该值请用
     /// `fdy_didEndDraggingWithDecelerationPublisher`）
+    /// - Returns: 控件事件发布者
     var fdy_didEndDraggingPublisher: FdyControlEvent<Void> {
         FdyControlEvent(fdy_delegateProxy.didEndDragging.map { _ in () }.eraseToAnyPublisher())
     }
 
     /// 结束拖拽，载荷为 `willDecelerate`（是否将继续减速）
+    /// - Returns: 控件事件发布者
     var fdy_didEndDraggingWithDecelerationPublisher: FdyControlEvent<Bool> {
         FdyControlEvent(fdy_delegateProxy.didEndDragging.eraseToAnyPublisher())
     }
 
     /// 即将开始减速
+    /// - Returns: 控件事件发布者
     var fdy_willBeginDeceleratingPublisher: FdyControlEvent<Void> {
         FdyControlEvent(fdy_delegateProxy.willBeginDecelerating.eraseToAnyPublisher())
     }
 
     /// 结束减速
+    /// - Returns: 控件事件发布者
     var fdy_didEndDeceleratingPublisher: FdyControlEvent<Void> {
         FdyControlEvent(fdy_delegateProxy.didEndDecelerating.eraseToAnyPublisher())
     }
 
     /// 滚动动画结束
+    /// - Returns: 控件事件发布者
     var fdy_didEndScrollingAnimationPublisher: FdyControlEvent<Void> {
         FdyControlEvent(fdy_delegateProxy.didEndScrollingAnimation.eraseToAnyPublisher())
     }
 
     /// 缩放中
+    /// - Returns: 控件事件发布者
     var fdy_didZoomPublisher: FdyControlEvent<Void> {
         FdyControlEvent(fdy_delegateProxy.didZoom.eraseToAnyPublisher())
     }
 
     /// 调整内容缩进变化
+    /// - Returns: 控件事件发布者
     var fdy_didChangeAdjustedContentInsetPublisher: FdyControlEvent<Void> {
         FdyControlEvent(fdy_delegateProxy.didChangeAdjustedContentInset.eraseToAnyPublisher())
     }
@@ -160,6 +162,7 @@ public extension UIScrollView {
     /// 实测 `contentOffset` 的 KVO 连 `setContentOffset(_:animated:)` 的动画内部路径都可靠
     /// （逐帧回调），因此不再需要事件通道对照 —— 这一点与 `UISlider.value` 恰好相反，
     /// 说明「KVO 是否可靠」是逐类结论，不能类推。
+    /// - Returns: 控件属性发布者
     var fdy_contentOffsetPublisher: FdyControlProperty<CGPoint> {
         FdyControlProperty(
             values: publisher(for: \.contentOffset, options: [.initial, .new])

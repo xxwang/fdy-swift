@@ -47,12 +47,10 @@ public extension UIView {
     }
 
     // MARK: 具体手势
-    //
-    // - Note: 以下每个访问器都会把 `isUserInteractionEnabled` 置为 `true`，
-    //   并在首次访问时把识别器加入手势列表（不可撤销的写副作用）。
-    //   若不需要该行为，请自行创建并 `addGestureRecognizer`。
 
     /// 点击手势，`numberOfTaps` 取 1 即单击；不同次数各自缓存一个识别器，互不干扰
+    /// - Parameter numberOfTaps: 点击次数,默认为 `1`
+    /// - Returns: 控件事件发布者
     func fdy_tapGesturePublisher(numberOfTaps: Int = 1) -> FdyControlEvent<UITapGestureRecognizer> {
         isUserInteractionEnabled = true
         return fdy_event(fdy_cachedGesture(key: "tap-\(numberOfTaps)") {
@@ -63,6 +61,8 @@ public extension UIView {
     }
 
     /// 轻扫手势（可指定方向，不同方向各自缓存）
+    /// - Parameter direction: 手势方向,默认为 `.right`
+    /// - Returns: 控件事件发布者
     func fdy_swipeGesturePublisher(_ direction: UISwipeGestureRecognizer.Direction = .right) -> FdyControlEvent<UISwipeGestureRecognizer> {
         isUserInteractionEnabled = true
         return fdy_event(fdy_cachedGesture(key: "swipe-\(direction.rawValue)") {
@@ -73,30 +73,35 @@ public extension UIView {
     }
 
     /// 长按手势
+    /// - Returns: 控件事件发布者
     var fdy_longPressGesturePublisher: FdyControlEvent<UILongPressGestureRecognizer> {
         isUserInteractionEnabled = true
         return fdy_event(fdy_cachedGesture(key: "longPress") { UILongPressGestureRecognizer() })
     }
 
     /// 拖动手势
+    /// - Returns: 控件事件发布者
     var fdy_panGesturePublisher: FdyControlEvent<UIPanGestureRecognizer> {
         isUserInteractionEnabled = true
         return fdy_event(fdy_cachedGesture(key: "pan") { UIPanGestureRecognizer() })
     }
 
     /// 捏合手势
+    /// - Returns: 控件事件发布者
     var fdy_pinchGesturePublisher: FdyControlEvent<UIPinchGestureRecognizer> {
         isUserInteractionEnabled = true
         return fdy_event(fdy_cachedGesture(key: "pinch") { UIPinchGestureRecognizer() })
     }
 
     /// 旋转手势
+    /// - Returns: 控件事件发布者
     var fdy_rotationGesturePublisher: FdyControlEvent<UIRotationGestureRecognizer> {
         isUserInteractionEnabled = true
         return fdy_event(fdy_cachedGesture(key: "rotation") { UIRotationGestureRecognizer() })
     }
 
     /// 屏幕边缘拖动手势
+    /// - Returns: 控件事件发布者
     var fdy_screenEdgePanGesturePublisher: FdyControlEvent<UIScreenEdgePanGestureRecognizer> {
         isUserInteractionEnabled = true
         return fdy_event(fdy_cachedGesture(key: "screenEdgePan") { UIScreenEdgePanGestureRecognizer() })

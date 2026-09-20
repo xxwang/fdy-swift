@@ -4,10 +4,10 @@ import CoreImage
 // MARK: - 构造方法
 public extension UIColor {
     /// 使用十六进制颜色字符串创建 `UIColor`
-    /// - Note: `#RRGGBB`、`RRGGBB`、`#RGB`、`RGB`
     /// - Parameters:
-    ///   - hex: 十六进度颜色字符串
+    ///   - hex: `Int`类型十六进度颜色
     ///   - alpha: 透明度
+    /// - Note: `#RRGGBB`、`RRGGBB`、`#RGB`、`RGB`
     convenience init(fdy_hex hex: String, alpha: CGFloat = 1.0) {
         let normalized = hex
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -51,8 +51,8 @@ public extension UIColor {
     }
 
     /// 使用 `ARGB` 十六进制字符串创建 `UIColor`(包含透明度)
-    /// - Note: 支持格式：`#AARRGGBB`、`AARRGGBB`、`#ARGB`、`ARGB`
     /// - Parameter argbHex: 带透明度的ARGB十六进度颜色字符串
+    /// - Note: 支持格式：`#AARRGGBB`、`AARRGGBB`、`#ARGB`、`ARGB`
     convenience init?(fdy_argbHex argbHex: String) {
         let normalized = argbHex
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -144,6 +144,7 @@ public extension UIColor {
 // MARK: - 属性
 public extension UIColor {
     /// 生成一个随机颜色
+    /// - Returns: 颜色
     static var fdy_random: UIColor {
         let red = CGFloat.random(in: 0 ... 1)
         let green = CGFloat.random(in: 0 ... 1)
@@ -154,7 +155,7 @@ public extension UIColor {
 
 // MARK: - 常用方法
 public extension UIColor {
-    /// 设置颜色的透明度(链式调用)
+    /// 颜色的透明度(链式调用)
     /// - Parameter alpha: 透明度(范围 0.0 ~ 1.0)
     /// - Returns: 透明度调整后的`UIColor`
     func fdy_alpha(_ alpha: CGFloat) -> UIColor {
@@ -173,6 +174,7 @@ public extension UIColor {
     }
 
     /// 获取 `RGB` 分量(标准化为 0...1 范围)
+    /// - Returns: 颜色分量
     var fdy_rgbComponents: (red: CGFloat, green: CGFloat, blue: CGFloat) {
         let (r, g, b, _) = self.fdy_rgbaComponents
         return (r, g, b)
@@ -211,36 +213,43 @@ public extension UIColor {
 // MARK: - 颜色组成(单独成员)
 public extension UIColor {
     /// 获取红色分量(0.0 ～ 1.0)
+    /// - Returns: 计算结果,不可用时返回 `nil`
     var fdy_redComponent: CGFloat? {
         return self.fdy_rgbaComponents.red
     }
 
     /// 获取绿色分量(0.0 ～ 1.0)
+    /// - Returns: 计算结果,不可用时返回 `nil`
     var fdy_greenComponent: CGFloat? {
         return self.fdy_rgbaComponents.green
     }
 
     /// 获取蓝色分量(0.0 ～ 1.0)
+    /// - Returns: 计算结果,不可用时返回 `nil`
     var fdy_blueComponent: CGFloat? {
         return self.fdy_rgbaComponents.blue
     }
 
     /// 获取透明度分量(0.0 ～ 1.0)
+    /// - Returns: 计算结果,不可用时返回 `nil`
     var fdy_alphaComponent: CGFloat? {
         return self.fdy_rgbaComponents.alpha
     }
 
     /// 获取色相分量(0.0 ～ 1.0)
+    /// - Returns: 计算结果,不可用时返回 `nil`
     var fdy_hueComponent: CGFloat? {
         return self.fdy_hsbaComponents.hue
     }
 
     /// 获取饱和度分量(0.0 ～ 1.0)
+    /// - Returns: 计算结果,不可用时返回 `nil`
     var fdy_saturationComponent: CGFloat? {
         return self.fdy_hsbaComponents.saturation
     }
 
     /// 获取亮度分量(0.0 ～ 1.0)
+    /// - Returns: 计算结果,不可用时返回 `nil`
     var fdy_brightnessComponent: CGFloat? {
         return self.fdy_hsbaComponents.brightness
     }
@@ -258,6 +267,7 @@ public extension UIColor {
     }
 
     /// 转换为`CIColor`
+    /// - Returns: CIColor
     func fdy_cIColor() -> CoreImage.CIColor {
         return CoreImage.CIColor(color: self)
     }
@@ -276,6 +286,7 @@ public extension UIColor {
     }
 
     /// 返回 RGB 整数表示(如 0xFF0000)
+    /// - Returns: 计算结果
     func fdy_rGBInt() -> Int {
         let (r, g, b, _) = self.fdy_rgbaComponents
         return (Int(r * 255) << 16) | (Int(g * 255) << 8) | Int(b * 255)
@@ -283,6 +294,7 @@ public extension UIColor {
 
     /// 返回长格式十六进制字符串(#RRGGBB)
     /// - Parameter prefixed: 是否包含 `#` 前缀(默认 `true`)
+    /// - Returns: 处理后的字符串
     func fdy_hexString(prefixed: Bool = true) -> String {
         let (r, g, b, _) = self.fdy_rgbaComponents
         let hex = String(format: "%02X%02X%02X", Int(r * 255), Int(g * 255), Int(b * 255))
@@ -308,6 +320,8 @@ public extension UIColor {
 // MARK: - 色彩操作
 public extension UIColor {
     /// 返回给定颜色的`互补色`(基于 `RGB` 空间)
+    /// - Parameter color: 颜色
+    /// - Returns: 颜色,不可用时返回 `nil`
     /// - 返回 `nil` 如果颜色无法转换为 `RGB`(如系统动态颜色)
     static func fdy_complementary(for color: UIColor) -> UIColor? {
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
@@ -321,6 +335,7 @@ public extension UIColor {
     }
 
     /// 获取互补色(基于 HSB 色相偏移 180°)
+    /// - Returns: 颜色
     var fdy_complementary: UIColor {
         var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
         self.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
@@ -329,6 +344,8 @@ public extension UIColor {
     }
 
     /// 增加亮度
+    /// - Parameter amount: 幅度,默认为 `0.2`
+    /// - Returns: 颜色
     func fdy_lighten(by amount: CGFloat = 0.2) -> UIColor {
         var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         self.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
@@ -336,6 +353,8 @@ public extension UIColor {
     }
 
     /// 降低亮度
+    /// - Parameter amount: 幅度,默认为 `0.2`
+    /// - Returns: 颜色
     func fdy_darken(by amount: CGFloat = 0.2) -> UIColor {
         var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         self.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
@@ -343,6 +362,8 @@ public extension UIColor {
     }
 
     /// 确保饱和度不低于指定值
+    /// - Parameter minSaturation: 最低饱和度
+    /// - Returns: 颜色
     func fdy_withMinSaturation(_ minSaturation: CGFloat) -> UIColor {
         var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         self.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
@@ -351,6 +372,12 @@ public extension UIColor {
     }
 
     /// 混合两个颜色(按权重)
+    /// - Parameters:
+    ///   - color1: 颜色
+    ///   - weight1: 第一个颜色的权重,默认为 `0.5`
+    ///   - color2: 颜色
+    ///   - weight2: 第二个颜色的权重,默认为 `0.5`
+    /// - Returns: 颜色
     static func fdy_blend(_ color1: UIColor, weight1: CGFloat = 0.5, with color2: UIColor, weight2: CGFloat = 0.5) -> UIColor {
         let total = weight1 + weight2
         let w1 = weight1 / total
@@ -368,6 +395,11 @@ public extension UIColor {
     }
 
     /// 在两个颜色之间插值
+    /// - Parameters:
+    ///   - start: 颜色
+    ///   - end: 颜色
+    ///   - progress: 进度
+    /// - Returns: 颜色
     static func fdy_interpolate(from start: UIColor, to end: UIColor, progress: CGFloat) -> UIColor {
         let p = min(max(progress, 0), 1)
         let (sr, sg, sb, sa) = start.fdy_rgbaComponents
@@ -386,6 +418,7 @@ public extension UIColor {
     /// 判断颜色是否为暗色
     ///
     /// 使用亮度公式 `0.2126 * R + 0.7152 * G + 0.0722 * B` 计算亮度值,小于 0.5 视为暗色
+    /// - Returns: 是否满足条件
     var fdy_isDark: Bool {
         let components = self.fdy_rgbComponents
         let luminance = 0.2126 * components.red + 0.7152 * components.green + 0.0722 * components.blue
@@ -395,6 +428,7 @@ public extension UIColor {
     /// 判断颜色是否为黑色或白色
     ///
     /// 如果颜色接近纯黑(RGB 值均小于 0.09)或纯白(RGB 值均大于 0.91),则返回 true
+    /// - Returns: 是否满足条件
     var fdy_isBlackOrWhite: Bool {
         let components = self.fdy_rgbComponents
         return (components.red > 0.91 && components.green > 0.91 && components.blue > 0.91) ||
@@ -404,6 +438,7 @@ public extension UIColor {
     /// 判断颜色是否为黑色
     ///
     /// 若颜色非常接近黑色(RGB 值均小于 0.09),返回 true
+    /// - Returns: 是否满足条件
     var fdy_isBlack: Bool {
         let components = self.fdy_rgbComponents
         return components.red < 0.09 && components.green < 0.09 && components.blue < 0.09
@@ -412,6 +447,7 @@ public extension UIColor {
     /// 判断颜色是否为白色
     ///
     /// 若颜色非常接近白色(RGB 值均大于 0.91),返回 true
+    /// - Returns: 是否满足条件
     var fdy_isWhite: Bool {
         let components = self.fdy_rgbComponents
         return components.red > 0.91 && components.green > 0.91 && components.blue > 0.91
@@ -460,6 +496,8 @@ public extension UIColor {
 // MARK: - 动态颜色
 public extension UIColor {
     /// 使用相同的十六进制颜色创建动态颜色(浅色/深色模式下颜色相同)
+    /// - Parameter hex: 十六进制色值字符串
+    /// - Returns: 颜色
     static func fdy_dynamic(hex: String) -> UIColor {
         let color = self.fdy_color(from: hex)
         return self.fdy_dynamic(light: color, dark: color)
@@ -492,7 +530,12 @@ public extension UIColor {
 public extension UIColor {
     /// 创建可复用的渐变图层(推荐用于动态UI)
     ///
-    /// - Parameters: 同上
+    /// - Parameters:
+    ///   - frame: 矩形
+    ///   - colors: 颜色数组
+    ///   - locations: 位置数组,默认为 `nil`
+    ///   - startPoint: 坐标点,默认为 `.zero`
+    ///   - endPoint: 坐标点,默认为 `CGPoint(x: 1, y: 1)`
     /// - Returns: 配置好的 `CAGradientLayer`
     static func fdy_gradientLayer(
         frame: CGRect,
@@ -520,8 +563,6 @@ public extension UIColor {
 
     /// 创建线性渐变图片(推荐用于背景、纹理等)
     ///
-    /// - Note: 若需作为背景,建议直接使用 `gradientLayer` 并添加到`view.layer`
-    ///
     /// - Parameters:
     ///   - size: 渐变区域尺寸(必填)
     ///   - colors: 至少两个颜色
@@ -529,6 +570,8 @@ public extension UIColor {
     ///   - startPoint: 渐变起点(单位坐标,默认左上角 `(0, 0)`)
     ///   - endPoint: 渐变终点(单位坐标,默认右下角 `(1, 1)`)
     /// - Returns: 渲染后的 `UIImage`,失败返回 `nil`
+    /// - Note: 若需作为背景,建议直接使用 `gradientLayer` 并添加到`view.layer`
+    ///
     static func fdy_gradientImage(
         size: CGSize,
         colors: [UIColor],
@@ -566,6 +609,13 @@ public extension UIColor {
 
     /// 创建基于渐变图片的 `UIColor`(慎用：仅适用于固定尺寸平铺)
     ///
+    /// - Parameters:
+    ///   - size: 尺寸
+    ///   - colors: 颜色数组
+    ///   - locations: 位置数组,默认为 `nil`
+    ///   - startPoint: 坐标点,默认为 `.zero`
+    ///   - endPoint: 坐标点,默认为 `CGPoint(x: 1, y: 1)`
+    /// - Returns: 颜色,不可用时返回 `nil`
     /// - Warning: 此方法生成的 UIColor 使用 `patternImage`,会在视图中平铺
     ///   若尺寸与使用区域不一致,可能出现拉伸或重复建议优先使用 `createGradientLayer`
     static func fdy_gradientColor(
@@ -590,6 +640,12 @@ public extension UIColor {
 // MARK: - [UIColor] 链式调用
 public extension [UIColor] {
     /// 生成渐变图层
+    /// - Parameters:
+    ///   - frame: 矩形
+    ///   - locations: 位置数组,默认为 `nil`
+    ///   - startPoint: 坐标点,默认为 `.zero`
+    ///   - endPoint: 坐标点,默认为 `CGPoint(x: 1, y: 1)`
+    /// - Returns: 渐变图层
     func fdy_gradientLayer(
         frame: CGRect,
         locations: [CGFloat]? = nil,
@@ -606,6 +662,12 @@ public extension [UIColor] {
     }
 
     /// 生成渐变图片
+    /// - Parameters:
+    ///   - size: 尺寸
+    ///   - locations: 位置数组,默认为 `nil`
+    ///   - startPoint: 坐标点,默认为 `.zero`
+    ///   - endPoint: 坐标点,默认为 `CGPoint(x: 1, y: 1)`
+    /// - Returns: 图片,不可用时返回 `nil`
     func fdy_gradientImage(
         size: CGSize,
         locations: [CGFloat]? = nil,
@@ -622,6 +684,12 @@ public extension [UIColor] {
     }
 
     /// 生成渐变 `UIColor`(谨慎使用)
+    /// - Parameters:
+    ///   - size: 尺寸
+    ///   - locations: 位置数组,默认为 `nil`
+    ///   - startPoint: 坐标点,默认为 `.zero`
+    ///   - endPoint: 坐标点,默认为 `CGPoint(x: 1, y: 1)`
+    /// - Returns: 颜色,不可用时返回 `nil`
     func fdy_gradientColor(
         size: CGSize,
         locations: [CGFloat]? = nil,

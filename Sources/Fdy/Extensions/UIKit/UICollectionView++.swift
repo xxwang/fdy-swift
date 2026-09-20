@@ -51,7 +51,7 @@ public extension UICollectionView {
     ///   - cellType: 期望的 Cell 类型
     ///   - indexPath: 位置
     /// - Returns: 类型安全的 `Cell` 实例
-    /// - Throws: 若未注册或类型不匹配,程序将 crash(开发期快速暴露问题)
+    /// - Warning: 未注册时由 UIKit 自身抛异常中止;类型不匹配时在本方法内中止
     func fdy_dequeueReusableCell<T: UICollectionViewCell>(
         withClass cellType: T.Type,
         for indexPath: IndexPath
@@ -60,8 +60,8 @@ public extension UICollectionView {
             withReuseIdentifier: cellType.fdy_identifier,
             for: indexPath
         ) as? T else {
-            assertionFailure("未能正确复用 Cell: \(cellType). 请确认已通过register 注册！")
-            return T()
+            // 不用 `assertionFailure`:它自 `-O` 起被移除,Release 下会让调用方静默拿到一个空白 `T()`
+            preconditionFailure("未能正确复用 Cell: \(cellType). 请确认已通过register 注册！")
         }
         return cell
     }
@@ -72,6 +72,7 @@ public extension UICollectionView {
     ///   - viewType: 期望类型
     ///   - indexPath: 位置
     /// - Returns: 类型安全的补充视图
+    /// - Warning: 未注册时由 UIKit 自身抛异常中止;类型不匹配时在本方法内中止
     func fdy_dequeueReusableSupplementaryView<T: UICollectionReusableView>(
         ofKind kind: String,
         withClass viewType: T.Type,
@@ -82,8 +83,8 @@ public extension UICollectionView {
             withReuseIdentifier: viewType.fdy_identifier,
             for: indexPath
         ) as? T else {
-            assertionFailure("未能正确复用 Supplementary View: \(viewType). 请确认已注册！")
-            return T()
+            // 同 `fdy_dequeueReusableCell`:不用 `assertionFailure` 的理由见上
+            preconditionFailure("未能正确复用 Supplementary View: \(viewType). 请确认已注册！")
         }
         return view
     }

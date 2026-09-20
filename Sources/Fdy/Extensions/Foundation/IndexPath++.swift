@@ -1,8 +1,6 @@
 import Foundation
 
 // MARK: - 命名空间入口
-//
-// `IndexPath` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension IndexPath: FdyExtension {}
 
 // MARK: - 方法
@@ -12,12 +10,6 @@ public extension IndexPath {
     /// - Returns: 格式如 `"[section: 0, row: 5]"`;若为多维 IndexPath,则返回标准描述
     ///
     /// - Note: 此属性主要用于调试或日志输出,`不应用于业务逻辑`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let ip = IndexPath(row: 2, section: 1)
-    ///   print(ip.fdy_toString()) // [section: 1, row: 2]
-    ///   ```
     func fdy_toString() -> String {
         if self.count == 2 {
             return "[section: \(self.section), row: \(self.row)]"
@@ -36,13 +28,6 @@ public extension IndexPath {
     /// - Returns: 新的 `IndexPath`
     ///
     /// - Note: 不进行边界检查(由调用方确保有效性)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let current = IndexPath(row: 3, section: 1)
-    ///   let next = current.fdy_offset(row: 1)          // (row: 4, section: 1)
-    ///   let prevSection = current.fdy_offset(section: -1) // (row: 3, section: 0)
-    ///   ```
     func fdy_offset(row: Int = 0, section: Int = 0) -> IndexPath {
         return IndexPath(row: self.row + row, section: self.section + section)
     }

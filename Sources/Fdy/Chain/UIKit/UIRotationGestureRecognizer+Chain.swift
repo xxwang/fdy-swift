@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UIRotationGestureRecognizer {
-    /// 设置当前旋转角度（通常用于重置累计值）
+    /// 当前旋转角度（通常用于重置累计值）
     /// - Parameter radians: 旋转角度（弧度），顺时针为正
     /// - Returns: `Self`
     @discardableResult

@@ -1,8 +1,6 @@
 import Foundation
 
 // MARK: - 命名空间入口
-//
-// `Decimal` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension Decimal: FdyExtension {}
 
 // MARK: - 数值判断
@@ -31,13 +29,6 @@ public extension Decimal {
     /// 检查当前数值是否为整数(即小数部分为零)
     ///
     /// - Returns: 如果值等于其向零取整结果,则返回 `true`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   Decimal(5).fdy_isInteger        // true
-    ///   Decimal("5.00")!.fdy_isInteger  // true
-    ///   Decimal("5.01")!.fdy_isInteger  // false
-    ///   ```
     var fdy_isInteger: Bool {
         var selfCopy = self
         var rounded = Decimal()
@@ -54,12 +45,6 @@ public extension Decimal {
     ///   - string: 可能为 `nil` 或无效格式的字符串
     ///   - defaultValue: 解析失败时返回的默认值(默认为 `0`)
     /// - Returns: 成功解析的 `Decimal`,或 `defaultValue`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let valid = Decimal.fdy_from("123.45")          // 123.45
-    ///   let invalid = Decimal.fdy_from("abc", default: 0) // 0
-    ///   ```
     static func fdy_from(_ string: String?, default defaultValue: Decimal = 0) -> Decimal {
         guard let str = string,
               let decimal = Decimal(string: str)
@@ -74,13 +59,6 @@ public extension Decimal {
     /// - Returns: 如果值在 `Int` 范围内且无小数部分,返回对应的 `Int`;否则返回 `nil`
     ///
     /// - Note: 此方法保证`无精度损失`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   Decimal(42).fdy_intValue         // Optional(42)
-    ///   Decimal("42.0")!.fdy_intValue    // Optional(42)
-    ///   Decimal("42.1")!.fdy_intValue    // nil
-    ///   ```
     var fdy_intValue: Int? {
         // 先检查是否为整数
         guard self.fdy_isInteger else { return nil }
@@ -105,13 +83,6 @@ public extension Decimal {
     ///   - locale: 本地化区域(默认为 `.current`)
     ///   - currencyCode: 可选的 ISO 货币代码(如 `"USD"`、`"CNY"`),若未指定则使用 `locale` 默认货币
     /// - Returns: 格式化后的货币字符串(如 `"$1,234.56"`)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let amount = Decimal(1234.56)
-    ///   print(amount.fdy_toCurrencyString()) // "$1,234.56" (en_US)
-    ///   print(amount.fdy_toCurrencyString(currencyCode: "JPY")) // "¥1,235"
-    ///   ```
     func fdy_toCurrencyString(locale: Locale = .current, currencyCode: String? = nil) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -128,12 +99,6 @@ public extension Decimal {
     /// - Returns: 截断后的 `Decimal`
     ///
     /// - Note: 使用 `.plain` 舍入模式(向零取整)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   Decimal("12.3456")!.fdy_truncated(to: 2) // 12.34
-    ///   Decimal("-12.999")!.fdy_truncated(to: 1) // -12.9
-    ///   ```
     func fdy_truncated(to scale: Int) -> Decimal {
         precondition(scale >= 0, "scale must be non-negative")
         var result = Decimal()
@@ -151,12 +116,6 @@ public extension Decimal {
     /// - Returns: `self^exponent`,若 `exponent < 0` 则返回 `nil`
     ///
     /// - Note: 使用快速幂算法,保持高精度
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   Decimal(2).fdy_power(10) // 1024
-    ///   Decimal("1.5")!.fdy_power(3) // 3.375
-    ///   ```
     func fdy_power(_ exponent: Int) -> Decimal? {
         guard exponent >= 0 else { return nil }
         if exponent == 0 {
@@ -184,11 +143,6 @@ public extension Decimal {
     ///
     /// - Parameter total: 总量(分母)
     /// - Returns: 百分比值(如 25 表示 25%),若 `total == 0` 则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   Decimal(25).fdy_percentageRate(of: 200) // 12.5
-    ///   ```
     func fdy_percentageRate(of total: Decimal) -> Decimal? {
         guard !total.isZero else { return nil }
         return (self / total) * 100
@@ -198,11 +152,6 @@ public extension Decimal {
     ///
     /// - Parameter percentage: 百分比数值(如 15 表示 15%)
     /// - Returns: `percentage%` of `self`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   Decimal(100).fdy_percentage(15) // 15.0
-    ///   ```
     func fdy_percentage(_ percentage: Decimal) -> Decimal {
         return (percentage * self) / 100
     }
@@ -220,13 +169,6 @@ public extension Decimal {
     ///
     /// - Parameter divisor: 除数(必须非零)
     /// - Returns: 余数(符号与被除数相同),若 `divisor == 0` 则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   Decimal(10.5).fdy_remainder(dividingBy: 3) // 1.5
-    ///   Decimal(-10).fdy_remainder(dividingBy: 3)  // -1
-    ///   Decimal("0.3")!.fdy_remainder(dividingBy: Decimal("0.1")!) // 0.0
-    ///   ```
     func fdy_remainder(dividingBy divisor: Decimal) -> Decimal? {
         guard !divisor.isZero else { return nil }
 
@@ -245,12 +187,6 @@ public extension Decimal {
     ///
     /// - Parameter limits: 有效范围(如 `0...100`)
     /// - Returns: 若值在范围内则返回自身,否则返回最近的边界值
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   Decimal(-5).fdy_clamped(to: 0...100) // 0
-    ///   Decimal(150).fdy_clamped(to: 0...100) // 100
-    ///   ```
     func fdy_clamped(to limits: ClosedRange<Decimal>) -> Decimal {
         if self < limits.lowerBound {
             return limits.lowerBound

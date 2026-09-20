@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式属性
 public extension FdyWrapper where Base: UIActivityIndicatorView {
-    /// 设置是否在暂停的时候隐藏
+    /// 是否在暂停的时候隐藏
     /// - Parameter hidesWhenStopped: 是否在暂停的时候隐藏
     /// - Returns: `Self`
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UIActivityIndicatorView {
         return self
     }
 
-    /// 设置指示器样式
+    /// 指示器样式
     /// - Parameter style: 指示器样式
     /// - Returns: `Self`
     @discardableResult
@@ -20,7 +20,7 @@ public extension FdyWrapper where Base: UIActivityIndicatorView {
         return self
     }
 
-    /// 设置指示器颜色
+    /// 指示器颜色
     /// - Parameter color: 指示器颜色
     /// - Returns: `Self`
     @discardableResult

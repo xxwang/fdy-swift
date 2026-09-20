@@ -1,9 +1,9 @@
 import Foundation
 
-/// 日志上下文——携带单条日志的元信息（文件、行号、级别、内容等）。
-/// 定义为 `struct` 而非 `class`，避免堆分配和引用计数开销；在高频日志场景下性能更优
+/// 日志上下文——携带单条日志的元信息（文件、行号、级别、内容等）
 public struct FdyLogContext {
     /// 所在文件
+    /// - Returns: 处理后的字符串
     public let file: String
     /// 所在方法
     public let function: String
@@ -21,6 +21,7 @@ public struct FdyLogContext {
         (file as NSString).lastPathComponent
     }
 
+    /// 创建日志上下文
     public init(file: String, function: String, line: Int, date: Date, level: FdyLogLevel, items: [Any]) {
         self.file = file
         self.function = function

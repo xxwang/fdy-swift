@@ -2,7 +2,6 @@ import UIKit
 import os.log
 
 // MARK: - 屏幕捕获监控器
-/// 屏幕截图 / 录屏监听器。回调与状态访问都在主线程,因此标注为 ``@MainActor``
 @MainActor
 public final class FdyScreenCaptureMonitor {
     public static let shared = FdyScreenCaptureMonitor()
@@ -25,6 +24,7 @@ public final class FdyScreenCaptureMonitor {
 }
 
 public extension FdyScreenCaptureMonitor {
+    /// 开始监听截屏
     func start(
         onScreenshot: FdyAction?,
         onRecordingStart: FdyAction?,

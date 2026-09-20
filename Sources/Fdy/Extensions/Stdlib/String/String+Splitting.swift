@@ -6,11 +6,6 @@ public extension String {
     ///
     /// - Parameter length: 每段的字符长度
     /// - Returns: 分割后的字符串数组
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "HelloWorld".fdy_split(byLength: 5) // ["Hello", "World"]
-    ///   ```
     func fdy_split(byLength length: Int) -> [String] {
         guard length > 0 else { return [] }
         var result: [String] = []
@@ -28,12 +23,6 @@ public extension String {
     ///
     /// - Parameter separator: 分隔符字符串
     /// - Returns: 分割后的数组;若结果为 `[""]`(即空字符串输入),则返回空数组
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "a,b,c".fdy_split(bySeparator: ",") // ["a", "b", "c"]
-    ///   "".fdy_split(bySeparator: ",")      // []
-    ///   ```
     func fdy_split(bySeparator separator: String) -> [String] {
         let components = self.components(separatedBy: separator)
         return components == [""] ? [] : components
@@ -104,12 +93,9 @@ public extension String {
     /// 隐藏指定字符位置范围的敏感信息(位置从 0 开始,按用户可见字符计数)
     /// - Parameters:
     ///   - range: 要隐藏的字符范围(左闭右开),例如 `3..<7`
-    ///   - replacement: 用于遮蔽的字符串,默认为 `"**`"`
+    ///   - replacement: 用于遮蔽的字符串,默认为两个星号 `"**"`
     /// - Returns: 遮蔽后的字符串;若范围无效,返回原字符串
-    ///
-    /// - Example:
-    ///     `"13812345678".fdy_hidingSensitiveContent(in: 3..<7)` → `"138**`5678"`
-    func fdy_hidingSensitiveContent(in range: Range<Int>, with replacement: String = "**`") -> String {
+    func fdy_hidingSensitiveContent(in range: Range<Int>, with replacement: String = "**") -> String {
         let charCount = self.count
         let lower = max(0, min(range.lowerBound, charCount))
         let upper = max(lower, min(range.upperBound, charCount))
@@ -123,9 +109,6 @@ public extension String {
     /// 移除所有出现在给定字符串中的字符
     /// - Parameter characters: 包含要移除字符的字符串
     /// - Returns: 移除指定字符后的新字符串
-    ///
-    /// - Example:
-    ///     `"Hello World!".fdy_removingCharacters(in: "lo!")` → `"He Wrd"`
     func fdy_removingCharacters(in characters: String) -> String {
         let characterSet = Set(characters)
         return self.filter { !characterSet.contains($0) }

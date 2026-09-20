@@ -69,11 +69,6 @@ final class FdyControlEventSubscription: Subscription {
 }
 
 // MARK: - 关联对象
-//
-// 关联对象统一走 `Core/Extensions/Foundation/NSObject++.swift` 的 `fdy_SetAO` / `fdy_GetAO`。
-// 初版本文件内另有一套 `fdy_setAssociatedObject` / `fdy_getAssociatedObject`，注释称
-// 「避免依赖 FdyCore」，但 `Package.swift` 只有单个 target `Fdy` —— `Core/` 与本目录同属一个模块，
-// 该前提不成立，故删除重复实现（`fdy_GetAO` 另带泛型版本，取用时不必再手写 `as?` 转换）。
 
 // MARK: - SubscribePublisher
 

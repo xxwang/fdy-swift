@@ -4,11 +4,6 @@ import Foundation
 public extension String {
     /// 将字符串中的正则元字符转义为字面量
     /// - Returns: 转义后的安全正则字符串
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "hello ^$ there".fdy_regexEscaped() // "hello \\^\\$ there"
-    ///   ```
     func fdy_regexEscaped() -> String {
         NSRegularExpression.escapedPattern(for: self)
     }
@@ -20,13 +15,6 @@ public extension String {
     /// - Returns: 若存在匹配则返回 `true`,否则 `false`;若正则无效,返回 `false`
     ///
     /// - Note: 此方法使用 `NSRegularExpression`,性能优于 `NSPredicate`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "123abc".fdy_isMatch(pattern: "\\d+")                          // true
-    ///   "example@example.com".fdy_isMatch(pattern: "^[\\w.-]+@")       // true
-    ///   "invalid-email".fdy_isMatch(pattern: "invalid[", options: [])  // false(无效正则)
-    ///   ```
     func fdy_isMatch(pattern: String, options: NSRegularExpression.Options = []) -> Bool {
         guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else {
             return false // 无效正则视为不匹配(安全策略)
@@ -40,12 +28,6 @@ public extension String {
     ///   - pattern: 正则表达式模式(需包含捕获组 `(...)`)
     ///   - options: 正则选项(如 `.caseInsensitive`)
     /// - Returns: 第一个匹配的捕获组数组(不含完整匹配),若无匹配或正则无效则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "abc123xyz".fdy_captures(pattern: "(\\d+)")               // ["123"]
-    ///   "John Doe, age 30".fdy_captures(pattern: "(\\w+) (\\w+), age (\\d+)") // ["John", "Doe", "30"]
-    ///   ```
     func fdy_captures(pattern: String, options: NSRegularExpression.Options = []) -> [String]? {
         guard let regex = try? NSRegularExpression(pattern: pattern, options: options),
               let match = regex.firstMatch(in: self, range: NSRange(location: 0, length: self.utf16.count))
@@ -63,16 +45,29 @@ public extension String {
     ///   - pattern: 正则表达式模式
     ///   - options: 正则选项
     /// - Returns: 所有匹配的 `NSRange` 数组(按出现顺序),正则无效时返回空数组
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "a1b2c3".fdy_matchRanges(pattern: "\\d") // [NSRange(1,1), NSRange(3,1), NSRange(5,1)]
-    ///   ```
     func fdy_matchRanges(pattern: String, options: NSRegularExpression.Options = []) -> [NSRange] {
         guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else {
             return []
         }
         let range = NSRange(location: 0, length: self.utf16.count)
         return regex.matches(in: self, options: [], range: range).map(\.range)
+    }
+
+    /// 获取**第一个**匹配到的完整子串
+    ///
+    /// - Parameters:
+    ///   - pattern: 正则模式
+    ///   - options: 正则选项(如 `.caseInsensitive`)
+    /// - Returns: 第一个匹配的子串;无匹配或正则无效时返回 `nil`
+    ///
+    /// - Note: 与 ``fdy_captures(pattern:options:)`` 互补 —— 那个取**捕获组**，这个取**完整匹配**。
+    func fdy_firstMatch(pattern: String, options: NSRegularExpression.Options = []) -> String? {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: options),
+              let match = regex.firstMatch(in: self, range: NSRange(location: 0, length: self.utf16.count)),
+              let range = Range(match.range, in: self)
+        else {
+            return nil
+        }
+        return String(self[range])
     }
 }

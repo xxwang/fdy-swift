@@ -94,7 +94,7 @@ UILabel().fdy.do { print($0.text ?? "") }  // 副作用：仅执行闭包
 UILabel().fdy.then { $0.text = "hi" }      // 引用类型：配置并返回自身，可继续链式
 ```
 
-> `.fdy` 需要目标类型 conform `FdyExtension`。库内共 **32 条**（清单见文末「协议」一节）：
+> `.fdy` 需要目标类型 conform `FdyExtension`。库内共 **33 条**（清单见文末「协议」一节）：
 > `NSObject` 那条被所有类子类继承，`UIView` / `UIViewController` 等引用类型因此自动可用；
 > `CGPath` 那条则被子类 `CGMutablePath` 继承（Core Foundation 类型同样有 Swift 侧继承）。
 > 常用值类型（`CGPoint` / `[Int]` / `Data` / `UIBackgroundConfiguration` 等）**已逐条登记**，可直接使用。
@@ -708,7 +708,7 @@ Sources/
 - `FdySetupable` — MVVM 配置生命周期（成员均有空默认实现，按需重写）
 - `FdySkinable` — 主题皮肤响应（配合 `FdySkinManager` 做运行期切换）
 
-`FdyExtension` 的 conformance 全库 **32 条**，登记在各类型对应的扩展文件里：
+`FdyExtension` 的 conformance 全库 **33 条**，登记在各类型对应的扩展文件里：
 
 | 类型 | 登记处 | 是否被继承 |
 |------|--------|-----------|
@@ -718,7 +718,7 @@ Sources/
 | `UIButton.Configuration` | `Chain/UIKit/UIButton.Configuration+Chain.swift` | 否（Swift 侧是 **struct**） |
 | `Date` | `Extensions/Foundation/Date++.swift` | 否 |
 
-其余 27 条均逐一登记、不继承：
+其余 28 条均逐一登记、不继承：
 
 | 目录 | 类型 |
 |------|------|
@@ -726,7 +726,7 @@ Sources/
 | `Extensions/Stdlib/` | `Array` `Dictionary` `Character` `Bool` `Optional` `Range` `ClosedRange` |
 | `Extensions/Foundation/` | `Data` `Decimal` `DateComponents` `IndexPath` `Measurement` `NSRange` `URL` `URLRequest` `UUID` |
 | `Chain/UIGeometry/` | `UIEdgeInsets` |
-| `Chain/UIKit/` | `UIBackgroundConfiguration` `UIListContentConfiguration` `UIContentUnavailableConfiguration`（三者 Swift 侧均为 **struct**，与 `UIButton.Configuration` 同规则，漏登记即 `.fdy` 不可达） |
+| `Chain/UIKit/` | `UIBackgroundConfiguration` `UIListContentConfiguration` `UIContentUnavailableConfiguration` `UIListSeparatorConfiguration`（四者 Swift 侧均为 **struct**，与 `UIButton.Configuration` 同规则，漏登记即 `.fdy` 不可达） |
 
 > ⚠️ **`String` 漏登记不会编译失败，而是类型错误**：`"abc".fdy` 会经 `NSString` 桥接解析成
 > `FdyWrapper<NSString>` —— 能编译，但 `.build()` 返回 `NSString`。故必须显式登记。
@@ -743,8 +743,7 @@ Sources/
 
 ## 文档
 
-`docs/` 下按主题存放方案与实测记录（如 `UIButton_Configuration_多状态实现.md`、
-`项目结构_命名_审计与优化方案.md`）。
+变更历史见 [`CHANGELOG.md`](CHANGELOG.md)。设计取舍与实测记录为维护者本地文档，不随仓库分发。
 
 ## License
 

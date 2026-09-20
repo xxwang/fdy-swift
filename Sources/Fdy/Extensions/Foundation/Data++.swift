@@ -1,8 +1,6 @@
 import UIKit
 
 // MARK: - 命名空间入口
-//
-// `Data` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension Data: FdyExtension {}
 
 // MARK: - 属性
@@ -15,11 +13,6 @@ public extension Data {
     ///   - JPEG: `FF D8`
     ///   - GIF: `47 49 46`
     ///   - TIFF: `49 49` (little-endian) 或 `4D 4D` (big-endian)
-    /// - Example:
-    ///   ```swift
-    ///   let pngHeader = Data([0x89, 0x50, 0x4E, 0x47])
-    ///   print(pngHeader.fdy_extension)  // ".png"
-    ///   ```
     var fdy_extension: String {
         guard !self.isEmpty else { return ".default" }
 
@@ -45,11 +38,6 @@ public extension Data {
     /// 将 `Data` 转换为字节数组 `[UInt8]`
     ///
     /// - Returns: 由 `Data` 中每个字节组成的数组
-    /// - Example:
-    ///   ```swift
-    ///   let data = Data([0x01, 0x02, 0x03])
-    ///   let bytes = data.fdy_bytes()  // [1, 2, 3]
-    ///   ```
     func fdy_bytes() -> [UInt8] {
         return [UInt8](self)
     }
@@ -57,11 +45,6 @@ public extension Data {
     /// 将 `Data` 转换为大写的十六进制字符串(每字节占两位)
     ///
     /// - Returns: 十六进制字符串,如 `"A1B2"`;若 `Data` 为空,则返回空字符串
-    /// - Example:
-    ///   ```swift
-    ///   let data = Data([0xA1, 0xB2])
-    ///   print(data.fdy_hexString())  // "A1B2"
-    ///   ```
     func fdy_hexString() -> String {
         return self.map { String(format: "%02X", $0) }.joined()
     }
@@ -80,11 +63,6 @@ public extension Data {
     /// 将当前 `Data` 进行 self64 编码,返回编码后的 `Data`
     ///
     /// - Returns: self64 编码结果(UTF-8 字符串的二进制形式),失败时返回 `nil`(极少见)
-    /// - Example:
-    ///   ```swift
-    ///   let original = "Hello".data(using: .utf8)!
-    ///   let encoded = original.fdy_encodebase64()  // Data of "SGVsbG8="
-    ///   ```
     func fdy_encodebase64() -> Data? {
         return self.base64EncodedData()
     }
@@ -94,10 +72,6 @@ public extension Data {
     /// - Returns: 解码后的原始 `Data`,若格式无效则返回 `nil`
     /// - Warning: 此方法假设 `self` 是 self64 字符串的 UTF-8 字节表示`一般应从字符串解码,而非 Data`
     /// - Example(不推荐常规使用):
-    ///   ```swift
-    ///   let self64Bytes = "SGVsbG8=".data(using: .utf8)!
-    ///   let decoded = self64Bytes.fdy_decodebase64()  // Data of "Hello"
-    ///   ```
     /// - Recommendation: 更常见的做法是 `Data(base64Encoded: base64String)`
     func fdy_decodebase64() -> Data? {
         return Data(base64Encoded: self)
@@ -112,13 +86,6 @@ public extension Data {
     ///   - start: 起始字节索引(从 0 开始)
     ///   - len: 要截取的字节数
     /// - Returns: 截取的子 `Data`;若范围越界或参数无效,则返回 `nil`
-    /// - Example:
-    ///   ```swift
-    ///   let data = Data([1, 2, 3, 4, 5])
-    ///   if let sub = data.fdy_subData(start: 1, len: 3) {
-    ///       print(sub.bytes)  // [2, 3, 4]
-    ///   }
-    ///   ```
     func fdy_subData(start: Int, len: Int) -> Data? {
         guard start >= 0, len >= 0, start + len <= self.count else { return nil }
         return self.subdata(in: start ..< (start + len))
@@ -131,11 +98,6 @@ public extension Data {
     ///
     /// - Parameter encoding: 字符串编码,默认为 `.utf8`
     /// - Returns: 解码后的字符串,若无法解码则返回 `nil`
-    /// - Example:
-    ///   ```swift
-    ///   let data = "Swift".data(using: .utf8)!
-    ///   let str = data.fdy_toString()  // "Swift"
-    ///   ```
     func fdy_toString(encoding: String.Encoding = .utf8) -> String? {
         return String(data: self, encoding: encoding)
     }
@@ -147,16 +109,6 @@ public extension Data {
     ///   - options: JSON 解析选项(如 `.mutableContainers`)
     /// - Returns: 解析成功的 JSON 对象,失败时返回 `nil`
     /// - Throws: 内部已捕获异常,不会抛出错误
-    /// - Example:
-    ///   ```swift
-    ///   let json = """
-    ///   {"name": "Alice", "age": 30}
-    ///   """.data(using: .utf8)!
-    ///
-    ///   if let dict: [String: Any] = json.fdy_object() {
-    ///       print(dict["name"] as? String ?? "")  // "Alice"
-    ///   }
-    ///   ```
     func fdy_object<T>(for type: T.Type = [String: Any].self, options: JSONSerialization.ReadingOptions = []) -> T? {
         return try? JSONSerialization.jsonObject(with: self, options: options) as? T
     }

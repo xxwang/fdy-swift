@@ -3,7 +3,7 @@ import UIKit
 
 // MARK: - 属性
 public extension FdyWrapper where Base: CATextLayer {
-    /// 设置显示的文本内容
+    /// 显示的文本内容
     /// - Parameter string: 要显示的字符串(支持 `NSAttributedString`,但此处仅设为 `String`)
     /// - Returns: `Self`
     @discardableResult
@@ -12,17 +12,17 @@ public extension FdyWrapper where Base: CATextLayer {
         return self
     }
 
-    /// 设置是否自动换行
+    /// 是否自动换行
     /// - Parameter isWrapped: `true` 启用自动换行;`false` 单行显示(默认)
-    /// - Note: 当 `isWrapped = false` 时,`truncationMode` 才会生效
     /// - Returns: `Self`
+    /// - Note: 当 `isWrapped = false` 时,`truncationMode` 才会生效
     @discardableResult
     func isWrapped(_ isWrapped: Bool) -> Self {
         base.isWrapped = isWrapped
         return self
     }
 
-    /// 设置文本截断模式(仅在 `isWrapped = false` 时有效)
+    /// 文本截断模式(仅在 `isWrapped = false` 时有效)
     /// - Parameter truncationMode: 截断方式,如 `.end`(末尾...)、`.middle` 等
     /// - Returns: `Self`
     @discardableResult
@@ -31,7 +31,7 @@ public extension FdyWrapper where Base: CATextLayer {
         return self
     }
 
-    /// 设置文本对齐方式
+    /// 文本对齐方式
     /// - Parameter alignmentMode: 对齐模式
     ///   - `.natural`: 自然对齐(根据语言方向)
     ///   - `.left` / `.right` / `.center`: 左/右/居中
@@ -43,7 +43,7 @@ public extension FdyWrapper where Base: CATextLayer {
         return self
     }
 
-    /// 设置文本前景色(使用 `UIColor`)
+    /// 文本前景色(使用 `UIColor`)
     /// - Parameter foregroundColor: 文字颜色
     /// - Returns: `Self`
     @discardableResult
@@ -52,7 +52,7 @@ public extension FdyWrapper where Base: CATextLayer {
         return self
     }
 
-    /// 设置文本前景色(使用 `CGColor`)
+    /// 文本前景色(使用 `CGColor`)
     /// - Parameter foregroundColor: 文字颜色
     /// - Returns: `Self`
     @discardableResult
@@ -61,10 +61,10 @@ public extension FdyWrapper where Base: CATextLayer {
         return self
     }
 
-    /// 设置内容缩放比例,用于适配 Retina 屏幕
+    /// 内容缩放比例,用于适配 Retina 屏幕
     /// - Parameter scale: 缩放因子,`nil` 时取当前屏幕 scale
-    /// - Important: 若不设置,高分辨率屏幕可能出现模糊
     /// - Returns: `Self`
+    /// - Important: 若不设置,高分辨率屏幕可能出现模糊
     @MainActor
     @discardableResult
     func contentsScale(_ scale: CGFloat? = nil) -> Self {
@@ -72,17 +72,17 @@ public extension FdyWrapper where Base: CATextLayer {
         return self
     }
 
-    /// 设置字体(使用 `UIFont`)
+    /// 字体(使用 `UIFont`)
     /// - Parameter font: 字体对象
-    /// - Note: 内部转换为 `CTFont`若字体名无效,将 fallback 到系统默认字体
     /// - Returns: `Self`
+    /// - Note: 内部转换为 `CTFont`若字体名无效,将 fallback 到系统默认字体
     @discardableResult
     func font(_ font: UIFont) -> Self {
         base.font = CTFontCreateWithName(font.fontName as CFString, font.pointSize, nil)
         return self
     }
 
-    /// 设置字体大小(不改变字体族)
+    /// 字体大小(不改变字体族)
     /// - Parameter fontSize: 字号(单位：point)
     /// - Returns: `Self`
     @discardableResult
@@ -109,10 +109,10 @@ public extension FdyWrapper where Base: CATextLayer {
 
     /// 通过扩大 `frame` 来模拟内边距效果
     /// - Parameter insets: 内边距(正值表示文字区域向内缩进)
+    /// - Returns: `Self`
     /// - Important: 此方法会修改 `frame`,确保父容器足够大
     ///   例如：`insets = .init(top: 10, left: 10, bottom: 10, right: 10)`
     ///   会导致 `frame` 扩大 20pt(宽高各 +20)
-    /// - Returns: `Self`
     @discardableResult
     func padding(by insets: UIEdgeInsets) -> Self {
         // 扩大 frame 以容纳 padding
@@ -123,6 +123,15 @@ public extension FdyWrapper where Base: CATextLayer {
             height: base.frame.height + insets.top + insets.bottom
         )
         base.frame = newFrame
+        return self
+    }
+
+    /// 是否允许字体亚像素量化
+    /// - Parameter allowsFontSubpixelQuantization: 是否允许字体次像素量化
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsFontSubpixelQuantization(_ allowsFontSubpixelQuantization: Bool) -> Self {
+        base.allowsFontSubpixelQuantization = allowsFontSubpixelQuantization
         return self
     }
 }

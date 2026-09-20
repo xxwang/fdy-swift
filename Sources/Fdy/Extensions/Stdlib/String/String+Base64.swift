@@ -14,11 +14,6 @@ public extension String {
     /// - Returns: 解码后的字符串,或 `nil`
     /// - Note: 容忍非法字符（空格、换行等,按 `.ignoreUnknownCharacters` 忽略）,
     ///   并自动补全缺失的填充符 `=`;补全后仍无法解码则返回 `nil`
-    /// - Example:
-    ///   ```swift
-    ///   "SGVsbG8g8J+MjQ".fdy_base64Decoded  // Optional("Hello 😊")
-    ///   "SGVsbG8g8J+MjQ==".fdy_base64Decoded // Optional("Hello 😊")
-    ///   ```
     var fdy_base64Decoded: String? {
         // 第一次尝试：标准解码
         if let data = Data(base64Encoded: self, options: .ignoreUnknownCharacters),

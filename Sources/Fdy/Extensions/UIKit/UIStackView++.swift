@@ -10,15 +10,6 @@ public extension UIStackView {
     ///   - spacing: 相邻排列子视图之间的间距默认为 `0.0`
     ///   - distribution: 沿堆栈轴向的分布策略默认为 `.fill`
     ///   - alignment: 垂直于堆栈轴向的对齐方式默认为 `.fill`
-    ///
-    /// - Example:
-    ///
-    ///     let stackView = UIStackView(
-    ///         fdy_views: [label, button],
-    ///         axis: .vertical,
-    ///         spacing: 8
-    ///     )
-    ///
     convenience init(
         fdy_views views: [UIView] = [],
         axis: NSLayoutConstraint.Axis = .horizontal,
@@ -37,7 +28,6 @@ public extension UIStackView {
 // MARK: - 视图交换
 public extension UIStackView {
     /// 无动画地交换两个排列子视图的位置
-    ///
     /// - Parameters:
     ///   - firstView: 第一个要交换的视图
     ///   - secondView: 第二个要交换的视图

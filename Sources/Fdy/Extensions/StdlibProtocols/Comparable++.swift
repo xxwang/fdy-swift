@@ -52,6 +52,8 @@ public extension Comparable {
 // MARK: - Comparable + Strideable + SignedInteger
 public extension Comparable where Self: Strideable, Self.Stride: SignedInteger {
     /// 将整数值限制在开区间 `[lower..<upper)` 内(结果仍为有效整数)
+    /// - Parameter range: 闭区间
+    /// - Returns: 裁剪后的值
     /// - 说明：若值 ≥ upper,则返回 `upper - 1`
     /// - 注意：仅适用于整数类型(如 `Int`, `UInt`)
     func fdy_clamped(to range: Range<Self>) -> Self {

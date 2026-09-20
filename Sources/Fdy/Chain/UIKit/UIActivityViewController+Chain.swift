@@ -2,8 +2,7 @@ import UIKit
 
 // MARK: - 链式属性
 public extension FdyWrapper where Base: UIActivityViewController {
-    /// 设置完整的排除类型列表(覆盖原有值)
-    ///
+    /// 完整的排除类型列表(覆盖原有值)
     /// - Parameter types: 要排除的类型数组
     /// - Returns: `Self`
     @discardableResult
@@ -12,7 +11,7 @@ public extension FdyWrapper where Base: UIActivityViewController {
         return self
     }
 
-    /// 设置分享完成后的完整回调(包含返回项和错误)
+    /// 分享完成后的完整回调(包含返回项和错误)
     ///
     /// - Parameter handler: 完整的 `CompletionWithItemsHandler`
     /// - Returns: `Self`
@@ -24,9 +23,8 @@ public extension FdyWrapper where Base: UIActivityViewController {
         return self
     }
 
-    /// 设置是否允许系统将某个活动提升为“突出活动”(显示在顶部区域)
+    /// 是否允许系统将某个活动提升为“突出活动”(显示在顶部区域)
     /// 默认为 `true`
-    ///
     /// - Parameter allows: 是否允许突出显示
     /// - Returns: `Self`
     @discardableResult

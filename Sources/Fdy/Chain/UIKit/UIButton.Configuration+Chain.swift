@@ -1,23 +1,13 @@
 import UIKit
 
 // MARK: - 命名空间入口
-//
-// `UIButton.Configuration` 在 Swift 侧是 **struct**(ObjC 的 `UIButtonConfiguration` 是 `NSObject` 子类,
-// Swift 把它桥接成了值类型),因此**不继承** `extension NSObject: FdyExtension` —— 必须单独补一条 conformance,
-// 否则本文件全部链式方法对外不可达(`value of type 'UIButton.Configuration' has no member 'fdy'`)。
 extension UIButton.Configuration: FdyExtension {}
 
 // MARK: - 链式设置属性
-//
-// - Note: 值类型语义 —— `.fdy` 返回的 `FdyWrapper` 持有配置的一份**拷贝**,链式修改不会改动原变量。
-//   需要取回结果请以 `build()` 收尾:
-//   ```swift
-//   let configuration = UIButton.Configuration.plain().fdy.title("确定").cornerStyle(.capsule).build()
-//   ```
 public extension FdyWrapper where Base == UIButton.Configuration {
     // MARK: 文本
 
-    /// 设置标题
+    /// 标题
     /// - Parameter title: 标题字符串
     /// - Returns: `Self`
     @discardableResult
@@ -25,7 +15,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.title = title }
     }
 
-    /// 设置属性标题
+    /// 属性标题
     /// - Parameter attributedTitle: 属性标题
     /// - Returns: `Self`
     @discardableResult
@@ -33,7 +23,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.attributedTitle = attributedTitle }
     }
 
-    /// 设置副标题
+    /// 副标题
     /// - Parameter subtitle: 副标题
     /// - Returns: `Self`
     @discardableResult
@@ -41,7 +31,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.subtitle = subtitle }
     }
 
-    /// 设置属性副标题
+    /// 属性副标题
     /// - Parameter attributedSubtitle: 属性副标题
     /// - Returns: `Self`
     @discardableResult
@@ -49,7 +39,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.attributedSubtitle = attributedSubtitle }
     }
 
-    /// 设置标题与副标题的间距
+    /// 标题与副标题的间距
     /// - Parameter padding: 间距
     /// - Returns: `Self`
     @discardableResult
@@ -57,27 +47,27 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.titlePadding = padding }
     }
 
-    /// 设置标题换行模式
+    /// 标题换行模式
     ///
-    /// - Note: 默认 `.byWordWrapping`。仅 `.byWordWrapping` / `.byCharWrapping` 允许标题多行,其余模式会限制为单行。
     /// - Parameter titleLineBreakMode: 换行模式
     /// - Returns: `Self`
+    /// - Note: 默认 `.byWordWrapping`。仅 `.byWordWrapping` / `.byCharWrapping` 允许标题多行,其余模式会限制为单行。
     @discardableResult
     func titleLineBreakMode(_ titleLineBreakMode: NSLineBreakMode) -> Self {
         updateConfiguration { $0.titleLineBreakMode = titleLineBreakMode }
     }
 
-    /// 设置副标题换行模式
+    /// 副标题换行模式
     ///
-    /// - Note: 默认 `.byWordWrapping`。仅 `.byWordWrapping` / `.byCharWrapping` 允许副标题多行,其余模式会限制为单行。
     /// - Parameter subtitleLineBreakMode: 换行模式
     /// - Returns: `Self`
+    /// - Note: 默认 `.byWordWrapping`。仅 `.byWordWrapping` / `.byCharWrapping` 允许副标题多行,其余模式会限制为单行。
     @discardableResult
     func subtitleLineBreakMode(_ subtitleLineBreakMode: NSLineBreakMode) -> Self {
         updateConfiguration { $0.subtitleLineBreakMode = subtitleLineBreakMode }
     }
 
-    /// 设置标题与副标题的对齐方式
+    /// 标题与副标题的对齐方式
     /// - Parameter titleAlignment: 对齐方式
     /// - Returns: `Self`
     @discardableResult
@@ -85,7 +75,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.titleAlignment = titleAlignment }
     }
 
-    /// 设置标题文本属性变换器(逐次派生标题的富文本属性)
+    /// 标题文本属性变换器(逐次派生标题的富文本属性)
     /// - Parameter titleTextAttributesTransformer: 变换器,传 `nil` 取消变换
     /// - Returns: `Self`
     @discardableResult
@@ -95,7 +85,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.titleTextAttributesTransformer = titleTextAttributesTransformer }
     }
 
-    /// 设置副标题文本属性变换器
+    /// 副标题文本属性变换器
     /// - Parameter subtitleTextAttributesTransformer: 变换器,传 `nil` 取消变换
     /// - Returns: `Self`
     @discardableResult
@@ -107,7 +97,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
 
     // MARK: 图标
 
-    /// 设置图标
+    /// 图标
     /// - Parameters:
     ///   - image: 图标
     ///   - placement: 位置,默认 `.leading`
@@ -120,7 +110,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         }
     }
 
-    /// 设置图标位置
+    /// 图标位置
     /// - Parameter imagePlacement: 图标位置
     /// - Returns: `Self`
     @discardableResult
@@ -128,7 +118,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.imagePlacement = imagePlacement }
     }
 
-    /// 设置图标与标题的间距
+    /// 图标与标题的间距
     /// - Parameter padding: 间距
     /// - Returns: `Self`
     @discardableResult
@@ -136,11 +126,11 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.imagePadding = padding }
     }
 
-    /// 设置图标的预留宽度
+    /// 图标的预留宽度
     ///
-    /// - Note: 为图标预留固定宽度 —— 图标缺失或切换时按钮宽度不跳动。
     /// - Parameter reservation: 预留宽度
     /// - Returns: `Self`
+    /// - Note: 为图标预留固定宽度 —— 图标缺失或切换时按钮宽度不跳动。
     @discardableResult
     func imageReservation(_ reservation: CGFloat) -> Self {
         updateConfiguration { $0.imageReservation = reservation }
@@ -149,12 +139,12 @@ public extension FdyWrapper where Base == UIButton.Configuration {
     /// 一步设置图片方向与图文间距
     ///
     /// 等价于依次调用 `imagePlacement(_:)` 与 `imagePadding(_:)`,只是省一次链式调用。
-    /// - Note: 只识别**单一**方向(`.top` / `.bottom` / `.leading` / `.trailing`),
-    ///   组合值(如 `[.top, .leading]`)或空集不生效。
     /// - Parameters:
     ///   - direction: 图片方向
     ///   - spacing: 图文间距
     /// - Returns: `Self`
+    /// - Note: 只识别**单一**方向(`.top` / `.bottom` / `.leading` / `.trailing`),
+    ///   组合值(如 `[.top, .leading]`)或空集不生效。
     @discardableResult
     func layoutImage(direction: NSDirectionalRectEdge, spacing: CGFloat) -> Self {
         updateConfiguration { configuration in
@@ -177,7 +167,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         }
     }
 
-    /// 设置图标的符号配置(仅 SF Symbol 生效)
+    /// 图标的符号配置(仅 SF Symbol 生效)
     /// - Parameter preferredSymbolConfigurationForImage: 符号配置,传 `nil` 用默认
     /// - Returns: `Self`
     @discardableResult
@@ -187,17 +177,17 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.preferredSymbolConfigurationForImage = preferredSymbolConfigurationForImage }
     }
 
-    /// 设置图标颜色变换器(在 `baseForegroundColor` 之后应用)
+    /// 图标颜色变换器(在 `baseForegroundColor` 之后应用)
     ///
-    /// - Note: 图标要被 `baseForegroundColor` 染色需为 `.alwaysTemplate`;`.alwaysOriginal` 保持原色。
     /// - Parameter imageColorTransformer: 变换器,传 `nil` 取消变换
     /// - Returns: `Self`
+    /// - Note: 图标要被 `baseForegroundColor` 染色需为 `.alwaysTemplate`;`.alwaysOriginal` 保持原色。
     @discardableResult
     func imageColorTransformer(_ imageColorTransformer: UIConfigurationColorTransformer?) -> Self {
         updateConfiguration { $0.imageColorTransformer = imageColorTransformer }
     }
 
-    /// 设置符号内容过渡动画(跨 SF Symbol 切换时生效)
+    /// 符号内容过渡动画(跨 SF Symbol 切换时生效)
     /// - Parameter symbolContentTransition: 过渡配置,传 `nil` 表示不做过渡
     /// - Returns: `Self`
     @available(iOS 26.0, *)
@@ -208,18 +198,18 @@ public extension FdyWrapper where Base == UIButton.Configuration {
 
     // MARK: 加载与指示器
 
-    /// 设置加载状态(显示/隐藏活动指示器)
+    /// 加载状态(显示/隐藏活动指示器)
     ///
-    /// - Note: 只改 `showsActivityIndicator`,**不**动 `isUserInteractionEnabled` ——
-    ///   这里操作的是值类型的配置,改不到按钮的交互开关。「加载中禁止点击」请在按钮侧自行设置。
     /// - Parameter loading: 是否加载
     /// - Returns: `Self`
+    /// - Note: 只改 `showsActivityIndicator`,**不**动 `isUserInteractionEnabled` ——
+    ///   这里操作的是值类型的配置,改不到按钮的交互开关。「加载中禁止点击」请在按钮侧自行设置。
     @discardableResult
     func isLoading(_ loading: Bool) -> Self {
         updateConfiguration { $0.showsActivityIndicator = loading }
     }
 
-    /// 设置活动指示器颜色变换器
+    /// 活动指示器颜色变换器
     /// - Parameter activityIndicatorColorTransformer: 变换器,传 `nil` 取消变换
     /// - Returns: `Self`
     @discardableResult
@@ -229,7 +219,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.activityIndicatorColorTransformer = activityIndicatorColorTransformer }
     }
 
-    /// 设置按钮尾部的指示器类型
+    /// 按钮尾部的指示器类型
     /// - Parameter indicator: 指示器类型,默认 `.automatic`
     /// - Returns: `Self`
     @discardableResult
@@ -237,7 +227,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.indicator = indicator }
     }
 
-    /// 设置指示器颜色变换器
+    /// 指示器颜色变换器
     /// - Parameter indicatorColorTransformer: 变换器,传 `nil` 取消变换
     /// - Returns: `Self`
     @discardableResult
@@ -247,7 +237,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
 
     // MARK: 颜色与尺寸
 
-    /// 设置主背景色(仅对 `.filled` / `.tinted` 有效)
+    /// 主背景色(仅对 `.filled` / `.tinted` 有效)
     /// - Parameter color: 背景色,传 `nil` 交回系统按风格决定
     /// - Returns: `Self`
     @discardableResult
@@ -255,28 +245,28 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.baseBackgroundColor = color }
     }
 
-    /// 设置主前景色(文字/图标颜色)
+    /// 主前景色(文字/图标颜色)
     ///
-    /// - Note: 施加于 `baseForegroundColor` 之前会先经过各自的颜色变换器,再落到具体元素。
     /// - Parameter color: 前景色,传 `nil` 交回系统按风格决定
     /// - Returns: `Self`
+    /// - Note: 施加于 `baseForegroundColor` 之前会先经过各自的颜色变换器,再落到具体元素。
     @discardableResult
     func baseForegroundColor(_ color: UIColor?) -> Self {
         updateConfiguration { $0.baseForegroundColor = color }
     }
 
-    /// 设置圆角风格
+    /// 圆角风格
     ///
-    /// - Note: 决定 `background.cornerRadius` 如何被解读 —— 除 `.fixed` / `.dynamic` 外,
-    ///   其余风格都会忽略该圆角值,改用系统给定值。
     /// - Parameter cornerStyle: 圆角样式
     /// - Returns: `Self`
+    /// - Note: 决定 `background.cornerRadius` 如何被解读 —— 除 `.fixed` / `.dynamic` 外,
+    ///   其余风格都会忽略该圆角值,改用系统给定值。
     @discardableResult
     func cornerStyle(_ cornerStyle: UIButton.Configuration.CornerStyle) -> Self {
         updateConfiguration { $0.cornerStyle = cornerStyle }
     }
 
-    /// 设置按钮尺寸(决定内边距与理想尺寸)
+    /// 按钮尺寸(决定内边距与理想尺寸)
     /// - Parameter buttonSize: 尺寸档位
     /// - Returns: `Self`
     @discardableResult
@@ -284,7 +274,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.buttonSize = buttonSize }
     }
 
-    /// 设置 Mac 习惯下的按钮风格
+    ///  Mac 习惯下的按钮风格
     /// - Parameter macIdiomStyle: Mac 风格
     /// - Returns: `Self`
     @discardableResult
@@ -292,11 +282,11 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateConfiguration { $0.macIdiomStyle = macIdiomStyle }
     }
 
-    /// 设置选中态是否自动更新外观
+    /// 选中态是否自动更新外观
     ///
-    /// - Note: 默认值随风格而异。关闭后 `isSelected` 不再自动改变外观,便于自定义选中态。
     /// - Parameter automaticallyUpdateForSelection: 是否自动更新
     /// - Returns: `Self`
+    /// - Note: 默认值随风格而异。关闭后 `isSelected` 不再自动改变外观,便于自定义选中态。
     @discardableResult
     func automaticallyUpdateForSelection(_ automaticallyUpdateForSelection: Bool) -> Self {
         updateConfiguration { $0.automaticallyUpdateForSelection = automaticallyUpdateForSelection }
@@ -304,7 +294,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
 
     // MARK: 布局
 
-    /// 设置内容与边缘的间距
+    /// 内容与边缘的间距
     /// - Parameter contentInsets: 间距
     /// - Returns: `Self`
     @discardableResult
@@ -321,7 +311,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
 
     // MARK: 背景
 
-    /// 设置背景图片
+    /// 背景图片
     /// - Parameter backgroundImage: 背景图片,传 `nil` 清除
     /// - Returns: `Self`
     @discardableResult
@@ -329,7 +319,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateBackground { $0.image = backgroundImage }
     }
 
-    /// 设置背景图片的内容模式
+    /// 背景图片的内容模式
     /// - Parameter backgroundImageContentMode: 内容模式
     /// - Returns: `Self`
     @discardableResult
@@ -337,18 +327,18 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateBackground { $0.imageContentMode = backgroundImageContentMode }
     }
 
-    /// 设置背景色
+    /// 背景色
     ///
-    /// - Note: 与 `baseBackgroundColor`(仅 `.filled` / `.tinted` 生效)不同,
-    ///   此色直落背景图层,任意风格都可见。
     /// - Parameter backgroundColor: 背景色,传 `nil` 清除
     /// - Returns: `Self`
+    /// - Note: 与 `baseBackgroundColor`(仅 `.filled` / `.tinted` 生效)不同,
+    ///   此色直落背景图层,任意风格都可见。
     @discardableResult
     func backgroundColor(_ backgroundColor: UIColor?) -> Self {
         updateBackground { $0.backgroundColor = backgroundColor }
     }
 
-    /// 设置背景色变换器
+    /// 背景色变换器
     /// - Parameter backgroundColorTransformer: 变换器,传 `nil` 取消变换
     /// - Returns: `Self`
     @discardableResult
@@ -356,17 +346,17 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateBackground { $0.backgroundColorTransformer = backgroundColorTransformer }
     }
 
-    /// 设置背景圆角半径
+    /// 背景圆角半径
     ///
-    /// - Note: 实际是否采用取决于 `cornerStyle` —— 仅 `.fixed` / `.dynamic` 会直接使用该值。
     /// - Parameter backgroundCornerRadius: 圆角半径
     /// - Returns: `Self`
+    /// - Note: 实际是否采用取决于 `cornerStyle` —— 仅 `.fixed` / `.dynamic` 会直接使用该值。
     @discardableResult
     func backgroundCornerRadius(_ backgroundCornerRadius: CGFloat) -> Self {
         updateBackground { $0.cornerRadius = backgroundCornerRadius }
     }
 
-    /// 设置背景相对按钮边界的内缩
+    /// 背景相对按钮边界的内缩
     /// - Parameter backgroundInsets: 内缩量
     /// - Returns: `Self`
     @discardableResult
@@ -374,17 +364,17 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateBackground { $0.backgroundInsets = backgroundInsets }
     }
 
-    /// 设置哪些边在计算背景内缩时额外加上布局边距
+    /// 哪些边在计算背景内缩时额外加上布局边距
     ///
-    /// - Note: 对应 `UIBackgroundConfiguration.edgesAddingLayoutMarginsToBackgroundInsets`。
     /// - Parameter backgroundMarginEdges: 需要附加布局边距的边
     /// - Returns: `Self`
+    /// - Note: 对应 `UIBackgroundConfiguration.edgesAddingLayoutMarginsToBackgroundInsets`。
     @discardableResult
     func backgroundMarginEdges(_ backgroundMarginEdges: NSDirectionalRectEdge) -> Self {
         updateBackground { $0.edgesAddingLayoutMarginsToBackgroundInsets = backgroundMarginEdges }
     }
 
-    /// 设置背景边框颜色
+    /// 背景边框颜色
     /// - Parameter strokeColor: 边框颜色,传 `nil` 清除
     /// - Returns: `Self`
     @discardableResult
@@ -392,7 +382,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateBackground { $0.strokeColor = strokeColor }
     }
 
-    /// 设置背景边框颜色变换器
+    /// 背景边框颜色变换器
     /// - Parameter backgroundStrokeColorTransformer: 变换器,传 `nil` 取消变换
     /// - Returns: `Self`
     @discardableResult
@@ -402,7 +392,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateBackground { $0.strokeColorTransformer = backgroundStrokeColorTransformer }
     }
 
-    /// 设置背景边框宽度
+    /// 背景边框宽度
     /// - Parameter strokeWidth: 边框宽度
     /// - Returns: `Self`
     @discardableResult
@@ -410,7 +400,7 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateBackground { $0.strokeWidth = strokeWidth }
     }
 
-    /// 设置背景边框向外扩张的距离
+    /// 背景边框向外扩张的距离
     /// - Parameter backgroundStrokeOutset: 扩张距离,负值向内
     /// - Returns: `Self`
     @discardableResult
@@ -418,17 +408,17 @@ public extension FdyWrapper where Base == UIButton.Configuration {
         updateBackground { $0.strokeOutset = backgroundStrokeOutset }
     }
 
-    /// 设置背景视觉特效(如模糊)
+    /// 背景视觉特效(如模糊)
     ///
-    /// - Note: 与 `backgroundColor` 互斥 —— 设置了 `visualEffect` 会忽略背景色。
     /// - Parameter backgroundVisualEffect: 视觉效果,传 `nil` 清除
     /// - Returns: `Self`
+    /// - Note: 与 `backgroundColor` 互斥 —— 设置了 `visualEffect` 会忽略背景色。
     @discardableResult
     func backgroundVisualEffect(_ backgroundVisualEffect: UIVisualEffect?) -> Self {
         updateBackground { $0.visualEffect = backgroundVisualEffect }
     }
 
-    /// 设置自定义背景视图
+    /// 自定义背景视图
     /// - Parameter backgroundCustomView: 自定义视图,传 `nil` 清除
     /// - Returns: `Self`
     @discardableResult
@@ -444,7 +434,6 @@ private extension FdyWrapper where Base == UIButton.Configuration {
     /// 收敛各处「读取副本 → 改一个属性 → 写回」的四行模板。
     ///
     /// - Parameter mutate: 接收 `inout` 配置对象的闭包
-    /// - Returns: `Self`
     @discardableResult
     @inline(__always)
     func updateConfiguration(_ mutate: (inout UIButton.Configuration) -> Void) -> Self {
@@ -456,7 +445,6 @@ private extension FdyWrapper where Base == UIButton.Configuration {
 
     /// 在现有配置的 `background` 上做一次原地修改并写回
     /// - Parameter mutate: 接收 `inout` 背景配置对象的闭包
-    /// - Returns: `Self`
     @discardableResult
     @inline(__always)
     func updateBackground(_ mutate: (inout UIBackgroundConfiguration) -> Void) -> Self {

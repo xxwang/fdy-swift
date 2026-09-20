@@ -6,11 +6,11 @@ public extension DateFormatter {
     /// - Parameters:
     ///   - format: 日期格式字符串(如 `yyyy-MM-dd`)
     ///   - locale: 地区,默认为 `en_US_POSIX`(推荐用于解析)
-    ///   - timeZone: 时区,默认为 `UTC`
+    ///   - timeZone: 时区,默认为 `GMT`(零偏移)
     convenience init(
         fdy_format format: String,
         locale: Locale = Locale(identifier: "en_US_POSIX"),
-        timeZone: TimeZone = TimeZone(secondsFromGMT: 0)!
+        timeZone: TimeZone = .gmt
     ) {
         self.init()
         self.dateFormat = format
@@ -24,6 +24,7 @@ public extension DateFormatter {
     /// `ISO 8601`格式的 `DateFormatter`（`UTC 时区` + `en_US_POSIX区域`）
     ///
     /// 格式：`yyyy-MM-dd'T'HH:mm:ssZ`
+    /// - Returns: 日期格式化器
     static func fdy_iso8601() -> DateFormatter {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

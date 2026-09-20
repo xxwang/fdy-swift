@@ -10,15 +10,6 @@ public extension RangeReplaceableCollection {
     /// - Throws: 若 `expression` 抛出错误,则初始化失败
     ///
     /// - Note: 表达式会在每次追加时重新求值(适合生成唯一值,如 UUID)
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let strings = Array(fdy_expression: "Hi", count: 3)
-    ///     // ["Hi", "Hi", "Hi"]
-    ///
-    ///     let uuids = Array(fdy_expression: UUID(), count: 2)
-    ///     // [UUID(), UUID()] — 两个不同 UUID
-    ///     ```
     init(fdy_expression expression: @autoclosure () throws -> Element, count: Int) rethrows {
         precondition(count >= 0, "Count must be non-negative")
         self.init()
@@ -33,16 +24,8 @@ public extension RangeReplaceableCollection {
 // MARK: - 下标
 public extension RangeReplaceableCollection {
     /// 访问集合指定位置的元素
-    /// - Parameters:
-    ///   - offset: 元素的位置偏移
+    /// - Parameter offset: 元素的位置偏移
     /// - Returns: 指定位置的元素
-    ///
-    /// - Example:
-    ///
-    ///     var array = [10, 20, 30]
-    ///     array[fdy_offset: 1] = 25
-    ///     print(array) // 输出: [10, 25, 30]
-    ///
     subscript(fdy_offset offset: Int) -> Element {
         get {
             precondition(offset >= 0 && offset < count, "Index out of bounds")
@@ -61,14 +44,8 @@ public extension RangeReplaceableCollection {
     ///
     /// - Note: 标签刻意用 `fdy_slice` 而非 `fdy_range` —— `String` 也是 `RangeReplaceableCollection`,
     ///   若两条同名同约束(仅返回类型不同:`String?` vs `SubSequence`),重载会靠上下文返回类型消解,
-    ///   同一表达式 `str[fdy_range: r]` 会因标注不同而返回不同类型。切片用 `fdy_slice`、安全子串用 `fdy_range`。
-    ///
-    /// - Example:
-    ///
-    ///     var array = [1, 2, 3, 4]
-    ///     array[fdy_slice: 1..<3] = [9, 9]
-    ///     print(array) // 输出: [1, 9, 9, 4]
-    ///
+    ///   同一表达式 `str[fdy_range: r]` 会因标注不同而返回不同类型。切片用 `fdy_slice`、安全子串用 `fdy_range`；
+    ///   `NSRange`（UTF-16）口径另用 `fdy_nsRange`，见 `String+Subscript.swift`。
     subscript<R>(fdy_slice range: R) -> SubSequence where R: RangeExpression, R.Bound == Int {
         get {
             let indexRange = range.relative(to: 0 ..< count)
@@ -90,12 +67,6 @@ public extension RangeReplaceableCollection {
     ///
     /// - Parameter places: 旋转位数正数向右旋转,负数向左旋转
     /// - Returns: 旋转后的新集合
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 2, 3, 4].fdy_rotated(by: 1)  // [4, 1, 2, 3]
-    ///     [1, 2, 3, 4].fdy_rotated(by: -1) // [2, 3, 4, 1]
-    ///     ```
     func fdy_rotated(by places: Int) -> Self {
         var copy = self
         copy.fdy_rotate(by: places)
@@ -128,15 +99,8 @@ public extension RangeReplaceableCollection {
 public extension RangeReplaceableCollection {
     /// 删除第一个满足条件的元素
     ///
-    /// - Parameter where: 判断条件
+    /// - Parameter condition: 回调闭包
     /// - Returns: 被删除的元素,若无匹配则返回 `nil`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     var arr = [1, 2, 3, 2]
-    ///     arr.fdy_removeFirst(where: { $0 == 2 }) // 删除第一个 2
-    ///     // arr == [1, 3, 2]
-    ///     ```
     @discardableResult
     mutating func fdy_removeFirst(where condition: (Element) throws -> Bool) rethrows -> Element? {
         guard let index = try firstIndex(where: condition) else { return nil }
@@ -145,14 +109,7 @@ public extension RangeReplaceableCollection {
 
     /// 删除所有重复元素(基于 `Hashable`)
     ///
-    /// - Parameter by: 提取用于比较的 `Hashable` 值的函数
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     var words = ["a", "b", "a", "c"]
-    ///     words.fdy_removeDuplicates(by: { $0 })
-    ///     // ["a", "b", "c"]
-    ///     ```
+    /// - Parameter transform: 提取用于比较的 `Hashable` 值的函数
     mutating func fdy_removeDuplicates<T: Hashable>(by transform: (Element) throws -> T) rethrows {
         var seen = Set<T>()
         try removeAll { element in
@@ -164,13 +121,6 @@ public extension RangeReplaceableCollection {
     /// 删除所有重复元素(基于 `Hashable`)
     ///
     /// - Note: 保留首次出现的元素
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     var nums = [1, 2, 1, 3]
-    ///     nums.fdy_removeDuplicates()
-    ///     // [1, 2, 3]
-    ///     ```
     mutating func fdy_removeDuplicates() where Element: Hashable {
         var seen = Set<Element>()
         removeAll { !seen.insert($0).inserted }
@@ -179,12 +129,6 @@ public extension RangeReplaceableCollection {
     /// 随机删除一个元素
     ///
     /// - Returns: 被删除的元素,若集合为空则返回 `nil`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     var deck = ["♠️", "♥️", "♦️", "♣️"]
-    ///     let card = deck.fdy_removeRandomElement()
-    ///     ```
     @discardableResult
     mutating func fdy_removeRandomElement() -> Element? {
         guard let randomIndex = indices.randomElement() else { return nil }
@@ -196,15 +140,8 @@ public extension RangeReplaceableCollection {
 public extension RangeReplaceableCollection {
     /// 原地保留从头开始满足条件的连续元素
     ///
-    /// - Parameter while: 判断条件
+    /// - Parameter condition: 回调闭包
     /// - Returns: 修改后的集合
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     var nums = [1, 2, 3, 1]
-    ///     nums.fdy_keep(while: { $0 < 3 })
-    ///     // [1, 2]
-    ///     ```
     @discardableResult
     mutating func fdy_keep(while condition: (Element) throws -> Bool) rethrows -> Self {
         if let firstNonMatching = try firstIndex(where: { try !condition($0) }) {
@@ -215,26 +152,16 @@ public extension RangeReplaceableCollection {
 
     /// 返回从头开始满足条件的连续元素
     ///
-    /// - Parameter while: 判断条件
+    /// - Parameter condition: 回调闭包
     /// - Returns: 新集合
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 2, 3, 1].fdy_take(while: { $0 < 3 }) // [1, 2]
-    ///     ```
     func fdy_take(while condition: (Element) throws -> Bool) rethrows -> Self {
         return try Self(prefix(while: condition))
     }
 
     /// 返回跳过开头满足条件的连续元素后的剩余部分
     ///
-    /// - Parameter while: 判断条件
+    /// - Parameter condition: 回调闭包
     /// - Returns: 新集合
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 2, 3, 1].fdy_skip(while: { $0 < 3 }) // [3, 1]
-    ///     ```
     func fdy_skip(while condition: (Element) throws -> Bool) rethrows -> Self {
         guard let firstNonMatching = try firstIndex(where: { try !condition($0) }) else {
             return Self()
@@ -248,13 +175,6 @@ public extension RangeReplaceableCollection {
     /// 仅当元素非 `nil` 时追加
     ///
     /// - Parameter element: 可选元素
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     var arr = [1]
-    ///     arr.fdy_appendIfNonNil(2)    // [1, 2]
-    ///     arr.fdy_appendIfNonNil(nil)  // 无变化
-    ///     ```
     mutating func fdy_appendIfNonNil(_ element: Element?) {
         if let element {
             append(element)
@@ -263,14 +183,7 @@ public extension RangeReplaceableCollection {
 
     /// 仅当序列非 `nil` 时追加其所有元素
     ///
-    /// - Parameter contentsOf: 可选序列
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     var arr = [1]
-    ///     arr.fdy_appendIfNonNil(contentsOf: [2, 3]) // [1, 2, 3]
-    ///     arr.fdy_appendIfNonNil(contentsOf: nil)    // 无变化
-    ///     ```
+    /// - Parameter newElements: 可选序列
     mutating func fdy_appendIfNonNil(contentsOf newElements: (some Sequence<Element>)?) {
         if let newElements {
             append(contentsOf: newElements)

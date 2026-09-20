@@ -35,11 +35,13 @@ extension UIGestureRecognizer {
 // MARK: - 属性
 public extension UIGestureRecognizer {
     /// 视图是否启用了用户交互
+    /// - Returns: 是否满足条件
     var fdy_canRecognizeGesture: Bool {
         self.view?.isUserInteractionEnabled == true
     }
 
     /// 获取手势在所属视图中的触摸位置
+    /// - Returns: 坐标点
     var fdy_locationInView: CGPoint {
         guard let view = self.view else { return .zero }
         return self.location(in: view)

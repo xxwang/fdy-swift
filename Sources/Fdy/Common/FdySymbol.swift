@@ -5,10 +5,6 @@ public final class FdySymbol {
     private init() {}
 
     /// 创建单色图标
-    /// - Parameters:
-    ///   - name: 图标名称
-    ///   - color: 图标颜色
-    ///   - configuration: 配置对象
     /// - Returns: `UIImage?`
     public static func monochrome(
         for name: String,
@@ -30,10 +26,6 @@ public final class FdySymbol {
     }
 
     /// 创建分层图标
-    /// - Parameters:
-    ///   - name: 图标名称
-    ///   - hierarchicalColor: 分层图标颜色
-    ///   - configuration: 配置对象
     /// - Returns: `UIImage?`
     public static func hierarchical(
         for name: String,
@@ -57,10 +49,6 @@ public final class FdySymbol {
     }
 
     /// 创建调色板图标
-    /// - Parameters:
-    ///   - name: 图标名称
-    ///   - paletteColors: 调色板图标颜色数组
-    ///   - configuration: 配置对象
     /// - Returns: `UIImage?`
     public static func palette(
         for name: String,
@@ -86,7 +74,6 @@ public final class FdySymbol {
     /// 创建多色图标(使用 SF Symbol 自带的层级颜色)
     /// - Parameters:
     ///   - name: 图标名称,需为多色符号(如 `"folder"`, `"alarm"`)
-    ///   - configuration: 配置对象
     /// - Returns: `UIImage?`
     public static func multicolor(
         for name: String,
@@ -111,18 +98,22 @@ public final class FdySymbol {
 
 // MARK: - 实例方法（通过 fdy.symbol 访问）
 public extension FdySymbol {
+    /// 以单色渲染模式构建符号图片
     func monochrome(for name: String, color: UIColor, configuration: UIImage.SymbolConfiguration? = nil) -> UIImage? {
         Self.monochrome(for: name, color: color, configuration: configuration)
     }
 
+    /// 以层级渲染模式构建符号图片
     func hierarchical(for name: String, hierarchicalColor: UIColor, configuration: UIImage.SymbolConfiguration? = nil) -> UIImage? {
         Self.hierarchical(for: name, hierarchicalColor: hierarchicalColor, configuration: configuration)
     }
 
+    /// 以调色板渲染模式构建符号图片
     func palette(for name: String, paletteColors: [UIColor], configuration: UIImage.SymbolConfiguration? = nil) -> UIImage? {
         Self.palette(for: name, paletteColors: paletteColors, configuration: configuration)
     }
 
+    /// 以多色渲染模式构建符号图片
     func multicolor(for name: String, configuration: UIImage.SymbolConfiguration? = nil) -> UIImage? {
         Self.multicolor(for: name, configuration: configuration)
     }

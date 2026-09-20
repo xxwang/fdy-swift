@@ -6,6 +6,7 @@ public extension UITextField {
     /// 文本内容（**用户编辑与代码赋值均会发出**，订阅时立即重放当前值）。
     ///
     /// 两条**互补**通道合并而成，缺一即「半边失明」：
+    /// - Returns: 控件属性发布者
     /// - `publisher(for: \.text)`：KVO 只观察属性 setter，因此只覆盖**代码赋值**（`text = x`）；
     /// - `.editingChanged`：用户打字不经过 `setText:`（UIKit 直接写内部文本存储），只有事件通道能看到；
     /// - `removeDuplicates()`：`resignFirstResponder()` 时 UIKit 会把内部文本同步回属性，
@@ -27,6 +28,7 @@ public extension UITextField {
     /// 与 `fdy_textPublisher` 同一构造：实测 `.editingChanged` 触发时 `attributedText`
     /// **已经是新值**，所以事件通道读 `attributedText` 是安全的。
     /// `NSAttributedString` 不是 `Equatable`，去重改用 `isEqual` 比较内容。
+    /// - Returns: 控件属性发布者
     var fdy_attributedTextPublisher: FdyControlProperty<NSAttributedString?> {
         let assigned = publisher(for: \.attributedText, options: [.initial, .new])
         let typed = fdy_publisher(for: .editingChanged).map { [weak self] _ in self?.attributedText }

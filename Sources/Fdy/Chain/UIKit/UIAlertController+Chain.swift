@@ -3,7 +3,7 @@ import os.log
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UIAlertController {
-    /// 设置标题
+    /// 标题
     /// - Parameter title: 标题文本
     /// - Returns: `Self`
     @discardableResult
@@ -12,7 +12,7 @@ public extension FdyWrapper where Base: UIAlertController {
         return self
     }
 
-    /// 设置副标题(消息内容)
+    /// 副标题(消息内容)
     /// - Parameter message: 消息文本
     /// - Returns: `Self`
     @discardableResult
@@ -78,6 +78,24 @@ public extension FdyWrapper where Base: UIAlertController {
             }
             target.present(self.base, animated: animated)
         }
+        return self
+    }
+
+    /// 首选操作(高亮显示的那个按钮)
+    /// - Parameter preferredAction: 操作,传 `nil` 取消高亮
+    /// - Returns: `Self`
+    @discardableResult
+    func preferredAction(_ preferredAction: UIAlertAction?) -> Self {
+        base.preferredAction = preferredAction
+        return self
+    }
+
+    /// 提示严重级别
+    /// - Parameter severity: 要设置的提示严重级别
+    /// - Returns: `Self`
+    @discardableResult
+    func severity(_ severity: UIAlertControllerSeverity) -> Self {
+        base.severity = severity
         return self
     }
 }

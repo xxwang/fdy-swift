@@ -11,11 +11,6 @@ public extension String {
     ///   - usesLineFragmentOrigin: 是否使用段落布局模式(默认 `true`)
     ///   - ceilResult: 是否对结果向上取整(默认 `true`,便于 UI 布局)
     /// - Returns: 字符串占用的尺寸(`CGSize`)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let size = "Hello".fdy_viewSize(maxWidth: 200, font: .systemFont(ofSize: 16))
-    ///   ```
     func fdy_viewSize(
         maxWidth: CGFloat = .greatestFiniteMagnitude,
         font: UIFont,
@@ -49,16 +44,6 @@ public extension String {
     ///   - lineBreakMode: 换行模式(默认 `.byWordWrapping`)
     ///   - ceilResult: 是否对结果向上取整(默认 `true`)
     /// - Returns: 富文本渲染后的尺寸
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let size = "Multi-line text".fdy_viewSizeWithAttributes(
-    ///       maxWidth: 150,
-    ///       font: .systemFont(ofSize: 14),
-    ///       lineSpacing: 4,
-    ///       wordSpacing: 0.5
-    ///   )
-    ///   ```
     func fdy_viewSizeWithAttributes(
         maxWidth: CGFloat = .greatestFiniteMagnitude,
         font: UIFont,

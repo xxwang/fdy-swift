@@ -509,9 +509,6 @@ public extension UIImage {
 public extension UIImage {
     /// 更类型安全的多图合成方法(推荐使用)
     ///
-    /// - Parameters:
-    ///   - size: 画布尺寸
-    ///   - items: 要绘制的图层列表
     /// - Returns: 合成后的图片
     struct FdyDrawItem {
         let image: UIImage
@@ -520,15 +517,15 @@ public extension UIImage {
 
     /// 将多个图片按指定位置绘制到一个画布上
     ///
-    /// - Important: 推荐使用 `[DrawItem]` 结构体替代字典,但为兼容现有接口保留此版本
-    ///              若需类型安全,请考虑新增基于结构体的重载方法
-    ///
     /// - Parameters:
     ///   - size: 画布尺寸
     ///   - images: 图片信息数组,每个元素为字典,必须包含：
     ///             - `"image"`: `UIImage`
     ///             - `"rect"`: `CGRect`
     /// - Returns: 合成后的图片;若尺寸无效或无有效图层,返回空图片
+    /// - Important: 推荐使用 `[DrawItem]` 结构体替代字典,但为兼容现有接口保留此版本
+    ///              若需类型安全,请考虑新增基于结构体的重载方法
+    ///
     static func fdy_drawImages(size: CGSize, images: [[String: Any]]) -> UIImage {
         guard size.width > 0, size.height > 0 else {
             return UIImage()

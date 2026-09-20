@@ -5,12 +5,6 @@ public extension Collection {
     /// 获取集合的完整索引范围
     ///
     /// - Returns: 从 `startIndex` 到 `endIndex` 的半开区间
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let array = [1, 2, 3]
-    ///     print(array.fdy_range) // 0..<3
-    ///     ```
     var fdy_range: Range<Index> {
         startIndex ..< endIndex
     }
@@ -19,13 +13,6 @@ public extension Collection {
     ///
     /// - Parameter index: 要访问的索引
     /// - Returns: 若索引有效,返回对应元素;否则返回 `nil`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let arr = [10, 20, 30]
-    ///     print(arr.fdy_safe(at: 1))  // Optional(20)
-    ///     print(arr.fdy_safe(at: 10)) // nil
-    ///     ```
     func fdy_safe(at index: Index) -> Element? {
         indices.contains(index) ? self[index] : nil
     }
@@ -34,12 +21,6 @@ public extension Collection {
     ///
     /// - Parameter condition: 判断元素是否符合条件的闭包
     /// - Returns: 所有匹配元素的索引数组(可能为空)
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let values = [1, 7, 1, 2, 4, 1, 8]
-    ///     print(values.fdy_indices(where: { $0 == 1 })) // [0, 2, 5]
-    ///     ```
     func fdy_indices(where condition: (Element) throws -> Bool) rethrows -> [Index] {
         try indices.compactMap { index in
             try condition(self[index]) ? index : nil
@@ -49,11 +30,6 @@ public extension Collection {
     /// 串行遍历集合中的每个元素
     ///
     /// - Parameter operation: 对每个元素执行的操作
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 2, 3].fdy_forEach { print($0) }
-    ///     ```
     func fdy_forEach(_ operation: FdyAction1<Element>) {
         for element in self {
             operation(element)
@@ -65,15 +41,6 @@ public extension Collection {
     /// - Parameters:
     ///   - size: 每个切片的大小(必须 > 0)
     ///   - operation: 对每个切片执行的操作
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let data = [0, 1, 2, 3, 4]
-    ///     data.fdy_slice(by: 2) { chunk in
-    ///         print(chunk)
-    ///     }
-    ///     // 输出: [0, 1], [2, 3], [4]
-    ///     ```
     func fdy_slice(by size: Int, operation: FdyAction1<[Element]>) {
         guard size > 0 else { return }
         var start = startIndex
@@ -89,12 +56,6 @@ public extension Collection {
     /// - Parameter size: 每组的元素数量(必须 > 0)
     /// - Returns: 二维数组,每组最多包含 `size` 个元素
     /// - Note: 最后一组可能少于 `size` 个元素
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 2, 3, 4, 5].fdy_chunked(by: 2) // [[1, 2], [3, 4], [5]]
-    ///     "Hello".fdy_chunked(by: 3)         // [["H", "e", "l"], ["l", "o"]]
-    ///     ```
     func fdy_chunked(by size: Int) -> [[Element]] {
         guard size > 0 else { return [] }
         var result: [[Element]] = []
@@ -115,12 +76,6 @@ public extension Collection where Element: Equatable {
     ///
     /// - Parameter item: 要查找的元素
     /// - Returns: 所有匹配元素的索引数组(可能为空)
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let letters = ["a", "b", "a", "c"]
-    ///     print(letters.fdy_indices(of: "a")) // [0, 2]
-    ///     ```
     func fdy_indices(of item: Element) -> [Index] {
         fdy_indices { $0 == item }
     }
@@ -131,12 +86,6 @@ public extension Collection where Element: BinaryInteger {
     /// 计算整数集合的算术平均值
     ///
     /// - Returns: 平均值(`Double` 类型)若集合为空,返回 `0.0`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let scores = [80, 90, 100]
-    ///     print(scores.fdy_average) // 90.0
-    ///     ```
     var fdy_average: Double {
         guard !isEmpty else { return 0.0 }
         // 使用 reduce(into:) 避免中间溢出(对大整数更安全)
@@ -152,12 +101,6 @@ public extension Collection where Element: BinaryFloatingPoint {
     /// 计算浮点数集合的算术平均值
     ///
     /// - Returns: 平均值(`Double` 类型,与整数版返回类型保持一致);若集合为空,返回 `0.0`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let temps = [36.5, 37.0, 36.8]
-    ///     print(temps.fdy_average) // ≈ 36.766...
-    ///     ```
     var fdy_average: Double {
         guard !isEmpty else { return 0.0 }
         return reduce(0.0) { $0 + Double($1) } / Double(count)

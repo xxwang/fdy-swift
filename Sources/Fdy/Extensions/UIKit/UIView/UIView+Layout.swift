@@ -3,41 +3,49 @@ import UIKit
 // MARK: - 约束查找
 public extension UIView {
     /// 获取当前视图的第一个宽度约束(仅限直接作用于 self 的约束)
+    /// - Returns: 约束,不可用时返回 `nil`
     var fdy_widthConstraint: NSLayoutConstraint? {
         self.fdy_constraint(for: .width)
     }
 
     /// 获取当前视图的第一个高度约束
+    /// - Returns: 约束,不可用时返回 `nil`
     var fdy_heightConstraint: NSLayoutConstraint? {
         self.fdy_constraint(for: .height)
     }
 
     /// 获取当前视图的第一个 leading 约束
+    /// - Returns: 约束,不可用时返回 `nil`
     var fdy_leadingConstraint: NSLayoutConstraint? {
         self.fdy_constraint(for: .leading)
     }
 
     /// 获取当前视图的第一个 trailing 约束
+    /// - Returns: 约束,不可用时返回 `nil`
     var fdy_trailingConstraint: NSLayoutConstraint? {
         self.fdy_constraint(for: .trailing)
     }
 
     /// 获取当前视图的第一个 top 约束
+    /// - Returns: 约束,不可用时返回 `nil`
     var fdy_topConstraint: NSLayoutConstraint? {
         self.fdy_constraint(for: .top)
     }
 
     /// 获取当前视图的第一个 bottom 约束
+    /// - Returns: 约束,不可用时返回 `nil`
     var fdy_bottomConstraint: NSLayoutConstraint? {
         self.fdy_constraint(for: .bottom)
     }
 
     /// 获取当前视图的第一个 centerX 约束
+    /// - Returns: 约束,不可用时返回 `nil`
     var fdy_centerXConstraint: NSLayoutConstraint? {
         self.fdy_constraint(for: .centerX)
     }
 
     /// 获取当前视图的第一个 centerY 约束
+    /// - Returns: 约束,不可用时返回 `nil`
     var fdy_centerYConstraint: NSLayoutConstraint? {
         self.fdy_constraint(for: .centerY)
     }
@@ -84,15 +92,6 @@ public extension UIView {
     ///   - views: 按顺序传入的视图数组,自动映射为 v0, v1...
     ///   - options: 布局选项(如 .alignAllCenterY)
     ///   - metrics: 度量字典(如 ["spacing": 8])
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   view.fdy_addConstraints(
-    ///       withFormat: "H:|-[v0]-|",
-    ///       views: [label],
-    ///       options: .alignAllCenterY
-    ///   )
-    ///   ```
     func fdy_addConstraints(
         withFormat format: String,
         views: [UIView],
@@ -120,11 +119,6 @@ public extension UIView {
     ///   - insets: 内边距,默认 `.zero`
     ///   - priority: 约束优先级,默认 `.required`
     /// - Returns: 创建的 4 个约束数组
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   subview.fdy_fillSuperview(insets: .init(top: 10, left: 10, bottom: 10, right: 10))
-    ///   ```
     @discardableResult
     func fdy_fillSuperview(
         insets: UIEdgeInsets = .zero,
@@ -151,11 +145,6 @@ public extension UIView {
     ///   - offset: 偏移量(正 x 向右,正 y 向下),默认 `.zero`
     ///   - priority: 约束优先级,默认 `.required`
     /// - Returns: 2 个约束(centerX + centerY)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   view.fdy_centerInSuperview(offset: CGPoint(x: 0, y: 10))
-    ///   ```
     @discardableResult
     func fdy_centerInSuperview(
         offset: CGPoint = .zero,
@@ -213,7 +202,7 @@ public extension UIView {
         return constraint
     }
 
-    /// 设置固定尺寸约束
+    /// 固定尺寸约束
     /// - Parameters:
     ///   - size: 目标尺寸
     ///   - priority: 约束优先级,默认 `.required`
@@ -236,7 +225,7 @@ public extension UIView {
         return constraints
     }
 
-    /// 设置固定宽度约束
+    /// 固定宽度约束
     /// - Parameters:
     ///   - width: 宽度值
     ///   - priority: 约束优先级,默认 `.required`
@@ -253,7 +242,7 @@ public extension UIView {
         return constraint
     }
 
-    /// 设置固定高度约束
+    /// 固定高度约束
     /// - Parameters:
     ///   - height: 高度值
     ///   - priority: 约束优先级,默认 `.required`
@@ -276,24 +265,12 @@ public extension UIView {
     /// 灵活锚定视图到任意布局锚点
     /// - Parameters:
     ///   - top: 顶部对齐目标(如 superview.topAnchor)
-    ///   - leading: 左侧对齐目标
-    ///   - bottom: 底部对齐目标
-    ///   - trailing: 右侧对齐目标
     ///   - centerX / centerY: 中心对齐目标
     ///   - width / height: 固定尺寸(可选)
     ///   - 所有 offset 参数：偏移量(注意 bottom/trailing 为负方向)
+    ///   - bottomOffset: 底部偏移量
     ///   - priority: 统一设置所有约束的优先级
     /// - Returns: 创建的所有约束
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   button.fdy_anchor(
-    ///       top: container.topAnchor,
-    ///       leading: container.leadingAnchor,
-    ///       width: 100,
-    ///       height: 44
-    ///   )
-    ///   ```
     @discardableResult
     func fdy_anchor(
         top: NSLayoutYAxisAnchor? = nil,

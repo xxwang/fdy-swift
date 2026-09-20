@@ -4,11 +4,6 @@ import UIKit
 public extension UILabel {
     /// 使用纯文本创建 UILabel
     /// - Parameter text: 显示的文本(可为 nil)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let label = UILabel(fdy_text: "Hello")
-    ///   ```
     convenience init(fdy_text text: String?) {
         self.init()
         self.text = text
@@ -18,11 +13,6 @@ public extension UILabel {
     /// - Parameters:
     ///   - text: 显示的文本
     ///   - style: 字体样式(如 `.body`, `.headline`),自动适配用户字体偏好
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let label = UILabel(fdy_text: "标题", style: .headline)
-    ///   ```
     convenience init(fdy_text text: String, style: UIFont.TextStyle) {
         self.init()
         self.font = .preferredFont(forTextStyle: style)
@@ -35,15 +25,9 @@ public extension UILabel {
 public extension UILabel {
     /// 获取 `UILabel` 在当前约束下实际使用的字体大小(考虑 `adjustsFontSizeToFitWidth`)
     ///
+    /// - Returns: 计算结果
     /// - 注意: 此属性应在布局完成后(如 `layoutSubviews` 后)调用,否则 `bounds` 可能为零
     /// - 原理: 通过比较文本所需宽度与 label 可用宽度,结合 `minimumScaleFactor` 计算缩放比例
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   label.adjustsFontSizeToFitWidth = true
-    ///   label.minimumScaleFactor = 0.5
-    ///   print("实际字号: \(label.fdy_actualFontSize)")
-    ///   ```
     var fdy_actualFontSize: CGFloat {
         // 快速返回：未启用自动缩放、无文本、无字体或容器宽度无效
         guard self.adjustsFontSizeToFitWidth,
@@ -76,15 +60,9 @@ public extension UILabel {
 
     /// 根据当前文本、字体、宽度和行数限制,计算内容所需的高度
     ///
+    /// - Returns: 计算结果
     /// - 注意: 此方法考虑了 `numberOfLines`、`lineBreakMode`、`attributedText/text` 优先级
     /// - 推荐在 label 布局完成后调用(确保 `bounds.width` 有效)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   label.frame.size.width = 200
-    ///   label.numberOfLines = 0
-    ///   print("所需高度: \(label.fdy_requiredHeight)")
-    ///   ```
     var fdy_requiredHeight: CGFloat {
         guard self.bounds.width > 0 else { return 0 }
 
@@ -114,14 +92,9 @@ public extension UILabel {
 
     /// 将 `UILabel` 的文本按当前宽度和字体拆分为多行字符串数组
     ///
+    /// - Returns: 字符串数组
     /// - 注意: 依赖外部扩展 `String.splitIntoLines1(forWidth:usingFont:)`
     /// - 若该扩展不存在,此属性将返回空数组
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   label.frame.size.width = 100
-    ///   print("所有行: \(label.fdy_allTextLines)")
-    ///   ```
     var fdy_allTextLines: [String] {
         guard let text = self.text,
               let font = self.font,
@@ -141,6 +114,7 @@ public extension UILabel {
 
     /// 判断当前文本是否因空间不足而被截断(省略号或隐藏)
     ///
+    /// - Returns: 是否满足条件
     /// - 注意: 使用 Core Text 精确检测,适用于单行/多行、任意 `lineBreakMode`
     /// - 性能开销中等,避免在 `cellForRow` 或动画中高频调用
     var fdy_isTextTruncated: Bool {
@@ -184,12 +158,6 @@ public extension UILabel {
     /// - 注意:
     ///   - 若 `text` 和 `attributedText` 均为空,返回 `.zero`
     ///   - 自动考虑 `numberOfLines` 和 `lineBreakMode`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   label.text = "Hello World"
-    ///   let size = label.fdy_viewSize(maxWidth: 200)
-    ///   ```
     func fdy_viewSize(maxWidth: CGFloat = .greatestFiniteMagnitude) -> CGSize {
         return if self.attributedText != nil {
             self.attributedText?.fdy_viewSize(maxWidth: maxWidth) ?? .zero
@@ -208,7 +176,7 @@ public extension UILabel {
 
 // MARK: - UILabel 富文本内容设置
 public extension UILabel {
-    /// 设置图文混排内容(支持在指定位置插入多张图片)
+    /// 图文混排内容(支持在指定位置插入多张图片)
     ///
     /// - Parameters:
     ///   - text: 基础文本
@@ -217,25 +185,11 @@ public extension UILabel {
     ///   - scale: 图片缩放比例(基于字体高度),默认为 1.0
     ///   - spacing: 图片与文字之间的额外水平间距(单位：点),默认为 5
     ///   - useOriginalSize: 是否忽略缩放,使用图片原始尺寸(默认 `false`)
-    ///
     /// - Returns: 生成的 `NSMutableAttributedString`
     ///
     /// - 注意:
     ///   - 若 `insertPosition` 超出文本长度,图片将追加到末尾
     ///   - 图片垂直居中对齐于文字基线
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let label = UILabel()
-    ///   label.font = .systemFont(ofSize: 16)
-    ///   label.fdy_blend(
-    ///       "Swift & UIKit",
-    ///       images: [UIImage(systemName: "swift")],
-    ///       insertPosition: 5,
-    ///       scale: 1.2,
-    ///       spacing: 4
-    ///   )
-    ///   ```
     @discardableResult
     func fdy_blend(
         _ text: String? = nil,
@@ -246,10 +200,8 @@ public extension UILabel {
         useOriginalSize: Bool = false
     ) -> NSMutableAttributedString {
         guard let font = self.font else {
-            assertionFailure("UILabel.font is nil")
-            let result = NSMutableAttributedString(string: text ?? "")
-            self.attributedText = result
-            return result
+            // `UILabel.font` 实测不可为 nil(赋 nil 会被 UIKit 忽略),此处仅为理论兜底
+            preconditionFailure("UILabel.font is nil")
         }
 
         let baseText = text ?? ""
@@ -300,19 +252,13 @@ public extension UILabel {
         return attributedString
     }
 
-    /// 设置带行间距和字间距的纯文本(自动转为富文本)
+    /// 带行间距和字间距的纯文本(自动转为富文本)
     ///
     /// - Parameters:
     ///   - text: 显示的文本
     ///   - lineSpacing: 行间距(单位：点)
     ///   - wordSpacing: 字间距(单位：点),默认为 0
-    ///
     /// - Returns: 生成的 `NSMutableAttributedString`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   label.fdy_textWithSpacing("多行\n文本", lineSpacing: 8, wordSpacing: 2)
-    ///   ```
     @discardableResult
     func fdy_textWithSpacing(
         _ text: String,
@@ -340,19 +286,11 @@ public extension UILabel {
     ///   - maxWidth: 最大宽度(若为 `nil`,使用 `bounds.width`)
     ///   - lineSpacing: 行间距(影响换行,但不改变返回的字符串内容)
     ///   - wordSpacing: 字间距(同上)
-    ///
     /// - Returns: 每一行的字符串数组(按 Core Text 渲染结果)
     ///
     /// - 注意:
     ///   - 此方法反映`真实渲染分行`,比简单按 `\n` 拆分更准确
     ///   - 性能开销中等,避免高频调用
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   label.text = "This is a long sentence that wraps."
-    ///   label.frame.size.width = 100
-    ///   print(label.fdy_renderedLines())
-    ///   ```
     func fdy_renderedLines(
         maxWidth: CGFloat? = nil,
         lineSpacing: CGFloat = 0,

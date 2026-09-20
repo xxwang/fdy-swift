@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - 链式设置
 public extension FdyWrapper where Base == Date {
-    /// 设置日期的年份
+    /// 日期的年份
     ///
     /// - Parameter year: 目标年份(必须为正整数,例如 `2024`)
     /// - Returns: 更新后的 `Date` 实例若指定年份无效(如 ≤ 0)或无法生成有效日期,则返回原日期
@@ -15,7 +15,7 @@ public extension FdyWrapper where Base == Date {
         return self
     }
 
-    /// 设置日期的月份
+    /// 日期的月份
     ///
     /// - Parameter month: 目标月份,取值范围为 `1`(一月)到 `12`(十二月)
     /// - Returns: 更新后的 `Date` 实例若 `month` 超出有效范围或导致无效日期(如 2 月 30 日),则返回原日期
@@ -28,7 +28,7 @@ public extension FdyWrapper where Base == Date {
         return self
     }
 
-    /// 设置日期在当月中的日
+    /// 日期在当月中的日
     ///
     /// - Parameter day: 目标日,取值范围通常为 `1` 到 `31`,具体取决于当前月份和年份
     /// - Returns: 更新后的 `Date` 实例若 `day` 超出该月有效天数(如 2 月设为 30 日),则返回原日期
@@ -41,7 +41,7 @@ public extension FdyWrapper where Base == Date {
         return self
     }
 
-    /// 设置日期的小时(24 小时制)
+    /// 日期的小时(24 小时制)
     ///
     /// - Parameter hour: 目标小时,取值范围为 `0`(午夜)到 `23`(晚上 11 点)
     /// - Returns: 更新后的 `Date` 实例若 `hour` 不在 `[0, 23]` 范围内,则返回原日期
@@ -53,7 +53,7 @@ public extension FdyWrapper where Base == Date {
         return self
     }
 
-    /// 设置日期的分钟
+    /// 日期的分钟
     ///
     /// - Parameter minute: 目标分钟,取值范围为 `0` 到 `59`
     /// - Returns: 更新后的 `Date` 实例若 `minute` 不在有效范围内,则返回原日期
@@ -65,7 +65,7 @@ public extension FdyWrapper where Base == Date {
         return self
     }
 
-    /// 设置日期的秒
+    /// 日期的秒
     ///
     /// - Parameter second: 目标秒,取值范围为 `0` 到 `59`
     /// - Returns: 更新后的 `Date` 实例若 `second` 不在有效范围内,则返回原日期
@@ -77,7 +77,7 @@ public extension FdyWrapper where Base == Date {
         return self
     }
 
-    /// 设置日期的毫秒
+    /// 日期的毫秒
     ///
     /// - Parameter millisecond: 目标毫秒,取值范围为 `0` 到 `999`
     /// - Returns: 更新后的 `Date` 实例若 `millisecond` 超出有效范围,则返回原日期
@@ -92,7 +92,7 @@ public extension FdyWrapper where Base == Date {
         return self
     }
 
-    /// 设置日期的纳秒
+    /// 日期的纳秒
     ///
     /// - Parameter nanosecond: 目标纳秒,取值范围为 `0` 到 `999,999,999`
     /// - Returns: 更新后的 `Date` 实例若 `nanosecond` 超出有效范围,则返回原日期

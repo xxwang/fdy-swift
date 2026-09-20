@@ -29,11 +29,13 @@ public extension UIControl {
     }
 
     /// 点击（`.touchUpInside`）。
+    /// - Returns: 控件事件发布者
     var fdy_tapPublisher: FdyControlEvent<Void> {
         FdyControlEvent(fdy_publisher(for: .touchUpInside).map { _ in () }.eraseToAnyPublisher())
     }
 
     /// 值变化（`.valueChanged`），发出 `UIControl` 自身。
+    /// - Returns: 控件事件发布者
     var fdy_valueChangedPublisher: FdyControlEvent<UIControl> {
         fdy_publisher(for: .valueChanged)
     }

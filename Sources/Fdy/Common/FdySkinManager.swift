@@ -1,7 +1,6 @@
 import UIKit
 
 // MARK: - 皮肤管理器实现
-/// 主题皮肤管理器，所有操作通过 ``@MainActor`` 串行化
 @MainActor
 public final class FdySkinManager {
     /// 存储皮肤观察者的弱引用集合(自动清理已释放对象)
@@ -17,11 +16,13 @@ public final class FdySkinManager {
 // MARK: - 观察者管理
 public extension FdySkinManager {
     /// 注册一个皮肤观察者
+    /// - Parameter observer: 观察者
     func register(observer: FdySkinable) {
         observers.add(observer)
     }
 
     /// 移除一个皮肤观察者
+    /// - Parameter observer: 观察者
     func remove(observer: FdySkinable) {
         observers.remove(observer)
     }

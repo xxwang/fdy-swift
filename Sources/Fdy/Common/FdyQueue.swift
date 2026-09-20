@@ -17,13 +17,6 @@ public extension FdyQueue {
     /// 适用于从后台线程切换回主线程以更新 UI
     ///
     /// - Parameter task: 要在主线程执行的逃逸闭包
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   fdy.queue.asyncMain {
-    ///       self.statusLabel.text = "加载完成"
-    ///   }
-    ///   ```
     func asyncMain(_ task: @escaping FdyAction) {
         DispatchQueue.main.async(execute: task)
     }
@@ -38,17 +31,7 @@ public extension FdyQueue {
     ///       - `.userInitiated`：用户触发的即时任务（如点击按钮后加载数据）
     ///       - `.utility`：长时间运行的实用任务（如下载、导入）
     ///       - `.background`：低优先级后台任务（如日志上传）
-    ///   - work: 要在后台执行的逃逸闭包
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   fdy.queue.asyncGlobal(qos: .userInitiated) {
-    ///       let data = fetchDataFromDisk()
-    ///       fdy.queue.asyncMain {
-    ///           self.updateUI(with: data)
-    ///       }
-    ///   }
-    ///   ```
+    ///   - task: 要在后台执行的逃逸闭包
     func asyncGlobal(
         qos: DispatchQoS.QoSClass = .default,
         execute task: @escaping FdyAction
@@ -65,18 +48,7 @@ public extension FdyQueue {
     ///
     /// - Parameters:
     ///   - tasks: 要顺序执行的任务数组建议使用 `@Sendable` 闭包以符合 Swift 并发模型
-    ///   - then: 所有任务完成后在主线程执行的回调闭包
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let tasks: [FdyAction] = [
-    ///       { print("步骤1：初始化") },
-    ///       { Thread.sleep(forTimeInterval: 0.2); print("步骤2：处理数据") }
-    ///   ]
-    ///   FdyQueue.shared.executeSerially(tasks) {
-    ///       print("所有串行任务完成，刷新界面")
-    ///   }
-    ///   ```
+    ///   - completion: 所有任务完成后在主线程执行的回调闭包
     func executeSerially(
         _ tasks: [FdyAction],
         then completion: @escaping FdyAction
@@ -95,18 +67,7 @@ public extension FdyQueue {
     ///
     /// - Parameters:
     ///   - tasks: 要并发执行的任务数组
-    ///   - then: 所有任务完成后在主线程执行的回调闭包
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let tasks: [FdyAction] = [
-    ///       { API.fetchUserProfile() },
-    ///       { API.fetchUserSettings() }
-    ///   ]
-    ///   FdyQueue.shared.executeConcurrently(tasks) {
-    ///       self.reloadData()
-    ///   }
-    ///   ```
+    ///   - completion: 所有任务完成后在主线程执行的回调闭包
     func executeConcurrently(
         _ tasks: [FdyAction],
         then completion: @escaping FdyAction
@@ -133,18 +94,9 @@ public extension FdyQueue {
     /// 返回的 `DispatchSourceTimer` 需要被强引用持有，否则会被释放导致定时器停止
     ///
     /// - Parameters:
-    ///   - every: 触发间隔（秒），必须大于 0
+    ///   - interval: 触发间隔（秒），必须大于 0
     ///   - handler: 每次触发时调用的闭包，传入定时器自身（可用于调用 `cancel()` 停止）
     /// - Returns: 定时器对象（需强引用）
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   var timer: DispatchSourceTimer?
-    ///   timer = FdyQueue.shared.timer(every: 1.0) { _ in
-    ///       print("每秒触发一次")
-    ///   }
-    ///   // 停止定时器：timer?.cancel()
-    ///   ```
     @discardableResult
     func timer(
         every interval: TimeInterval,
@@ -165,21 +117,10 @@ public extension FdyQueue {
     /// 自动在触发指定次数后取消自身，无需手动管理生命周期
     ///
     /// - Parameters:
-    ///   - every: 每次触发的间隔时间（秒）
-    ///   - times: 总共触发次数，必须大于 0
+    ///   - interval: 每次触发的间隔时间（秒）
+    ///   - count: 总共触发次数，必须大于 0
     ///   - handler: 每次触发时的回调，传入定时器和剩余次数（从 `count - 1` 到 `0`）
     /// - Returns: 定时器对象；若 `times <= 0` 则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   FdyQueue.shared.countdownTimer(every: 1.0, times: 3) { _, remaining in
-    ///       print("倒计时: \(remaining + 1)")
-    ///       if remaining == 0 {
-    ///           print("时间到！")
-    ///       }
-    ///   }
-    ///   // 输出：3, 2, 1, "时间到！"
-    ///   ```
     @discardableResult
     func countdownTimer(
         every interval: TimeInterval,
@@ -213,17 +154,10 @@ public extension FdyQueue {
     ///
     /// - Parameters:
     ///   - delay: 延迟时间（秒）
-    ///   - on: 执行队列，默认为主队列（`.main`）
+    ///   - queue: 执行队列，默认为主队列（`.main`）
     ///   - qos: 服务质量，默认为 `.unspecified`（继承队列默认 QoS）
     ///   - flags: 工作项标志，如 `.barrier`
-    ///   - execute: 要延迟执行的任务
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   FdyQueue.shared.delayed(2.0, on: .main) {
-    ///       self.showToast("操作成功")
-    ///   }
-    ///   ```
+    ///   - work: 要延迟执行的任务
     func delayed(
         _ delay: TimeInterval,
         on queue: DispatchQueue = .main,
@@ -240,19 +174,9 @@ public extension FdyQueue {
     ///
     /// - Parameters:
     ///   - delay: 延迟时间（秒）
-    ///   - execute: 在后台延迟执行的任务
-    ///   - then: 任务完成后在主线程执行的可选回调
+    ///   - work: 在后台延迟执行的任务
+    ///   - completion: 任务完成后在主线程执行的可选回调
     /// - Returns: 可取消的工作项（调用 `cancel()` 可终止任务及回调）
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let item = FdyQueue.shared.backgroundDelayed(3.0) {
-    ///       print("后台任务执行中...")
-    ///   } then: {
-    ///       print("回到主线程更新 UI")
-    ///   }
-    ///   // 如需取消：item.cancel()
-    ///   ```
     @discardableResult
     func backgroundDelayed(
         _ delay: TimeInterval,
@@ -277,19 +201,9 @@ public extension FdyQueue {
     ///
     /// - Parameters:
     ///   - delay: 防抖延迟时间（秒），例如 `0.3` 表示停止调用 0.3 秒后执行
-    ///   - on: 执行队列，默认为主队列（适合 UI 操作）
-    ///   - execute: 要防抖执行的任务
+    ///   - queue: 执行队列，默认为主队列（适合 UI 操作）
+    ///   - work: 要执行的任务
     /// - Returns: 一个可调用的闭包，每次调用都会重置防抖计时器
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let debouncedSearch = FdyQueue.shared.debounced(delay: 0.3) {
-    ///       self.performSearch(query: searchBar.text)
-    ///   }
-    ///   searchBar.onTextChange = { _ in
-    ///       debouncedSearch() // 频繁输入，只执行最后一次
-    ///   }
-    ///   ```
     @discardableResult
     func debounced(
         delay: TimeInterval,
@@ -317,20 +231,13 @@ public extension FdyQueue {
     /// 适用于初始化、埋点、权限请求等只需执行一次的操作
     ///
     /// ⚠️ 注意：
+    /// - Parameters:
+    ///   - token: 唯一标识符，用于区分不同的一次性任务
+    ///   - work: 要执行的任务
     /// - `token` 应全局唯一（推荐格式：`"com.yourapp.feature.init"`）
     /// - 内部使用 `Set<String>` 存储已执行 token，token 数量应有限，避免内存无限增长
     /// - 如需大量动态 token，建议改用静态变量或单例控制
     ///
-    /// - Parameters:
-    ///   - token: 唯一标识符，用于区分不同的一次性任务
-    ///   - execute: 要执行的一次性任务
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   FdyQueue.shared.executeOnce(token: "app.setup.analytics") {
-    ///       Analytics.shared.setup()
-    ///   }
-    ///   ```
     func executeOnce(token: String, execute work: FdyAction) {
         // `NSLock` 是非递归锁：锁内执行外部闭包时，若 `work` 内部再次调用 `executeOnce`
         // 会立即死锁。因此锁内只做检查与标记，闭包执行放到锁外。

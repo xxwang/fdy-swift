@@ -1,17 +1,10 @@
 import UIKit
 import os.log
 
-/// 水印图层标记类型。
-///
-/// 刻意用**类型**而非 `layer.name` 标记归属：`name` 是普通字符串,宿主 App 或三方库
-/// 完全可能给自己的图层起同名,一旦撞名 `fdy_removeWatermark()` 会**静默删掉别人的图层**。
-/// 类型标记由本库独占,不存在撞车可能。
+// MARK: - 水印图层标记类型
 private final class FdyWatermarkLayer: CALayer {}
 
-/// 粒子发射器标记类型,理由同上。
-///
-/// - Important: 旧实现用 `filter { $0.name == "emitter" || $0.name == nil }` 找自己的发射器,
-///   那个 `|| $0.name == nil` 会**连同宿主所有未命名的 `CAEmitterLayer` 一起删掉**。
+// MARK: - 粒子发射器标记类型
 private final class FdyEmitterLayer: CAEmitterLayer {}
 
 extension UIView {
@@ -270,14 +263,14 @@ public extension UIView {
 public extension UIView {
     /// 添加标准外阴影效果
     ///
-    /// - Note: 此阴影基于 `CALayer.shadow*` 属性实现,`不会随 bounds 自动更新`
-    ///
     /// - Parameters:
     ///   - color: 阴影颜色默认为 `#137992`
     ///   - radius: 阴影模糊半径默认为 `3`
     ///   - offset: 阴影偏移量(正 x 向右,正 y 向下)默认为 `.zero`
     ///   - opacity: 阴影不透明度,范围 `[0, 1]`默认为 `0.5`
     ///   - path: 可选的阴影路径若提供,可提升性能并精确控制形状;若为 `nil`,系统自动计算
+    /// - Note: 此阴影基于 `CALayer.shadow*` 属性实现,`不会随 bounds 自动更新`
+    ///
     func fdy_addShadow(
         color: UIColor,
         radius: CGFloat = 3,
@@ -318,8 +311,8 @@ public extension UIView {
         }
 
         guard let label = self.fdy_badgeLabel else {
-            assertionFailure("badgeLabel should not be nil after creation")
-            return
+            // 紧邻上方刚完成创建与赋值,此处仅为理论兜底
+            preconditionFailure("badgeLabel should not be nil after creation")
         }
         label.text = number.isEmpty ? "" : ((Int(number) ?? 0) > 99 ? "99+" : number)
 
@@ -351,6 +344,12 @@ public extension UIView {
 // MARK: - 水印
 public extension UIView {
     /// 添加水印(不会自动响应 `bounds` 变化)
+    /// - Parameters:
+    ///   - text: 文本
+    ///   - textColor: 颜色,默认为 `.black.withAlphaComponent(0.2)`
+    ///   - font: 字体,默认为 `.systemFont(ofSize: 12)`
+    ///   - density: 密度,默认为 `0.5`
+    ///   - angle: 角度,默认为 `-CGFloat.pi / 6`
     func fdy_addWatermark(
         _ text: String,
         textColor: UIColor = .black.withAlphaComponent(0.2),
@@ -589,7 +588,8 @@ public extension UIView {
         case .easeInOut:
             animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         case .spring:
-            assertionFailure("Spring should not use this path")
+            // 调用方 `fdy_shake` 已把 `.spring` 分流到 `fdy_springShake`;此处仅为理论兜底
+            preconditionFailure("Spring should not use this path")
         }
 
         // 生成振幅递减的关键帧值

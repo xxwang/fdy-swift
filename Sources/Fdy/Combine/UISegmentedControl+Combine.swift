@@ -8,6 +8,7 @@ public extension UISegmentedControl {
     /// 两条**互补**通道合并而成：`publisher(for: \.selectedSegmentIndex)` 覆盖代码赋值，
     /// `.valueChanged` 覆盖用户点选；`removeDuplicates()` 兜底同值重发。
     ///
+    /// - Returns: 控件属性发布者
     /// - Note: 无选中项时 `selectedSegmentIndex` 为 `-1`，订阅初值会发出 `-1`。
     var fdy_selectedSegmentIndexPublisher: FdyControlProperty<Int> {
         let assigned = publisher(for: \.selectedSegmentIndex, options: [.initial, .new])

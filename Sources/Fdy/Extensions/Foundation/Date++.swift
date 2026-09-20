@@ -22,7 +22,6 @@ public extension Date {
     /// - Parameters:
     ///   - calendar: 用于解析组件的日历,默认为 `.current`
     ///   - components: 包含年、月、日等信息的 `DateComponents`
-    /// - Returns: 若能成功解析为有效日期,则返回 `Date`;否则返回 `nil`
     init?(fdy_calendar calendar: Calendar? = .current, components: DateComponents) {
         guard let cal = calendar,
               let date = cal.date(from: components) else { return nil }
@@ -34,7 +33,6 @@ public extension Date {
     /// - Parameters:
     ///   - string: 日期字符串(如 `"2025-01-01T12:00:00.000Z"`)
     ///   - dateFormat: 日期格式若为 `nil`,则使用 ISO 8601 标准格式
-    /// - Returns: 若字符串能被成功解析,则返回 `Date`;否则返回 `nil`
     init?(fdy_string string: String, dateFormat: String? = nil) {
         let formatter: DateFormatter = if let format = dateFormat {
             DateFormatter.fdy_formatter(format: format)
@@ -50,7 +48,6 @@ public extension Date {
     /// - Parameters:
     ///   - timestamp: 时间戳数值
     ///   - isUnix: 是否为 Unix 时间戳(以秒为单位)若为 `false`,则视为毫秒时间戳
-    /// - Returns: 对应的 `Date` 实例
     init(fdy_timestamp timestamp: TimeInterval, isUnix: Bool = true) {
         let interval = isUnix ? timestamp : timestamp / 1000.0
         self.init(timeIntervalSince1970: interval)
@@ -61,13 +58,8 @@ public extension Date {
 public extension Date {
     /// 获取或设置当前日期的年份
     ///
+    /// - Returns: 计算结果
     /// - 注意: 设置时若新值 ≤ 0,则忽略操作
-    /// - Example:
-    ///   ```swift
-    ///   var date = Date()
-    ///   date.fdy_year = 2030  // 将年份设为 2030
-    ///   print(date.fdy_year)  // 输出：2030
-    ///   ```
     var fdy_year: Int {
         get { self.fdy_calendar.component(.year, from: self) }
         set {
@@ -80,12 +72,8 @@ public extension Date {
 
     /// 获取或设置当前日期的月份(1 到 12)
     ///
+    /// - Returns: 计算结果
     /// - 注意: 若设置值不在 1～12 范围内,则忽略操作
-    /// - Example:
-    ///   ```swift
-    ///   var date = Date()
-    ///   date.fdy_month = 5  // 设置为五月
-    ///   ```
     var fdy_month: Int {
         get { self.fdy_calendar.component(.month, from: self) }
         set {
@@ -98,12 +86,8 @@ public extension Date {
 
     /// 获取或设置当前日期在当月中的日(1 到该月最大天数)
     ///
+    /// - Returns: 计算结果
     /// - 注意: 若设置值超出当前月份的有效范围(如 2 月设为 30 日),则忽略操作
-    /// - Example:
-    ///   ```swift
-    ///   var date = Date()
-    ///   date.fdy_day = 15  // 设置为当月 15 日
-    ///   ```
     var fdy_day: Int {
         get { self.fdy_calendar.component(.day, from: self) }
         set {
@@ -117,12 +101,8 @@ public extension Date {
 
     /// 获取或设置当前日期的小时(0 到 23,24 小时制)
     ///
+    /// - Returns: 计算结果
     /// - 注意: 若设置值不在 0～23 范围内,则忽略操作
-    /// - Example:
-    ///   ```swift
-    ///   var date = Date()
-    ///   date.fdy_hour = 14  // 设置为下午 2 点
-    ///   ```
     var fdy_hour: Int {
         get { self.fdy_calendar.component(.hour, from: self) }
         set {
@@ -135,12 +115,8 @@ public extension Date {
 
     /// 获取或设置当前日期的分钟(0 到 59)
     ///
+    /// - Returns: 计算结果
     /// - 注意: 若设置值不在 0～59 范围内,则忽略操作
-    /// - Example:
-    ///   ```swift
-    ///   var date = Date()
-    ///   date.fdy_minute = 30  // 设置为 30 分
-    ///   ```
     var fdy_minute: Int {
         get { self.fdy_calendar.component(.minute, from: self) }
         set {
@@ -153,12 +129,8 @@ public extension Date {
 
     /// 获取或设置当前日期的秒(0 到 59)
     ///
+    /// - Returns: 计算结果
     /// - 注意: 若设置值不在 0～59 范围内,则忽略操作
-    /// - Example:
-    ///   ```swift
-    ///   var date = Date()
-    ///   date.fdy_second = 45  // 设置为 45 秒
-    ///   ```
     var fdy_second: Int {
         get { self.fdy_calendar.component(.second, from: self) }
         set {
@@ -171,13 +143,9 @@ public extension Date {
 
     /// 获取或设置当前日期的毫秒(0 到 999)
     ///
+    /// - Returns: 计算结果
     /// - 注意: 实际存储单位为纳秒,毫秒通过除以 1,000,000 转换
     /// - 设置时会自动将值限制在 [0, 999] 范围内
-    /// - Example:
-    ///   ```swift
-    ///   var date = Date()
-    ///   date.fdy_millisecond = 500  // 设置为 500 毫秒
-    ///   ```
     var fdy_millisecond: Int {
         get {
             let nanoseconds = self.fdy_calendar.component(.nanosecond, from: self)
@@ -194,12 +162,8 @@ public extension Date {
 
     /// 获取或设置当前日期的纳秒(0 到 999,999,999)
     ///
+    /// - Returns: 计算结果
     /// - 注意: 设置时会自动将值限制在有效范围内
-    /// - Example:
-    ///   ```swift
-    ///   var date = Date()
-    ///   date.fdy_nanosecond = 123_456_789
-    ///   ```
     var fdy_nanosecond: Int {
         get { self.fdy_calendar.component(.nanosecond, from: self) }
         set {
@@ -238,6 +202,8 @@ public extension Date {
 // MARK: - 随机时间
 public extension Date {
     /// 在开区间 `(lower, upper)` 内生成随机日期
+    /// - Parameter range: 范围
+    /// - Returns: 日期
     static func fdy_random(in range: Range<Date>) -> Date {
         let lower = range.lowerBound.timeIntervalSinceReferenceDate
         let upper = range.upperBound.timeIntervalSinceReferenceDate
@@ -246,6 +212,8 @@ public extension Date {
     }
 
     /// 在闭区间 `[lower, upper]` 内生成随机日期
+    /// - Parameter range: 范围
+    /// - Returns: 日期
     static func fdy_random(in range: ClosedRange<Date>) -> Date {
         let lower = range.lowerBound.timeIntervalSinceReferenceDate
         let upper = range.upperBound.timeIntervalSinceReferenceDate
@@ -254,6 +222,10 @@ public extension Date {
     }
 
     /// 使用自定义随机数生成器生成随机日期(开区间)
+    /// - Parameters:
+    ///   - range: 范围
+    ///   - generator: 生成器
+    /// - Returns: 日期
     static func fdy_random(
         in range: Range<Date>,
         using generator: inout some RandomNumberGenerator
@@ -265,6 +237,10 @@ public extension Date {
     }
 
     /// 使用自定义随机数生成器生成随机日期(闭区间)
+    /// - Parameters:
+    ///   - range: 范围
+    ///   - generator: 生成器
+    /// - Returns: 日期
     static func fdy_random(
         in range: ClosedRange<Date>,
         using generator: inout some RandomNumberGenerator
@@ -348,6 +324,8 @@ public extension Date {
     }
 
     /// 判断是否与另一日期处于同一天
+    /// - Parameter date: 日期
+    /// - Returns: 是否满足条件
     func fdy_isSameDay(as date: Date) -> Bool {
         self.fdy_calendar.isDate(self, inSameDayAs: date)
     }
@@ -358,6 +336,7 @@ public extension Date {
     ///   - startDate: 起始日期
     ///   - endDate: 结束日期
     ///   - includeBounds: 是否包含边界(默认 `false`)
+    /// - Returns: 是否满足条件
     func fdy_isBetween(_ startDate: Date, _ endDate: Date, includeBounds: Bool = false) -> Bool {
         if includeBounds {
             return self >= startDate && self <= endDate
@@ -367,6 +346,8 @@ public extension Date {
     }
 
     /// 判断年、月、日是否完全相同
+    /// - Parameter date: 日期
+    /// - Returns: 是否满足条件
     func fdy_isSameYearMonthDay(as date: Date) -> Bool {
         let comps1 = self.fdy_calendar.dateComponents([.year, .month, .day], from: self)
         let comps2 = self.fdy_calendar.dateComponents([.year, .month, .day], from: date)
@@ -374,11 +355,18 @@ public extension Date {
     }
 
     /// 判断是否与当前时间在指定日历粒度上相等(如同年、同月)
+    /// - Parameter component: 分量
+    /// - Returns: 是否满足条件
     func fdy_isInCurrent(_ component: Calendar.Component) -> Bool {
         self.fdy_calendar.isDate(self, equalTo: Date(), toGranularity: component)
     }
 
     /// 判断与另一日期在指定组件上的绝对差值是否 ≤ 给定值
+    /// - Parameters:
+    ///   - value: 值
+    ///   - component: 分量
+    ///   - date: 日期
+    /// - Returns: 是否满足条件
     func fdy_isWithin(_ value: Int, of component: Calendar.Component, comparedTo date: Date) -> Bool {
         guard let diff = self.fdy_componentDifference(to: date, in: component) else { return false }
         return Swift.abs(diff) <= value
@@ -452,9 +440,9 @@ public extension Date {
 public extension Date {
     /// 将当前日期`视为 UTC 时间`,并返回其在本地时区下的等效显示值
     ///
+    /// - Returns: 本地时区下对应的日期对象(绝对时间点已偏移)
     /// - 注意：此方法会按当前时区偏移量调整绝对时间点(`timeIntervalSince1970`),并非仅调整显示
     ///   适用于将 API 返回的 UTC 字符串按本地时间展示(如 `"2024-01-01T08:00:00Z"` 显示为本地 16:00)
-    /// - Returns: 本地时区下对应的日期对象(绝对时间点已偏移)
     func fdy_local() -> Date {
         let offset = self.fdy_timeZone.secondsFromGMT(for: self)
         return self.addingTimeInterval(TimeInterval(offset))
@@ -462,9 +450,9 @@ public extension Date {
 
     /// 将当前日期`视为本地时间`,并返回其在 UTC 下的等效表示
     ///
+    /// - Returns: UTC 时区下对应的日期对象(绝对时间点已偏移)
     /// - 注意：此方法会按当前时区偏移量调整绝对时间点(`timeIntervalSince1970`)
     ///   适用于将用户选择的本地日历时间(如“今天 10:00”)转换为 UTC 存储
-    /// - Returns: UTC 时区下对应的日期对象(绝对时间点已偏移)
     func fdy_UTC() -> Date {
         let offset = self.fdy_timeZone.secondsFromGMT(for: self)
         return self.addingTimeInterval(-TimeInterval(offset))
@@ -517,11 +505,13 @@ public extension Date {
     }
 
     /// 获取星期几(1=星期日, 2=星期一, ..., 7=星期六)
+    /// - Returns: 计算结果
     var fdy_weekday: Int {
         self.fdy_calendar.component(.weekday, from: self)
     }
 
     /// 获取中文星期名称(如“星期一”)
+    /// - Returns: 处理后的字符串
     var fdy_weekdayString: String {
         let weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
         let idx = self.fdy_weekday - 1
@@ -530,26 +520,31 @@ public extension Date {
     }
 
     /// 获取英文月份全称(如 "January")
+    /// - Returns: 处理后的字符串
     var fdy_monthString: String {
         self.fdy_toString("MMMM")
     }
 
     /// 获取本年第几周(ISO 周数,取决于日历配置)
+    /// - Returns: 计算结果
     var fdy_weekOfYear: Int {
         self.fdy_calendar.component(.weekOfYear, from: self)
     }
 
     /// 获取本月第几周
+    /// - Returns: 计算结果
     var fdy_weekOfMonth: Int {
         self.fdy_calendar.component(.weekOfMonth, from: self)
     }
 
     /// 获取当前日期所属的季度(1–4)
+    /// - Returns: 计算结果
     var fdy_quarter: Int {
         (self.fdy_month - 1) / 3 + 1
     }
 
     /// 获取当前日期所属哪个年代
+    /// - Returns: 计算结果
     var fdy_era: Int {
         return self.fdy_calendar.component(.era, from: self)
     }
@@ -558,16 +553,20 @@ public extension Date {
 // MARK: - 日期计算
 public extension Date {
     /// 返回昨天的日期
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_yesterday() -> Date? {
         self.fdy_calendar.date(byAdding: .day, value: -1, to: self)
     }
 
     /// 返回明天的日期
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_tomorrow() -> Date? {
         self.fdy_calendar.date(byAdding: .day, value: 1, to: self)
     }
 
     /// 返回指定天数偏移后的日期
+    /// - Parameter days: 天数
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_adding(days: Int) -> Date? {
         self.fdy_calendar.date(byAdding: .day, value: days, to: self)
     }
@@ -589,26 +588,31 @@ public extension Date {
     }
 
     /// 最近的 5 分钟整点
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_nearest5Minutes() -> Date? {
         self.fdy_nearest(minutes: 5)
     }
 
     /// 最近的 10 分钟整点
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_nearest10Minutes() -> Date? {
         self.fdy_nearest(minutes: 10)
     }
 
     /// 最近的 15 分钟整点(一刻钟)
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_nearest15Minutes() -> Date? {
         self.fdy_nearest(minutes: 15)
     }
 
     /// 最近的 30 分钟整点
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_nearest30Minutes() -> Date? {
         self.fdy_nearest(minutes: 30)
     }
 
     /// 最近的整点小时(以 30 分钟为界：≤30 分 → 当前小时,>30 分 → 下一小时)
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_nearestHour() -> Date? {
         let min = self.fdy_minute
         let base = self.fdy_calendar.startOfDay(for: self)
@@ -616,26 +620,31 @@ public extension Date {
     }
 
     /// 今天的起始时间(即当前日期,但通常配合其他方法使用)
+    /// - Returns: 日期
     static var fdy_today: Date {
         Date()
     }
 
     /// 昨天
+    /// - Returns: 日期,不可用时返回 `nil`
     static var fdy_yesterday: Date? {
         Date().fdy_yesterday()
     }
 
     /// 明天
+    /// - Returns: 日期,不可用时返回 `nil`
     static var fdy_tomorrow: Date? {
         Date().fdy_tomorrow()
     }
 
     /// 前天
+    /// - Returns: 日期,不可用时返回 `nil`
     static var fdy_dayBeforeYesterday: Date? {
         Date().fdy_adding(days: -2)
     }
 
     /// 后天
+    /// - Returns: 日期,不可用时返回 `nil`
     static var fdy_dayAfterTomorrow: Date? {
         Date().fdy_adding(days: 2)
     }
@@ -656,27 +665,36 @@ public extension Date {
     }
 
     /// 获取当前月份的天数
+    /// - Returns: 计算结果
     static var fdy_currentMonthDays: Int {
         let now = Date()
         return self.fdy_daysInMonth(year: now.fdy_year, month: now.fdy_month)
     }
 
     /// 返回与另一日期相差的秒数(可正可负)
+    /// - Parameter date: 日期
+    /// - Returns: 计算结果
     func fdy_seconds(since date: Date) -> Double {
         self.timeIntervalSince(date)
     }
 
     /// 返回与另一日期相差的分钟数
+    /// - Parameter date: 日期
+    /// - Returns: 计算结果
     func fdy_minutes(since date: Date) -> Double {
         self.fdy_seconds(since: date) / 60
     }
 
     /// 返回与另一日期相差的小时数
+    /// - Parameter date: 日期
+    /// - Returns: 计算结果
     func fdy_hours(since date: Date) -> Double {
         self.fdy_seconds(since: date) / 3600
     }
 
     /// 返回与另一日期相差的天数
+    /// - Parameter date: 日期
+    /// - Returns: 计算结果
     func fdy_days(since date: Date) -> Double {
         self.fdy_seconds(since: date) / 86400
     }
@@ -778,6 +796,9 @@ public extension Date {
 
     /// 在当前日期上增加指定日历组件的值
     ///
+    /// - Parameters:
+    ///   - component: 分量
+    ///   - value: 值
     /// - Returns: 新日期,若无法计算则返回 `nil`
     func fdy_adding(_ component: Calendar.Component, value: Int) -> Date? {
         self.fdy_calendar.date(byAdding: component, value: value, to: self)
@@ -785,6 +806,9 @@ public extension Date {
 
     /// 将当前日期的指定组件设置为给定值(如将分钟设为 30)
     ///
+    /// - Parameters:
+    ///   - component: 分量
+    ///   - value: 值
     /// - Returns: 新日期,若值非法或无法设置则返回 `nil`
     func fdy_setting(_ component: Calendar.Component, to value: Int) -> Date? {
         let parent: Calendar.Component? = {
@@ -812,6 +836,8 @@ public extension Date {
     }
 
     /// 获取指定日历组件的起始时刻(如 `.day` → 00:00:00)
+    /// - Parameter component: 分量
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_beginning(of component: Calendar.Component) -> Date? {
         if component == .day {
             return self.fdy_calendar.startOfDay(for: self)
@@ -833,6 +859,8 @@ public extension Date {
     }
 
     /// 获取指定日历组件的结束时刻(如 `.day` → 23:59:59)
+    /// - Parameter component: 分量
+    /// - Returns: 日期,不可用时返回 `nil`
     func fdy_end(of component: Calendar.Component) -> Date? {
         guard let next = self.fdy_adding(component, value: 1) else { return nil }
         guard let beginningOfNext = next.fdy_beginning(of: component) else { return nil }

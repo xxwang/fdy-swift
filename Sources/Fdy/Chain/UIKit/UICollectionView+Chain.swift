@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UICollectionView {
-    /// 设置 `delegate`,传 `nil` 可清空
+    ///  `delegate`,传 `nil` 可清空
     /// - Parameter delegate: 代理对象
     /// - Returns: `Self`
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UICollectionView {
         return self
     }
 
-    /// 设置 `dataSource`,传 `nil` 可清空
+    ///  `dataSource`,传 `nil` 可清空
     /// - Parameter dataSource: 数据源对象
     /// - Returns: `Self`
     @discardableResult
@@ -36,6 +36,7 @@ public extension FdyWrapper where Base: UICollectionView {
     /// - Parameters:
     ///   - nib: `Nib` 对象
     ///   - cellType: `Cell` 类型
+    /// - Returns: `Self`
     @discardableResult
     func register(nib: UINib?, forCellWithClass cellType: (some UICollectionViewCell).Type) -> Self {
         base.register(nib, forCellWithReuseIdentifier: cellType.fdy_identifier)
@@ -46,6 +47,7 @@ public extension FdyWrapper where Base: UICollectionView {
     /// - Parameters:
     ///   - cellType: `Cell` 类型
     ///   - bundleClass: 用于定位 `Bundle` 的参考类(默认为当前类)
+    /// - Returns: `Self`
     @discardableResult
     func register(nibWithCellClass cellType: (some UICollectionViewCell).Type, at bundleClass: AnyClass? = nil) -> Self {
         let bundle = bundleClass.map { Bundle(for: $0) } ?? Bundle(for: cellType)
@@ -58,6 +60,7 @@ public extension FdyWrapper where Base: UICollectionView {
     /// - Parameters:
     ///   - kind: 视图种类(如 `UICollectionView.elementKindSectionHeader`)
     ///   - viewType: 视图类型
+    /// - Returns: `Self`
     @discardableResult
     func register(supplementaryViewOfKind kind: String, withClass viewType: (some UICollectionReusableView).Type) -> Self {
         base.register(viewType, forSupplementaryViewOfKind: kind, withReuseIdentifier: viewType.fdy_identifier)
@@ -69,6 +72,7 @@ public extension FdyWrapper where Base: UICollectionView {
     ///   - nib: `Nib` 对象
     ///   - kind: 视图种类
     ///   - viewType: 视图类型
+    /// - Returns: `Self`
     @discardableResult
     func register(
         nib: UINib?,
@@ -79,7 +83,7 @@ public extension FdyWrapper where Base: UICollectionView {
         return self
     }
 
-    /// 设置 `CollectionView` 布局,支持动画和完成回调
+    ///  `CollectionView` 布局,支持动画和完成回调
     /// - Parameters:
     ///   - layout: 布局对象
     ///   - animated: 是否动画
@@ -130,6 +134,123 @@ public extension FdyWrapper where Base: UICollectionView {
             return self
         }
         base.scrollToItem(at: indexPath, at: scrollPosition, animated: animated)
+        return self
+    }
+
+    /// 预取数据源
+    /// - Parameter prefetchDataSource: 遵循 `UICollectionViewDataSourcePrefetching` 的对象
+    /// - Returns: `Self`
+    @discardableResult
+    func prefetchDataSource(_ prefetchDataSource: UICollectionViewDataSourcePrefetching?) -> Self {
+        base.prefetchDataSource = prefetchDataSource
+        return self
+    }
+
+    /// 是否启用预取
+    /// - Parameter isPrefetchingEnabled: `true` 表示启用预取
+    /// - Returns: `Self`
+    @discardableResult
+    func isPrefetchingEnabled(_ isPrefetchingEnabled: Bool) -> Self {
+        base.isPrefetchingEnabled = isPrefetchingEnabled
+        return self
+    }
+
+    /// 拖拽代理
+    /// - Parameter dragDelegate: 遵循 `UICollectionViewDragDelegate` 的对象
+    /// - Returns: `Self`
+    @discardableResult
+    func dragDelegate(_ dragDelegate: UICollectionViewDragDelegate?) -> Self {
+        base.dragDelegate = dragDelegate
+        return self
+    }
+
+    /// 放置代理
+    /// - Parameter dropDelegate: 遵循 `UICollectionViewDropDelegate` 的对象
+    /// - Returns: `Self`
+    @discardableResult
+    func dropDelegate(_ dropDelegate: UICollectionViewDropDelegate?) -> Self {
+        base.dropDelegate = dropDelegate
+        return self
+    }
+
+    /// 是否启用拖拽交互
+    /// - Parameter dragInteractionEnabled: `true` 表示启用拖拽交互
+    /// - Returns: `Self`
+    @discardableResult
+    func dragInteractionEnabled(_ dragInteractionEnabled: Bool) -> Self {
+        base.dragInteractionEnabled = dragInteractionEnabled
+        return self
+    }
+
+    /// 重排节奏
+    /// - Parameter reorderingCadence: 要设置的重排节奏
+    /// - Returns: `Self`
+    @discardableResult
+    func reorderingCadence(_ reorderingCadence: UICollectionView.ReorderingCadence) -> Self {
+        base.reorderingCadence = reorderingCadence
+        return self
+    }
+
+    /// 自适应尺寸的失效策略
+    /// - Parameter selfSizingInvalidation: 要设置的自适应尺寸的失效策略
+    /// - Returns: `Self`
+    @discardableResult
+    func selfSizingInvalidation(_ selfSizingInvalidation: UICollectionView.SelfSizingInvalidation) -> Self {
+        base.selfSizingInvalidation = selfSizingInvalidation
+        return self
+    }
+
+    /// 选中是否跟随焦点
+    /// - Parameter selectionFollowsFocus: 要设置的选中是否跟随焦点
+    /// - Returns: `Self`
+    @discardableResult
+    func selectionFollowsFocus(_ selectionFollowsFocus: Bool) -> Self {
+        base.selectionFollowsFocus = selectionFollowsFocus
+        return self
+    }
+
+    /// 是否允许获焦
+    /// - Parameter allowsFocus: 是否允许获得焦点
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsFocus(_ allowsFocus: Bool) -> Self {
+        base.allowsFocus = allowsFocus
+        return self
+    }
+
+    /// 编辑态下是否允许获焦
+    /// - Parameter allowsFocusDuringEditing: 要设置的编辑态下是否允许获焦
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsFocusDuringEditing(_ allowsFocusDuringEditing: Bool) -> Self {
+        base.allowsFocusDuringEditing = allowsFocusDuringEditing
+        return self
+    }
+
+    /// 是否处于编辑态
+    /// - Parameter isEditing: `true` 表示处于编辑态
+    /// - Returns: `Self`
+    @discardableResult
+    func isEditing(_ isEditing: Bool) -> Self {
+        base.isEditing = isEditing
+        return self
+    }
+
+    /// 编辑态下是否允许单选
+    /// - Parameter allowsSelectionDuringEditing: 要设置的编辑态下是否允许单选
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsSelectionDuringEditing(_ allowsSelectionDuringEditing: Bool) -> Self {
+        base.allowsSelectionDuringEditing = allowsSelectionDuringEditing
+        return self
+    }
+
+    /// 编辑态下是否允许多选
+    /// - Parameter allowsMultipleSelectionDuringEditing: 要设置的编辑态下是否允许多选
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsMultipleSelectionDuringEditing(_ allowsMultipleSelectionDuringEditing: Bool) -> Self {
+        base.allowsMultipleSelectionDuringEditing = allowsMultipleSelectionDuringEditing
         return self
     }
 }

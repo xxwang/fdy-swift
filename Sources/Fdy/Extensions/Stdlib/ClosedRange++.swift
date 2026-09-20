@@ -1,8 +1,6 @@
 import Foundation
 
 // MARK: - 命名空间入口
-//
-// `ClosedRange` 是泛型结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension ClosedRange: FdyExtension {}
 
 // MARK: - 整数闭区间 (Int) 的随机值扩展
@@ -10,12 +8,6 @@ public extension ClosedRange<Int> {
     /// 返回区间内的一个随机整数
     ///
     /// - Returns: 区间 `[lowerBound, upperBound]` 内的随机值
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let range = 1...10
-    ///   let randomValue = range.fdy_random()
-    ///   ```
     func fdy_random() -> Int {
         .random(in: self)
     }
@@ -27,12 +19,6 @@ public extension ClosedRange<Int> {
     ///
     /// - Parameter offset: 要偏移的整数值(正数向右,负数向左)
     /// - Returns: 新的闭区间
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let range = 1...5
-    ///   print(range.fdy_offset(by: 2)) // 3...7
-    ///   ```
     func fdy_offset(by offset: Int) -> ClosedRange<Int> {
         return (lowerBound + offset) ... (upperBound + offset)
     }
@@ -44,13 +30,6 @@ public extension ClosedRange where Bound: Comparable {
     ///
     /// - Parameter other: 另一个闭区间
     /// - Returns: 交集区间,若无交集则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let r1 = 1...10
-    ///   let r2 = 5...15
-    ///   print(r1.fdy_intersection(with: r2)) // Optional(5...10)
-    ///   ```
     func fdy_intersection(with other: ClosedRange<Bound>) -> ClosedRange<Bound>? {
         let lower = Swift.max(lowerBound, other.lowerBound)
         let upper = Swift.min(upperBound, other.upperBound)
@@ -61,13 +40,6 @@ public extension ClosedRange where Bound: Comparable {
     ///
     /// - Parameter other: 另一个闭区间
     /// - Returns: 并集闭区间
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let r1 = 1...10
-    ///   let r2 = 15...20
-    ///   print(r1.fdy_union(with: r2)) // 1...20
-    ///   ```
     func fdy_union(with other: ClosedRange<Bound>) -> ClosedRange<Bound> {
         let lower = Swift.min(lowerBound, other.lowerBound)
         let upper = Swift.max(upperBound, other.upperBound)
@@ -81,13 +53,6 @@ public extension ClosedRange where Bound: Strideable, Bound.Stride: SignedIntege
     ///
     /// - Parameter other: 要减去的区间
     /// - Returns: 差集组成的闭区间数组(0～2 个区间)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let r1 = 1...10
-    ///   let r2 = 5...15
-    ///   print(r1.fdy_difference(with: r2)) // [1...4]
-    ///   ```
     func fdy_difference(with other: ClosedRange<Bound>) -> [ClosedRange<Bound>] {
         guard let intersection = fdy_intersection(with: other) else {
             return [self] // 无交集,整个区间保留

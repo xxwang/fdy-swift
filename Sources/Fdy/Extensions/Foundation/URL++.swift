@@ -4,8 +4,6 @@ import UIKit
 import UniformTypeIdentifiers
 
 // MARK: - 命名空间入口
-//
-// `URL` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension URL: FdyExtension {}
 
 // MARK: - 属性
@@ -18,11 +16,13 @@ public extension URL {
     }
 
     /// 判断是否为 HTTPS 协议
+    /// - Returns: 是否满足条件
     var fdy_isHTTPS: Bool {
         self.scheme?.lowercased() == "https"
     }
 
     /// 解析查询参数为字典(重复 key 时后者覆盖前者)
+    /// - Returns: 字符串字典,不可用时返回 `nil`
     var fdy_parameters: [String: String]? {
         guard let components = URLComponents(url: self, resolvingAgainstBaseURL: false),
               let queryItems = components.queryItems else { return nil }
@@ -36,32 +36,38 @@ public extension URL {
     }
 
     /// 获取主机名(域名)
+    /// - Returns: 处理后的字符串,不可用时返回 `nil`
     var fdy_hostName: String? {
         self.host
     }
 
     /// 获取文件名(最后一个路径组件)
+    /// - Returns: 处理后的字符串
     var fdy_filename: String {
         self.lastPathComponent
     }
 
     /// 获取文件扩展名
+    /// - Returns: 处理后的字符串,不可用时返回 `nil`
     var fdy_fileExtension: String? {
         self.pathExtension.isEmpty ? nil : self.pathExtension
     }
 
     /// 返回一个将路径中 `～` 展开后的 `URL`
+    /// - Returns: URL
     var fdy_expandingTildeInUrl: URL {
         URL(fileURLWithPath: self.path.fdy_expandingTildeInPath)
     }
 
     /// 获取 MIME 类型
+    /// - Returns: 处理后的字符串,不可用时返回 `nil`
     var fdy_mimeType: String? {
         let ext = self.pathExtension.lowercased()
         return UTType(filenameExtension: ext)?.preferredMIMEType
     }
 
     /// 将 URL 指向的内容读取为 Data(⚠️ 仅建议用于本地文件！网络 URL 会阻塞线程)
+    /// - Returns: 数据,不可用时返回 `nil`
     /// - ⚠️ 警告：对网络 URL 调用会同步下载并阻塞当前线程,可能导致卡顿或崩溃
     ///   请仅用于 `isFileURL == true` 的场景
     var fdy_Data: Data? {
@@ -73,11 +79,13 @@ public extension URL {
     }
 
     /// 将 URL 字符串 Base64 编码
+    /// - Returns: 处理后的字符串,不可用时返回 `nil`
     var fdy_base64Encoded: String? {
         self.absoluteString.data(using: .utf8)?.base64EncodedString()
     }
 
     /// 获取本地文件大小(仅适用于文件 URL)
+    /// - Returns: 计算结果,不可用时返回 `nil`
     var fdy_fileSize: Int64? {
         guard self.isFileURL else { return nil }
         let attrs = try? FileManager.default.attributesOfItem(atPath: self.path)
@@ -85,6 +93,7 @@ public extension URL {
     }
 
     /// 返回 URL 各组件组成的字典
+    /// - Returns: 字符串字典
     var fdy_components: [String: String?] {
         [
             "scheme": self.scheme,
@@ -96,6 +105,7 @@ public extension URL {
     }
 
     /// 获取路径组件列表(过滤掉 "/")
+    /// - Returns: 字符串数组
     var fdy_pathComponentsList: [String] {
         self.pathComponents.filter { $0 != "/" }
     }
@@ -104,6 +114,8 @@ public extension URL {
 // MARK: - 方法
 public extension URL {
     /// 删除指定查询参数
+    /// - Parameter key: 键
+    /// - Returns: URL
     func fdy_removeQueryParameter(for key: String) -> URL {
         guard var components = URLComponents(url: self, resolvingAgainstBaseURL: true) else {
             return self
@@ -113,6 +125,8 @@ public extension URL {
     }
 
     /// 追加查询参数(非 mutating 版本)
+    /// - Parameter parameters: 参数集合
+    /// - Returns: URL
     func fdy_appendParameters(_ parameters: [String: String]) -> URL {
         guard var components = URLComponents(url: self, resolvingAgainstBaseURL: true) else {
             return self
@@ -123,11 +137,14 @@ public extension URL {
     }
 
     /// 追加查询参数(mutating 版本)
+    /// - Parameter parameters: 参数集合
     mutating func fdy_appendParameters(_ parameters: [String: String]) {
         self = self.fdy_appendParameters(parameters)
     }
 
     /// 获取指定查询参数的值
+    /// - Parameter key: 键
+    /// - Returns: 处理后的字符串,不可用时返回 `nil`
     func fdy_queryValue(for key: String) -> String? {
         URLComponents(url: self, resolvingAgainstBaseURL: false)?
             .queryItems?
@@ -136,6 +153,7 @@ public extension URL {
     }
 
     /// 删除所有路径组件,保留 scheme + host
+    /// - Returns: URL
     func fdy_deleteAllPathComponents() -> URL {
         guard let host = self.host, let scheme = self.scheme else {
             return self
@@ -152,6 +170,7 @@ public extension URL {
     }
 
     /// 移除 scheme(返回 "example.com/path?..." 形式)
+    /// - Returns: URL,不可用时返回 `nil`
     /// - ⚠️ 不返回 URL 类型(因无 scheme 的字符串不是合法 URL),改为返回 String？
     ///   但为保持 API 一致,仍尝试构造 URL(可能失败)
     func fdy_droppedScheme() -> URL? {
@@ -191,6 +210,8 @@ public extension URL {
     }
 
     /// 路径组件追加
+    /// - Parameter path: 路径
+    /// - Returns: URL
     func fdy_appendingPathComponent(_ path: String) -> URL {
         self.appending(component: path)
     }

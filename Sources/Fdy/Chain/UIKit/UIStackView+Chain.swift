@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UIStackView {
-    /// 设置子视图的排列轴向(水平或垂直)
+    /// 子视图的排列轴向(水平或垂直)
     /// - Parameter axis: 布局轴向
     /// - Returns: `Self`
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UIStackView {
         return self
     }
 
-    /// 设置沿堆栈轴向的子视图分布策略
+    /// 沿堆栈轴向的子视图分布策略
     /// - Parameter distribution: 分布方式(如填充、等宽、等间距等)
     /// - Returns: `Self`
     @discardableResult
@@ -20,7 +20,7 @@ public extension FdyWrapper where Base: UIStackView {
         return self
     }
 
-    /// 设置垂直于堆栈轴向的子视图对齐方式
+    /// 垂直于堆栈轴向的子视图对齐方式
     /// - Parameter alignment: 对齐模式(如居中、顶部对齐、填充等)
     /// - Returns: `Self`
     @discardableResult
@@ -29,7 +29,7 @@ public extension FdyWrapper where Base: UIStackView {
         return self
     }
 
-    /// 设置默认的子视图间距
+    /// 默认的子视图间距
     /// - Parameter spacing: 相邻子视图之间的间距值
     /// - Returns: `Self`
     @discardableResult

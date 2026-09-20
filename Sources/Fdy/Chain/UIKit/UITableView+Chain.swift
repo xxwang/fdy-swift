@@ -4,6 +4,7 @@ import UIKit
 public extension FdyWrapper where Base: UITableView {
     /// 使用类名注册`纯代码` `Cell`
     /// - Parameter cellType: `Cell` 类型(需继承 `UITableViewCell`)
+    /// - Returns: `Self`
     @discardableResult
     func register(withCellClass cellType: (some UITableViewCell).Type) -> Self {
         base.register(cellType, forCellReuseIdentifier: cellType.fdy_identifier)
@@ -14,6 +15,7 @@ public extension FdyWrapper where Base: UITableView {
     /// - Parameters:
     ///   - nib: Nib 对象(可为 nil)
     ///   - cellType: Cell 类型
+    /// - Returns: `Self`
     @discardableResult
     func register(nib: UINib?, withCellClass cellType: (some UITableViewCell).Type) -> Self {
         base.register(nib, forCellReuseIdentifier: cellType.fdy_identifier)
@@ -24,6 +26,7 @@ public extension FdyWrapper where Base: UITableView {
     /// - Parameters:
     ///   - cellType: `Cell` 类型
     ///   - bundleClass: 用于定位 `Bundle` 的参考类(默认使用 `Cell` 所在 `Bundle`)
+    /// - Returns: `Self`
     @discardableResult
     func register(nibWithCellClass cellType: (some UITableViewCell).Type, at bundleClass: AnyClass? = nil) -> Self {
         let bundle = bundleClass.map { Bundle(for: $0) } ?? Bundle(for: cellType)
@@ -33,6 +36,8 @@ public extension FdyWrapper where Base: UITableView {
     }
 
     /// 使用类名注册 `Header/Footer View`(纯代码)
+    /// - Parameter viewType: 回调闭包
+    /// - Returns: `Self`
     @discardableResult
     func register(withHeaderFooterViewClass viewType: (some UITableViewHeaderFooterView).Type) -> Self {
         base.register(viewType, forHeaderFooterViewReuseIdentifier: viewType.fdy_identifier)
@@ -40,6 +45,10 @@ public extension FdyWrapper where Base: UITableView {
     }
 
     /// 使用 `Nib` 注册 `Header/Footer View`
+    /// - Parameters:
+    ///   - nib: 要注册的界面文件
+    ///   - viewType: 回调闭包
+    /// - Returns: `Self`
     @discardableResult
     func register(
         nib: UINib?,
@@ -52,7 +61,7 @@ public extension FdyWrapper where Base: UITableView {
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UITableView {
-    /// 设置 `delegate`,传 `nil` 可清空
+    ///  `delegate`,传 `nil` 可清空
     /// - Parameter delegate: 代理对象
     /// - Returns: `Self`
     @discardableResult
@@ -61,7 +70,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置 `dataSource`,传 `nil` 可清空
+    ///  `dataSource`,传 `nil` 可清空
     /// - Parameter dataSource: 数据源对象
     /// - Returns: `Self`
     @discardableResult
@@ -79,7 +88,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置行高(若使用自动布局,请设为 `UITableView.automaticDimension`)
+    /// 行高(若使用自动布局,请设为 `UITableView.automaticDimension`)
     /// - Parameter height: 行高
     /// - Returns: `Self`
     @discardableResult
@@ -88,7 +97,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置段头高度
+    /// 段头高度
     /// - Parameter height: 高度
     /// - Returns: `Self`
     @discardableResult
@@ -97,7 +106,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置段尾高度
+    /// 段尾高度
     /// - Parameter height: 高度
     /// - Returns: `Self`
     @discardableResult
@@ -106,7 +115,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置预估行高(提升滚动性能)
+    /// 预估行高(提升滚动性能)
     /// - Parameter height: 高度
     /// - Returns: `Self`
     @discardableResult
@@ -115,7 +124,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置预估段头高度
+    /// 预估段头高度
     /// - Parameter height: 高度
     /// - Returns: `Self`
     @discardableResult
@@ -124,7 +133,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置预估段尾高度
+    /// 预估段尾高度
     /// - Parameter height: 高度
     /// - Returns: `Self`
     @discardableResult
@@ -142,7 +151,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置分割线样式
+    /// 分割线样式
     /// - Parameter style: 分割线样式
     /// - Returns: `Self`
     @discardableResult
@@ -151,7 +160,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置表格头部视图(`tableHeaderView`)
+    /// 表格头部视图(`tableHeaderView`)
     /// - Parameter view: 列表头部视图;传 `nil` 即移除
     /// - Returns: `Self`
     @discardableResult
@@ -160,7 +169,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置表格尾部视图(`tableFooterView`)
+    /// 表格尾部视图(`tableFooterView`)
     /// - Parameter view: 列表尾部视图;传 `nil` 即移除
     /// - Returns: `Self`
     @discardableResult
@@ -169,7 +178,7 @@ public extension FdyWrapper where Base: UITableView {
         return self
     }
 
-    /// 设置段头顶部额外间距
+    /// 段头顶部额外间距
     /// - Parameter padding: 间距
     /// - Returns: `Self`
     @discardableResult
@@ -210,6 +219,105 @@ public extension FdyWrapper where Base: UITableView {
             indexPath.row < base.numberOfRows(inSection: indexPath.section)
         else { return self }
         base.scrollToRow(at: indexPath, at: position, animated: animated)
+        return self
+    }
+
+    /// 预取数据源
+    /// - Parameter prefetchDataSource: 遵循 `UITableViewDataSourcePrefetching` 的对象
+    /// - Returns: `Self`
+    @discardableResult
+    func prefetchDataSource(_ prefetchDataSource: UITableViewDataSourcePrefetching?) -> Self {
+        base.prefetchDataSource = prefetchDataSource
+        return self
+    }
+
+    /// 是否启用预取
+    /// - Parameter isPrefetchingEnabled: `true` 表示启用预取
+    /// - Returns: `Self`
+    @discardableResult
+    func isPrefetchingEnabled(_ isPrefetchingEnabled: Bool) -> Self {
+        base.isPrefetchingEnabled = isPrefetchingEnabled
+        return self
+    }
+
+    /// 拖拽代理
+    /// - Parameter dragDelegate: 遵循 `UITableViewDragDelegate` 的对象
+    /// - Returns: `Self`
+    @discardableResult
+    func dragDelegate(_ dragDelegate: UITableViewDragDelegate?) -> Self {
+        base.dragDelegate = dragDelegate
+        return self
+    }
+
+    /// 放置代理
+    /// - Parameter dropDelegate: 遵循 `UITableViewDropDelegate` 的对象
+    /// - Returns: `Self`
+    @discardableResult
+    func dropDelegate(_ dropDelegate: UITableViewDropDelegate?) -> Self {
+        base.dropDelegate = dropDelegate
+        return self
+    }
+
+    /// 是否启用拖拽交互
+    /// - Parameter dragInteractionEnabled: `true` 表示启用拖拽交互
+    /// - Returns: `Self`
+    @discardableResult
+    func dragInteractionEnabled(_ dragInteractionEnabled: Bool) -> Self {
+        base.dragInteractionEnabled = dragInteractionEnabled
+        return self
+    }
+
+    /// 填充行高度
+    /// - Parameter fillerRowHeight: 要设置的填充行高度
+    /// - Returns: `Self`
+    @discardableResult
+    func fillerRowHeight(_ fillerRowHeight: CGFloat) -> Self {
+        base.fillerRowHeight = fillerRowHeight
+        return self
+    }
+
+    /// 自适应尺寸的失效策略
+    /// - Parameter selfSizingInvalidation: 要设置的自适应尺寸的失效策略
+    /// - Returns: `Self`
+    @discardableResult
+    func selfSizingInvalidation(_ selfSizingInvalidation: UITableView.SelfSizingInvalidation) -> Self {
+        base.selfSizingInvalidation = selfSizingInvalidation
+        return self
+    }
+
+    /// 选中是否跟随焦点
+    /// - Parameter selectionFollowsFocus: 要设置的选中是否跟随焦点
+    /// - Returns: `Self`
+    @discardableResult
+    func selectionFollowsFocus(_ selectionFollowsFocus: Bool) -> Self {
+        base.selectionFollowsFocus = selectionFollowsFocus
+        return self
+    }
+
+    /// 是否允许获焦
+    /// - Parameter allowsFocus: 是否允许获得焦点
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsFocus(_ allowsFocus: Bool) -> Self {
+        base.allowsFocus = allowsFocus
+        return self
+    }
+
+    /// 编辑态下是否允许获焦
+    /// - Parameter allowsFocusDuringEditing: 要设置的编辑态下是否允许获焦
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsFocusDuringEditing(_ allowsFocusDuringEditing: Bool) -> Self {
+        base.allowsFocusDuringEditing = allowsFocusDuringEditing
+        return self
+    }
+
+    /// 内容抗拉伸元素
+    /// - Parameter contentHuggingElements: 要设置的内容抗拉伸元素
+    /// - Returns: `Self`
+    @discardableResult
+    func contentHuggingElements(_ contentHuggingElements: UITableViewContentHuggingElements) -> Self {
+        base.contentHuggingElements = contentHuggingElements
         return self
     }
 }

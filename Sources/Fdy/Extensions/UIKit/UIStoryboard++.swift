@@ -2,6 +2,7 @@ import UIKit
 
 public extension UIStoryboard {
     /// 获取应用程序的主 `UIStoryboard`(从`Info.plist`的 `UIMainStoryboardFile` 读取名称)
+    /// - Returns: 故事板,不可用时返回 `nil`
     static func fdy_main() -> UIStoryboard? {
         guard let name = Bundle.main.object(forInfoDictionaryKey: "UIMainStoryboardFile") as? String else {
             return nil

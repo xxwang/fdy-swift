@@ -6,15 +6,6 @@ public extension NSDecimalNumber {
     /// 支持负数、零、极大/极小值,且不会因浮点转换丢失精度
     ///
     /// - Returns: 如果值是整数(如 5, -3.0, 0),返回 `true`;否则返回 `false`(如 3.14, -2.5)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   NSDecimalNumber(string: "10").fdy_isInteger       // true
-    ///   NSDecimalNumber(string: "10.0").fdy_isInteger     // true
-    ///   NSDecimalNumber(string: "10.1").fdy_isInteger     // false
-    ///   NSDecimalNumber(value: -5).fdy_isInteger          // true
-    ///   NSDecimalNumber.notANumber.fdy_isInteger          // false
-    ///   ```
     var fdy_isInteger: Bool {
         // 特殊值处理：NaN 或无穷大(虽然 NSDecimalNumber 通常不支持无穷,但防御性处理)
         if self == .notANumber {
@@ -40,11 +31,13 @@ public extension NSDecimalNumber {
     }
 
     /// 返回当前数值的绝对值
+    /// - Returns: 十进制数
     var fdy_absoluteValue: NSDecimalNumber {
         return self.compare(NSDecimalNumber.zero) == .orderedAscending ? self.multiplying(by: -1) : self
     }
 
     /// 返回当前数值的相反数(正变负,负变正)
+    /// - Returns: 十进制数
     var fdy_negated: NSDecimalNumber {
         return self.multiplying(by: -1)
     }

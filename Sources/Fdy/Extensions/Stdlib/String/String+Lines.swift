@@ -1,21 +1,13 @@
 import Foundation
 import CoreText
 import CoreGraphics
-
-#if canImport(UIKit)
-    import UIKit
-#endif
+import UIKit
 
 // MARK: - String行处理
 public extension String {
     /// 将字符串按系统换行符(\n, \r\n 等)分割为行数组
     ///
     /// - Returns: 每行内容组成的数组,不包含换行符
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "Hello\nWorld".fdy_lines // ["Hello", "World"]
-    ///   ```
     var fdy_lines: [String] {
         var result: [String] = []
         self.enumerateLines { line, _ in
@@ -32,12 +24,6 @@ public extension String {
     /// - Returns: 换行后的字符串数组
     ///
     /// - Note: 使用 Core Text 实现,支持复杂文本(如 emoji、混合语言)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let text = "这是一个测试字符串"
-    ///   let lines = text.fdy_wrappedLines(maxWidth: 100, font: .systemFont(ofSize: 16))
-    ///   ```
     func fdy_wrappedLines(maxWidth: CGFloat, font: UIFont) -> [String] {
         guard !self.isEmpty, maxWidth > 0 else { return [] }
 
@@ -77,16 +63,6 @@ public extension String {
     ///   - suffix: 截断后缀文本(如 "..." 或 "...查看全文")
     ///   - suffixFont: 后缀字体(若为 nil,则使用主字体)
     /// - Returns: 截断并添加后缀后的行数组(长度 ≤ maxLines)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let lines = longText.fdy_truncatedLines(
-    ///       maxWidth: 200,
-    ///       font: .systemFont(ofSize: 14),
-    ///       maxLines: 3,
-    ///       suffix: "...查看全文"
-    ///   )
-    ///   ```
     func fdy_truncatedLines(
         maxWidth: CGFloat,
         font: UIFont,

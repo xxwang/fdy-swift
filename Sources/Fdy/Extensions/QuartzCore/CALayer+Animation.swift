@@ -14,17 +14,12 @@ public extension CALayer {
     /// 此方法通过修改 `position` 属性实现平滑位移动画
     ///
     /// - Parameters:
-    ///   - to: 目标位置
+    ///   - point: 坐标点
     ///   - duration: 动画持续时间(秒),默认为 2.0
     ///   - delay: 动画开始前的延迟时间(秒),默认为 0
     ///   - repeatCount: 动画重复次数,默认为 1设为 `.infinity` 可无限重复
     ///   - removedOnCompletion: 动画结束后是否从图层移除,默认为 `false`(保留最终状态)
     ///   - timingFunction: 动画缓动函数,默认为 `.default`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   layer.fdy_basicAnimationMove(to: CGPoint(x: 100, y: 100), duration: 1.5)
-    ///   ```
     func fdy_basicAnimationMove(
         to point: CGPoint,
         duration: TimeInterval = 2.0,
@@ -49,17 +44,12 @@ public extension CALayer {
     ///
     /// - Parameters:
     ///   - axis: 平移方向(`.x` 或 `.y`)
-    ///   - to: 目标偏移量(单位：点)
+    ///   - value: 目标偏移量(单位：点)
     ///   - duration: 动画持续时间(秒),默认为 2.0
     ///   - delay: 动画开始前的延迟时间(秒),默认为 0
     ///   - repeatCount: 动画重复次数,默认为 1
     ///   - removedOnCompletion: 动画结束后是否移除,默认为 `false`
     ///   - timingFunction: 动画缓动函数,默认为 `.default`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   layer.fdy_basicAnimationTranslation(axis: .x, to: 100, duration: 1.0)
-    ///   ```
     func fdy_basicAnimationTranslation(
         axis: FdyAxis,
         to value: CGFloat,
@@ -90,17 +80,12 @@ public extension CALayer {
     /// 使用基本动画改变图层的圆角半径
     ///
     /// - Parameters:
-    ///   - to: 目标圆角半径
+    ///   - radius: 半径
     ///   - duration: 动画持续时间(秒),默认为 2.0
     ///   - delay: 动画开始前的延迟时间(秒),默认为 0
     ///   - repeatCount: 动画重复次数,默认为 1
     ///   - removedOnCompletion: 动画结束后是否移除,默认为 `false`
     ///   - timingFunction: 动画缓动函数,默认为 `.default`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   layer.fdy_basicAnimationCornerRadius(to: 20, duration: 0.5)
-    ///   ```
     func fdy_basicAnimationCornerRadius(
         to radius: CGFloat,
         duration: TimeInterval = 2.0,
@@ -124,17 +109,12 @@ public extension CALayer {
     /// 使用基本动画对图层进行缩放
     ///
     /// - Parameters:
-    ///   - to: 目标缩放比例(1.0 表示原始大小)
+    ///   - scale: 目标缩放比例(1.0 表示原始大小)
     ///   - duration: 动画持续时间(秒),默认为 2.0
     ///   - delay: 动画开始前的延迟时间(秒),默认为 0
     ///   - repeatCount: 动画重复次数,默认为 1
     ///   - removedOnCompletion: 动画结束后是否移除,默认为 `true`(因缩放通常不保留)
     ///   - timingFunction: 动画缓动函数,默认为 `.default`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   layer.fdy_basicAnimationScale(to: 1.5, duration: 0.3)
-    ///   ```
     func fdy_basicAnimationScale(
         to scale: CGFloat,
         duration: TimeInterval = 2.0,
@@ -158,17 +138,12 @@ public extension CALayer {
     /// 使用基本动画对图层进行旋转
     ///
     /// - Parameters:
-    ///   - to: 目标旋转角度(弧度)
+    ///   - angle: 目标旋转角度(弧度)
     ///   - duration: 动画持续时间(秒),默认为 2.0
     ///   - delay: 动画开始前的延迟时间(秒),默认为 0
     ///   - repeatCount: 动画重复次数,默认为 1
     ///   - removedOnCompletion: 动画结束后是否移除,默认为 `true`
     ///   - timingFunction: 动画缓动函数,默认为 `.default`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   layer.fdy_basicAnimationRotation(to: .pi, duration: 1.0)
-    ///   ```
     func fdy_basicAnimationRotation(
         to angle: CGFloat,
         duration: TimeInterval = 2.0,
@@ -366,7 +341,7 @@ public extension CALayer {
     /// 使用弹簧动画改变图层的 bounds
     ///
     /// - Parameters:
-    ///   - to: 目标 bounds
+    ///   - bounds: 目标 bounds
     ///   - delay: 延迟时间(秒),默认为 0
     ///   - mass: 质量(默认 10.0)
     ///   - stiffness: 刚度(默认 5000)

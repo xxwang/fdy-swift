@@ -39,7 +39,7 @@ open class FdyTextView: UITextView {
 
 // MARK: - FdySetupable
 @objc extension FdyTextView: FdySetupable {
-    /// 设置UI
+    /// UI
     open func setupUI() {
         // 添加占位文本标签
         self.addSubview(placeholderLabel)
@@ -99,7 +99,7 @@ open class FdyTextView: UITextView {
 
 // MARK: - 链式语法
 public extension FdyWrapper where Base: FdyTextView {
-    /// 设置占位文字内容
+    /// 占位文字内容
     /// - Parameter text: 要设置的文字
     /// - Returns: `Self`
     @discardableResult
@@ -109,7 +109,7 @@ public extension FdyWrapper where Base: FdyTextView {
         return self
     }
 
-    /// 设置占位文字字体
+    /// 占位文字字体
     /// - Parameter font: 要设置的占位文字字体
     /// - Returns: `Self`
     @discardableResult
@@ -118,7 +118,7 @@ public extension FdyWrapper where Base: FdyTextView {
         return self
     }
 
-    /// 设置占位文字颜色
+    /// 占位文字颜色
     /// - Parameter color: 要设置的占位文字颜色
     /// - Returns: `Self`
     @discardableResult

@@ -7,6 +7,7 @@ public extension UILabel {
     ///
     /// `UILabel` 没有用户输入，KVO 已覆盖全部变更来源，故不合并事件通道。
     /// `removeDuplicates()` 使「赋同一个值」不再重复发出，与其余 `FdyControlProperty` 语义一致。
+    /// - Returns: 控件属性发布者
     var fdy_textPublisher: FdyControlProperty<String?> {
         FdyControlProperty(
             values: publisher(for: \.text, options: [.initial, .new]).removeDuplicates().eraseToAnyPublisher(),
@@ -17,6 +18,7 @@ public extension UILabel {
     /// 富文本内容（可读当前值、可绑定写回）。
     ///
     /// `NSAttributedString` 不是 `Equatable`，去重改用 `isEqual` 比较内容。
+    /// - Returns: 控件属性发布者
     var fdy_attributedTextPublisher: FdyControlProperty<NSAttributedString?> {
         FdyControlProperty(
             values: publisher(for: \.attributedText, options: [.initial, .new]).removeDuplicates { lhs, rhs in

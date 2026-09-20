@@ -1,8 +1,6 @@
 import CoreGraphics
 
 // MARK: - 命名空间入口
-//
-// `CGRect` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension CGRect: FdyExtension {}
 
 // MARK: - 构造方法
@@ -40,12 +38,14 @@ public extension CGRect {
 // MARK: - 属性
 public extension CGRect {
     /// 矩形的中心点(基于 origin + size 计算)
+    /// - Returns: 坐标点
     var fdy_center: CGPoint {
         CGPoint(x: self.midX, y: self.midY)
     }
 
     /// 矩形自身的中心偏移量(基于自身 bounds 坐标系)
     /// 主要用于锚点计算,通常不直接使用
+    /// - Returns: 坐标点
     var fdy_localCenter: CGPoint {
         CGPoint(x: self.width / 2, y: self.height / 2)
     }
@@ -58,16 +58,9 @@ public extension CGRect {
     /// 锚点 `(0, 0)` 表示左上角,`(1, 1)` 表示右下角
     ///
     /// - Parameters:
-    ///   - to: 目标尺寸
+    ///   - size: 尺寸
     ///   - anchorPoint: 归一化锚点,默认为中心 `(0.5, 0.5)`
     /// - Returns: 缩放后的矩形
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let rect = CGRect(x: 0, y: 0, width: 100, height: 100)
-    ///     let resized = rect.fdy_resizing(to: CGSize(width: 150, height: 150), anchorPoint: CGPoint(x: 0, y: 1))
-    ///     // Result: CGRect(x: 0, y: -50, width: 150, height: 150)
-    ///     ```
     func fdy_resizing(to size: CGSize, anchorPoint: CGPoint = CGPoint(x: 0.5, y: 0.5)) -> CGRect {
         let deltaWidth = size.width - self.width
         let deltaHeight = size.height - self.height

@@ -1,32 +1,20 @@
 import Foundation
 
 // MARK: - 命名空间入口
-//
-// `NSRange` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension NSRange: FdyExtension {}
 
 // MARK: - 类型转换
 public extension NSRange {
     /// 将 `NSRange`(基于 UTF-16)安全转换为 Swift 原生的 `Range<String.Index>`
     ///
-    /// - Parameter in: 要转换的字符串(必须与生成该 `NSRange` 的字符串相同)
+    /// - Parameter string: 要转换的字符串(必须与生成该 `NSRange` 的字符串相同)
     /// - Returns: 对应的 `Range<String.Index>`;若 `NSRange` 超出字符串范围、包含无效位置或长度为负,则返回 `nil`
     ///
     /// - Important:
     ///   `NSRange` 使用 UTF-16 编码单位(code units),而 Swift 的 `String` 使用 Unicode 字符(grapheme clusters)
     ///   因此,只有当 `NSRange` 来自 `NSString` 或 `NSRegularExpression` 等 Cocoa API 时,此转换才有意义
     ///
-    /// - Example:
-    ///   ```swift
-    ///   let string = "Hello, 世界!"
-    ///   let nsRange = NSRange(location: 7, length: 2) // 指向 "世界"
-    ///   if let range = nsRange.fdy_range(in: string) {
-    ///       print(string[range]) // "世界"
-    ///   }
-    ///   ```
-    ///
     /// - Note: 此方法已处理代理对(surrogate pairs)和组合字符等复杂 Unicode 情况
-    ///
     func fdy_toRange(in string: String) -> Range<String.Index>? {
         // 提前排除无效输入
         guard self.location >= 0, self.length >= 0 else { return nil }

@@ -2,14 +2,14 @@ import Foundation
 
 // MARK: - HTML Entity Encoding
 public extension String {
-    /// 返回当前字符串的 HTML 数字字符引用编码形式(格式：&#xHHHH;)
-    /// 每个 Unicode 标量被转换为小写十六进制,至少 4 位,不足补零
+    /// 把**每一个** Unicode 标量都转成 HTML 数字字符引用（格式 `&#xHHHH;`）
     ///
-    /// - Example:
-    ///   ```swift
-    ///   "Hello <world> & \"everyone\"".fdy_htmlEncoded()
-    ///   // → "&#x0048;&#x0065;&#x006c;&#x006c;&#x006f;&#x0020;&#x003c;&#x0077;&#x006f;&#x0072;&#x006c;&#x0064;&#x003e;&#x0020;&#x0026;&#x0020;&#x0022;&#x0065;&#x0076;&#x0065;&#x0072;&#x0079;&#x006f;&#x006e;&#x0065;&#x0022;"
-    ///   ```
+    /// - Returns: 处理后的字符串
+    /// - Important: 这**不是**通常说的「HTML 转义」。常见做法只处理 `& < > " '` 五个字符，
+    ///   而本方法**逐标量全编码** —— `"<&\""` 会变成 `&#x003c;&#x0026;&#x0022;`：
+    ///   体积膨胀数倍、可读性为零。它适合「需要彻底防止任何字符被解释」的场景
+    ///   （例如往 `<script>` 里塞字符串），**不适合**常规 HTML 文本转义。按需选用。
+    /// - Note: 每个标量转成小写十六进制，至少补足 4 位。
     func fdy_htmlEncoded() -> String {
         unicodeScalars.map { scalar in
             let hex = String(scalar.value, radix: 16, uppercase: false)
@@ -19,17 +19,10 @@ public extension String {
     }
 
     /// 尝试将字符串中的 HTML 数字字符引用(如 `&#x0041;` 或 `&#65;`)解码为原始字符
+    /// - Returns: 解码后的字符串;如果输入不含有效引用或结果为空,返回 `nil`
     /// - 支持十六进制(`&#x...;`,不区分大小写)和十进制(`&#...;`)
     /// - 不支持命名实体(如 `&lt;`, `&amp;`)
     /// - 无效或超出 Unicode 范围的引用会被忽略(不插入字符)
-    ///
-    /// - Returns: 解码后的字符串;如果输入不含有效引用或结果为空,返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   "&#x0048;&#x0065;&#x006c;&#x006c;&#x006f;".fdy_htmlDecoded()
-    ///   // → Optional("Hello")
-    ///   ```
     func fdy_htmlDecoded() -> String? {
         // 匹配 &#x[hex]; (十六进制)和 &#[dec]; (十进制),不区分大小写
         let pattern = "(?i)&#(?:x([0-9a-f]+)|([0-9]+));"

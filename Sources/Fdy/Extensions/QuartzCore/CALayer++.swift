@@ -13,8 +13,7 @@ public extension CALayer {
     }
 
     /// 将`CALayer`转换为`UIImage?`
-    /// - Parameters:
-    ///   - scale: 缩放比例,默认取 `UIScreen.main.scale`(`nonisolated`,可在任意线程调用),通常与设备的屏幕密度相匹配
+    /// - Parameter scale: 缩放比例,默认取 `UIScreen.main.scale`(`nonisolated`,可在任意线程调用),通常与设备的屏幕密度相匹配
     /// - Returns: 返回转换后的`UIImage`,如果失败则返回`nil`
     func fdy_toUIImage(scale: CGFloat = UIScreen.main.scale) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(self.bounds.size, self.isOpaque, scale)

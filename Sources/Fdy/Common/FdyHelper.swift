@@ -2,10 +2,7 @@ import UIKit
 import AdSupport
 import AppTrackingTransparency
 
-/// 提供常用辅助信息
-///
-/// - Note: 读取 `UIApplication` / `UIWindow` 的成员单独标注 ``@MainActor``；
-///   `className`、`deviceTokenStr` 等纯工具成员保持 `nonisolated`，避免把非 UI 调用方（如复用标识、类名）拖到主线程。
+// MARK: - 提供常用辅助信息
 public final class FdyHelper {
     public static let shared = FdyHelper()
     private init() {}
@@ -14,6 +11,7 @@ public final class FdyHelper {
 // MARK: - 设备环境
 public extension FdyHelper {
     /// 当前是否运行在模拟器中
+    /// - Returns: 是否满足条件
     var isSimulator: Bool {
         #if targetEnvironment(simulator)
             return true
@@ -23,6 +21,7 @@ public extension FdyHelper {
     }
 
     /// 当前是否处于 `DEBUG` 编译模式
+    /// - Returns: 是否满足条件
     var isDebug: Bool {
         #if DEBUG
             return true
@@ -32,11 +31,13 @@ public extension FdyHelper {
     }
 
     /// 当前设备是否为 `iPad`
+    /// - Returns: 是否满足条件
     var isPad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
     }
 
     /// 当前设备是否为 `iPhone`
+    /// - Returns: 是否满足条件
     var isPhone: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
     }
@@ -45,6 +46,7 @@ public extension FdyHelper {
     ///
     /// 判断依据：`key window` 的 `safeAreaInsets.bottom > 0`
     /// 注意：在 `iPad` 或非全面屏设备上返回 `false`
+    /// - Returns: 是否满足条件
     @MainActor
     var isIPhoneXSeries: Bool {
         let bottomInset = UIWindow.fdy_keyWindow?.safeAreaInsets.bottom ?? 0
@@ -55,11 +57,13 @@ public extension FdyHelper {
 // MARK: - 标识符(Identifiers)
 public extension FdyHelper {
     /// 设备厂商标识符(IDFV)：同一开发商下所有 App 共享,卸载重装会变化
+    /// - Returns: 处理后的字符串,不可用时返回 `nil`
     var identifierForVendor: String? {
         return UIDevice.current.identifierForVendor?.uuidString
     }
 
     /// 广告标识符(IDFA)：仅在用户授权广告追踪后可用(需先请求 ATT 权限)
+    /// - Returns: 处理后的字符串,不可用时返回 `nil`
     var advertisingIdentifier: String? {
         guard ATTrackingManager.trackingAuthorizationStatus == .authorized else { return nil }
         return ASIdentifierManager.shared().advertisingIdentifier.uuidString
@@ -69,11 +73,13 @@ public extension FdyHelper {
 // MARK: - 系统与设备基本信息
 public extension FdyHelper {
     /// iOS 系统版本号(如 "17.2")
+    /// - Returns: 处理后的字符串
     var systemVersion: String {
         return UIDevice.current.systemVersion
     }
 
     /// 设备上次启动的时间点(Date 类型)
+    /// - Returns: 日期
     /// - 注意：不是 uptime 时长,而是绝对时间
     var lastBootTime: Date {
         let uptime = ProcessInfo.processInfo.systemUptime
@@ -81,31 +87,37 @@ public extension FdyHelper {
     }
 
     /// 设备型号类别(如 "iPhone", "iPad")
+    /// - Returns: 处理后的字符串
     var model: String {
         return UIDevice.current.model
     }
 
     /// 操作系统名称(如 "iOS")
+    /// - Returns: 处理后的字符串
     var systemName: String {
         return UIDevice.current.systemName
     }
 
     /// 用户设置的设备名称(如 "张三的 iPhone")
+    /// - Returns: 处理后的字符串
     var name: String {
         return UIDevice.current.name
     }
 
     /// 应用首选语言(安全访问,避免崩溃)
+    /// - Returns: 处理后的字符串
     var preferredLocalization: String {
         return Bundle.main.preferredLocalizations.first ?? "en"
     }
 
     /// 本地化设备型号(如 "iPhone")
+    /// - Returns: 处理后的字符串
     var localizedModel: String {
         return UIDevice.current.localizedModel
     }
 
     /// CPU 物理核心数(通过 sysctl 查询)
+    /// - Returns: 计算结果
     var cpuCoreCount: Int {
         var ncpu: UInt32 = 0
         var len = MemoryLayout.size(ofValue: ncpu)
@@ -118,6 +130,7 @@ public extension FdyHelper {
 public extension FdyHelper {
     /// 检测设备是否可能已越狱(仅检查常见路径,不写文件)
     /// ⚠️ 仅供调试/日志使用,App Store 审核可能因“探测系统完整性”被拒
+    /// - Returns: 是否满足条件
     var isJailbroken: Bool {
         if FdyHelper.shared.isSimulator {
             return false
@@ -135,6 +148,7 @@ public extension FdyHelper {
     }
 
     /// 检查设备是否支持拨打电话(通过 tel scheme 判断)
+    /// - Returns: 是否满足条件
     var canPlacePhoneCalls: Bool {
         guard let url = URL(string: "tel:123") else { return false }
         return UIApplication.shared.canOpenURL(url)
@@ -144,6 +158,7 @@ public extension FdyHelper {
 // MARK: - 屏幕方向
 public extension FdyHelper {
     /// 获取当前界面方向
+    /// - Returns: 界面方向
     @MainActor
     var interfaceOrientation: UIInterfaceOrientation {
         let activeScene = UIApplication.shared.connectedScenes
@@ -152,12 +167,15 @@ public extension FdyHelper {
     }
 
     /// 当前界面是否处于横屏状态
+    /// - Returns: 是否满足条件
     @MainActor
     var isLandscape: Bool {
         return self.interfaceOrientation.isLandscape
     }
 
     /// 判断指定方向是否被当前 App 支持
+    /// - Parameter orientation: 界面方向
+    /// - Returns: 是否满足条件
     func isSupportedOrientation(_ orientation: UIInterfaceOrientation) -> Bool {
         let supported = UIApplication.shared.supportedInterfaceOrientations(for: nil)
         return supported.contains(orientation.fdy_interfaceOrientationMask())
@@ -167,12 +185,14 @@ public extension FdyHelper {
 // MARK: - 辅助方法
 public extension FdyHelper {
     /// 获取去掉模块前缀的类名（如 `MyApp.MyClass` → `MyClass`）
+    /// - Parameter type: 回调闭包
+    /// - Returns: 处理后的字符串
     func className(_ type: (some Any).Type) -> String {
         String(reflecting: type).components(separatedBy: ".").last ?? String(describing: type)
     }
 
     /// 获取`deviceToken`的字符串表示
-    /// - Parameter token: 设备ID
+    /// - Parameter deviceToken: 设备ID
     /// - Returns: 设备ID字符串
     func deviceTokenStr(_ deviceToken: Data) -> String {
         return deviceToken.map { String(format: "%02.2hhx", $0) }.joined()

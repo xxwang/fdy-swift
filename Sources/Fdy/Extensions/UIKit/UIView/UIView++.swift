@@ -153,60 +153,88 @@ extension UIView {
 // MARK: - 属性
 public extension UIView {
     /// 视图的大小
+    /// - Returns: 尺寸
     var fdy_size: CGSize {
         get { return self.frame.size }
         set { self.frame = CGRect(origin: self.fdy_origin, size: newValue) }
     }
 
     /// 视图的位置坐标
+    /// - Returns: 坐标点
     var fdy_origin: CGPoint {
         get { return self.frame.origin }
         set { self.frame = CGRect(origin: newValue, size: self.fdy_size) }
     }
 
     /// 视图中心
+    /// - Returns: 坐标点
     var fdy_center: CGPoint {
         get { return self.center }
         set { self.center = newValue }
     }
 
     /// 视图的宽度
+    /// - Returns: 计算结果
     var fdy_width: CGFloat {
         get { return self.frame.width }
         set { self.frame = CGRect(origin: self.fdy_origin, size: CGSize(width: newValue, height: self.fdy_height)) }
     }
 
     /// 视图的高度
+    /// - Returns: 计算结果
     var fdy_height: CGFloat {
         get { return self.frame.height }
         set { self.frame = CGRect(origin: self.fdy_origin, size: CGSize(width: self.fdy_width, height: newValue)) }
     }
 
     /// 视图的顶部位置 (等同于 `y`)
+    /// - Returns: 计算结果
     var fdy_top: CGFloat {
         get { return self.frame.origin.y }
         set { self.frame = CGRect(origin: CGPoint(x: self.fdy_left, y: newValue), size: self.fdy_size) }
     }
 
     /// 视图的左侧位置 (等同于 `x`)
+    /// - Returns: 计算结果
     var fdy_left: CGFloat {
         get { return self.frame.origin.x }
         set { self.frame = CGRect(origin: CGPoint(x: newValue, y: self.fdy_top), size: self.fdy_size) }
     }
 
+    /// 视图的右侧位置（`maxX` 口径，与 Chain 侧 `right(_:)` 一致）
+    ///
+    /// - Returns: 计算结果
+    /// - Note: 写入时保持宽高不变、只移动 `origin.x`，使 `frame.maxX` 落到新值。
+    var fdy_right: CGFloat {
+        get { return self.frame.maxX }
+        set { self.frame = CGRect(origin: CGPoint(x: newValue - self.fdy_width, y: self.fdy_top), size: self.fdy_size) }
+    }
+
+    /// 视图的底部位置（`maxY` 口径，与 Chain 侧 `bottom(_:)` 一致）
+    ///
+    /// - Returns: 计算结果
+    /// - Note: 写入时保持宽高不变、只移动 `origin.y`，使 `frame.maxY` 落到新值。
+    var fdy_bottom: CGFloat {
+        get { return self.frame.maxY }
+        set { self.frame = CGRect(origin: CGPoint(x: self.fdy_left, y: newValue - self.fdy_height), size: self.fdy_size) }
+    }
+
     /// 视图中心点的 x 坐标
+    /// - Returns: 计算结果
     var fdy_centerX: CGFloat {
         get { return self.center.x }
         set { self.center = CGPoint(x: newValue, y: self.fdy_centerY) }
     }
 
     /// 视图中心点的 y 坐标
+    /// - Returns: 计算结果
     var fdy_centerY: CGFloat {
         get { return self.center.y }
         set { self.center = CGPoint(x: self.fdy_centerX, y: newValue) }
     }
 
     /// 视图的中心点 (基于自身 bounds 坐标系)
+    /// - Returns: 坐标点
     var fdy_middle: CGPoint {
         return CGPoint(x: self.fdy_width / 2, y: self.fdy_height / 2)
     }
@@ -215,11 +243,13 @@ public extension UIView {
 // MARK: - 视图信息与查找
 public extension UIView {
     /// 当前视图的有效布局方向
+    /// - Returns: 布局方向
     var fdy_layoutDirection: UIUserInterfaceLayoutDirection {
         return self.effectiveUserInterfaceLayoutDirection
     }
 
     /// 查找该视图所属的视图控制器(通过响应者链)
+    /// - Returns: 视图控制器,不可用时返回 `nil`
     var fdy_viewController: UIViewController? {
         var responder: UIResponder? = self.next
         while responder != nil {
@@ -232,6 +262,7 @@ public extension UIView {
     }
 
     /// 递归查找当前视图层级中的第一响应者
+    /// - Returns: 视图,不可用时返回 `nil`
     var fdy_firstResponder: UIView? {
         guard !self.isFirstResponder else { return self }
         for subview in self.subviews {
@@ -242,7 +273,13 @@ public extension UIView {
         return nil
     }
 
-    /// 获取所有子视图(深度优先,包含所有后代)
+    /// 获取所有后代子视图
+    ///
+    /// - Returns: 视图数组
+    /// - Note: 遍历顺序是「**先列完本层全部直接子视图，再逐个进入它们的子树**」，
+    ///   **不是**严格的深度优先。例：`self` 有子视图 `[a, b]`、`a` 有 `[a1, a2]` 时，
+    ///   结果为 `[a, b, a1, a2, a1 的后代…, a2 的后代…, b 的后代…]`。
+    ///   这与 `fdy_findSubviews(ofType:)` 的**深度优先**顺序不同，混用时注意。
     var fdy_allSubviews: [UIView] {
         self.subviews + self.subviews.flatMap(\.fdy_allSubviews)
     }

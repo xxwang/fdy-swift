@@ -1,6 +1,6 @@
 import UIKit
 
-/// 屏幕尺寸信息。读取 `UIApplication` / `UIScreen`，必须在主线程使用，因此标注为 ``@MainActor``
+// MARK: - 屏幕尺寸信息
 @MainActor
 public final class FdyScreen {
     public static let shared = FdyScreen()
@@ -19,6 +19,7 @@ public final class FdyScreen {
 // MARK: - 屏幕基础几何信息
 public extension FdyScreen {
     /// 当前主屏幕的边界,会随设备旋转动态变化
+    /// - Returns: 矩形
     static var screenBounds: CGRect {
         let scene = UIApplication.shared.connectedScenes
             .first { $0.activationState == .foregroundActive } as? UIWindowScene
@@ -26,21 +27,25 @@ public extension FdyScreen {
     }
 
     /// 当前屏幕尺寸
+    /// - Returns: 尺寸
     static var screenSize: CGSize {
         screenBounds.size
     }
 
     /// 屏幕宽度
+    /// - Returns: 计算结果
     static var screenWidth: CGFloat {
         screenBounds.width
     }
 
     /// 屏幕高度
+    /// - Returns: 计算结果
     static var screenHeight: CGFloat {
         screenBounds.height
     }
 
     /// 屏幕缩放
+    /// - Returns: 计算结果
     static var screenScale: CGFloat {
         let scene = UIApplication.shared.connectedScenes
             .first { $0.activationState == .foregroundActive } as? UIWindowScene
@@ -51,26 +56,31 @@ public extension FdyScreen {
 // MARK: - 安全区域(Safe Area)信息
 public extension FdyScreen {
     /// 当前 `keyWindow` 的安全区域插值
+    /// - Returns: 内边距
     static var safeAreaInsets: UIEdgeInsets {
         return UIWindow.fdy_keyWindow?.safeAreaInsets ?? .zero
     }
 
     /// 安全区顶部高度(通常为状态栏 + 导航栏下方留白)
+    /// - Returns: 计算结果
     static var safeAreaTop: CGFloat {
         safeAreaInsets.top
     }
 
     /// 安全区底部高度(通常为 `Home Indicator `或底部留白)
+    /// - Returns: 计算结果
     static var safeAreaBottom: CGFloat {
         safeAreaInsets.bottom
     }
 
     /// 安全区左侧宽度
+    /// - Returns: 计算结果
     static var safeAreaLeft: CGFloat {
         safeAreaInsets.left
     }
 
     /// 安全区右侧宽度
+    /// - Returns: 计算结果
     static var safeAreaRight: CGFloat {
         safeAreaInsets.right
     }
@@ -79,6 +89,7 @@ public extension FdyScreen {
 // MARK: - 状态栏与导航栏高度
 public extension FdyScreen {
     /// 状态栏高度
+    /// - Returns: 计算结果
     static var statusBarHeight: CGFloat {
         UIWindow.fdy_keyWindow?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
     }
@@ -106,6 +117,7 @@ public extension FdyScreen {
 // MARK: - 适配比例计算(基于设计稿)
 public extension FdyScreen {
     /// 适配比例：横屏取长边比、竖屏取短边比
+    /// - Returns: 计算结果
     /// - Note: 供 `fitWidth` / `fitLarger` / `fitSmaller` 等扩展使用。如需严格按当前宽度缩放，请用 `screenWidth / sketchSize.width`。
     static var adaptiveRatio: CGFloat {
         // 一次性取屏幕宽高，避免在布局热路径上多次遍历 connectedScenes
@@ -124,6 +136,7 @@ public extension FdyScreen {
     }
 
     /// 高度方向的缩放比例
+    /// - Returns: 计算结果
     static var heightRatio: CGFloat {
         let screenW = self.screenWidth
         let screenH = self.screenHeight
@@ -143,6 +156,7 @@ public extension FdyScreen {
 // MARK: - 屏幕捕获检测
 public extension FdyScreen {
     /// 当前是否正在录屏或投屏
+    /// - Returns: 是否满足条件
     static var isCaptured: Bool {
         let scene = UIApplication.shared.connectedScenes
             .first { $0.activationState == .foregroundActive } as? UIWindowScene
@@ -240,21 +254,25 @@ private extension FdyScreen {
 @MainActor
 public extension BinaryInteger {
     /// 适配宽度(将整数值按设计图宽度比例适配)
+    /// - Returns: 计算结果
     var fitWidth: CGFloat {
         FdyScreen.calcWidth(from: CGFloat(self))
     }
 
     /// 适配高度(将整数值按设计图高度比例适配)
+    /// - Returns: 计算结果
     var fitHeight: CGFloat {
         FdyScreen.calcHeight(from: CGFloat(self))
     }
 
     /// 适配最大值(根据设计图宽度和高度适配后的最大值)
+    /// - Returns: 计算结果
     var fitLarger: CGFloat {
         FdyScreen.calcMax(from: CGFloat(self))
     }
 
     /// 适配最小值(根据设计图宽度和高度适配后的最小值)
+    /// - Returns: 计算结果
     var fitSmaller: CGFloat {
         FdyScreen.calcMin(from: CGFloat(self))
     }
@@ -264,21 +282,25 @@ public extension BinaryInteger {
 @MainActor
 public extension BinaryFloatingPoint {
     /// 适配宽度(将浮动数字按设计图宽度比例适配)
+    /// - Returns: 计算结果
     var fitWidth: CGFloat {
         FdyScreen.calcWidth(from: CGFloat(self))
     }
 
     /// 适配高度(将浮动数字按设计图高度比例适配)
+    /// - Returns: 计算结果
     var fitHeight: CGFloat {
         FdyScreen.calcHeight(from: CGFloat(self))
     }
 
     /// 适配最大值(根据设计图宽度和高度适配后的最大值)
+    /// - Returns: 计算结果
     var fitLarger: CGFloat {
         FdyScreen.calcMax(from: CGFloat(self))
     }
 
     /// 适配最小值(根据设计图宽度和高度适配后的最小值)
+    /// - Returns: 计算结果
     var fitSmaller: CGFloat {
         FdyScreen.calcMin(from: CGFloat(self))
     }

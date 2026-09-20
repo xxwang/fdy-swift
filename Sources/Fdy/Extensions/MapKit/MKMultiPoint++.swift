@@ -12,13 +12,6 @@ public extension MKMultiPoint {
     /// - Note:
     ///   - 返回的是`副本`,修改此数组不会影响原 `MKMultiPoint` 对象
     ///   - 坐标顺序与原始数据一致(例如 polyline 的路径顺序)
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let polyline = MKPolyline(fdy_coordinates: myCoords)
-    ///   let allCoords = polyline.fdy_coordinates
-    ///   print("共有 \(allCoords.count) 个点")
-    ///   ```
     var fdy_coordinates: [CLLocationCoordinate2D] {
         let count = self.pointCount
         guard count > 0 else { return [] }

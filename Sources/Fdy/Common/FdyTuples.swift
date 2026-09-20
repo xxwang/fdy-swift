@@ -1,12 +1,5 @@
 import Foundation
 
-// MARK: - 元组容器
-//
-// Swift 原生元组无法被协议扩展、不能被 `Equatable`/`Hashable` 自动合成,
-// 需要把二元以上的组合当作具名类型传递(如放进集合、作为泛型参数)时用这批容器。
-//
-// - Note: 一元组合没有容器意义(`FdyTuple1<A>` 就是 `A` 本身),故不提供。
-
 /// 二元容器
 public struct FdyTuple2<A, B> {
     public let item1: A

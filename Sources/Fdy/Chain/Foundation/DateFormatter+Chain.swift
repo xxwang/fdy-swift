@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - 链式设置
 public extension FdyWrapper where Base: DateFormatter {
-    /// 设置日期格式字符串
+    /// 日期格式字符串
     /// - Parameter dateFormat: 日期格式（如 `"yyyy-MM-dd HH:mm"`）
     /// - Returns: `Self`，支持链式调用
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: DateFormatter {
         return self
     }
 
-    /// 设置地区（Locale）
+    /// 地区（Locale）
     /// - Parameter locale: 地区对象（建议使用 `.init(identifier:)` 明确指定）
     /// - Returns: `Self`
     @discardableResult
@@ -20,7 +20,7 @@ public extension FdyWrapper where Base: DateFormatter {
         return self
     }
 
-    /// 设置时区
+    /// 时区
     /// - Parameter timeZone: 时区对象（如 `.current`, `.utc`）
     /// - Returns: `Self`
     @discardableResult
@@ -29,7 +29,7 @@ public extension FdyWrapper where Base: DateFormatter {
         return self
     }
 
-    /// 设置日期样式
+    /// 日期样式
     /// - Parameter style: 日期显示样式（`.none`, `.short`, `.medium`, `.long`, `.full`）
     /// - Returns: `Self`
     @discardableResult
@@ -38,7 +38,7 @@ public extension FdyWrapper where Base: DateFormatter {
         return self
     }
 
-    /// 设置时间样式
+    /// 时间样式
     /// - Parameter style: 时间显示样式
     /// - Returns: `Self`
     @discardableResult
@@ -47,7 +47,7 @@ public extension FdyWrapper where Base: DateFormatter {
         return self
     }
 
-    /// 设置是否启用宽松解析（lenient parsing）
+    /// 是否启用宽松解析（lenient parsing）
     /// - Parameter isLenient: 是否宽松（默认 `false` 更安全）
     /// - Returns: `Self`
     @discardableResult
@@ -56,7 +56,7 @@ public extension FdyWrapper where Base: DateFormatter {
         return self
     }
 
-    /// 设置默认日期（用于补全缺失字段，如只有时间时使用该日期）
+    /// 默认日期（用于补全缺失字段，如只有时间时使用该日期）
     /// - Parameter date: 默认日期
     /// - Returns: `Self`
     @discardableResult

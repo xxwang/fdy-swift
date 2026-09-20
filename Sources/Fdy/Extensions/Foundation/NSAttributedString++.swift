@@ -6,12 +6,14 @@ public extension NSAttributedString {
     /// 获取属性字符串起始位置(索引 0)处的有效属性字典
     ///
     /// 如果字符串为空,返回空字典
+    /// - Returns: 属性字典
     var fdy_attributes: [NSAttributedString.Key: Any] {
         guard self.length > 0 else { return [:] }
         return self.attributes(at: 0, effectiveRange: nil)
     }
 
     /// 返回覆盖整个属性字符串的 `NSRange`
+    /// - Returns: 范围
     var fdy_fullNSRange: NSRange {
         Foundation.NSRange(location: 0, length: self.length)
     }
@@ -20,6 +22,7 @@ public extension NSAttributedString {
 // MARK: - 类型转换
 public extension NSAttributedString {
     /// 将当前不可变属性字符串转换为可变属性字符串
+    /// - Returns: 可变富文本
     func fdy_toNSMutableAttributedString() -> NSMutableAttributedString {
         NSMutableAttributedString(attributedString: self)
     }
@@ -29,11 +32,11 @@ public extension NSAttributedString {
 public extension NSAttributedString {
     /// 返回子字符串 `substring` 在属性字符串中`首次出现`的 `NSRange`
     ///
+    /// - Parameter substring: 要查找的子字符串
+    /// - Returns: 对应的 `NSRange`
     /// - 注意：返回的 `NSRange` 基于 `UTF-16 码元(code units)`,与 `NSAttributedString.length` 一致
     /// - 若未找到,返回 `{location: NSNotFound, length: 0}`
     ///
-    /// - Parameter substring: 要查找的子字符串
-    /// - Returns: 对应的 `NSRange`
     func fdy_toNSRange(of substring: String) -> NSRange {
         let str = self.string
         guard let range = str.range(of: substring) else {
@@ -46,12 +49,12 @@ public extension NSAttributedString {
 
     /// 返回多个子字符串在属性字符串中的`所有匹配项`的 `NSRange` 数组
     ///
+    /// - Parameter substrings: 要查找的子字符串数组
+    /// - Returns: 所有匹配的 `NSRange`
     /// - 每个 `substring` 会独立查找全部出现位置
     /// - 结果按输入顺序和文本中出现顺序排列
     /// - 所有 `NSRange` 均基于 `UTF-16 索引`,适用于 `NSAttributedString` 的属性设置
     ///
-    /// - Parameter substrings: 要查找的子字符串数组
-    /// - Returns: 所有匹配的 `NSRange`
     func fdy_allNSRanges(of substrings: [String]) -> [NSRange] {
         var allRanges: [NSRange] = []
         let baseString = self.string
@@ -83,8 +86,9 @@ public extension NSAttributedString {
     /// 使用 `.usesLineFragmentOrigin` 和 `.usesFontLeading` 选项,
     /// 行为与 `UILabel` 的文本布局一致
     ///
-    /// - Parameter maxWidth: 最大允许宽度默认为 `.greatestFiniteMagnitude`(无宽度限制)
-    /// - Parameter ceilResult: 是否对结果向上取整(默认 `true`)
+    /// - Parameters:
+    ///   - maxWidth: 最大允许宽度默认为 `.greatestFiniteMagnitude`(无宽度限制)
+    ///   - ceilResult: 是否对结果向上取整(默认 `true`)
     /// - Returns: 计算出的 `CGSize`(宽高均向上取整)
     func fdy_viewSize(maxWidth: CGFloat = .greatestFiniteMagnitude, ceilResult: Bool = true) -> CGSize {
         let constraint = CGSize(width: maxWidth, height: .greatestFiniteMagnitude)
@@ -101,6 +105,8 @@ public extension NSAttributedString {
 // MARK: - 运算方法
 public extension NSAttributedString {
     /// 合并两个属性字符串,返回新的不可变实例
+    /// - Parameter other: 富文本
+    /// - Returns: 富文本
     func fdy_adding(_ other: NSAttributedString) -> NSAttributedString {
         let mutable = NSMutableAttributedString(attributedString: self)
         mutable.append(other)
@@ -108,6 +114,8 @@ public extension NSAttributedString {
     }
 
     /// 将属性字符串与普通字符串合并(普通字符串无特殊属性)
+    /// - Parameter other: 另一个值
+    /// - Returns: 富文本
     func fdy_adding(_ other: String) -> NSAttributedString {
         self.fdy_adding(NSAttributedString(string: other))
     }
@@ -115,11 +123,13 @@ public extension NSAttributedString {
 
 public extension NSMutableAttributedString {
     /// 将另一个属性字符串追加到当前可变属性字符串
+    /// - Parameter other: 富文本
     func fdy_add(_ other: NSAttributedString) {
         self.append(other)
     }
 
     /// 将普通字符串(无属性)追加到当前可变属性字符串
+    /// - Parameter other: 另一个值
     func fdy_add(_ other: String) {
         self.fdy_add(NSAttributedString(string: other))
     }

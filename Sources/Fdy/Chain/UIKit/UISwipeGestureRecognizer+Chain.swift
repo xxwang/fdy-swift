@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UISwipeGestureRecognizer {
-    /// 设置滑动手势的方向
+    /// 滑动手势的方向
     /// - Parameter direction: 滑动方向
     /// - Returns: `Self`
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UISwipeGestureRecognizer {
         return self
     }
 
-    /// 设置触发滑动手势所需的同时触摸点数量
+    /// 触发滑动手势所需的同时触摸点数量
     /// - Parameter count: 触摸点数量（如 1 指或 2 指滑动），默认为 1
     /// - Returns: `Self`
     @discardableResult

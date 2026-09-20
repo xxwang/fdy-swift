@@ -27,14 +27,6 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     /// - Returns: `Self`
     ///
     /// - Note: 图片会作为 `NSTextAttachment` 插入,适用于表情、图标等场景
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let attr = NSMutableAttributedString()
-    ///       .fdy
-    ///       .string("点击 ")
-    ///       .attachment(UIImage(systemName: "arrow.right"), at: 3)
-    ///   ```
     @discardableResult
     func attachment(_ image: UIImage?, bounds: CGRect = .zero, at index: Int = 0) -> Self {
         guard let image else { return self }
@@ -72,11 +64,11 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置指定范围内的字体
+    /// 范围内的字体
     ///
     /// - Parameters:
     ///   - font: 要应用的字体若为 `nil`,不执行操作
-    ///   - for: 目标范围若未提供,默认为整个字符串
+    ///   - range: 目标范围若未提供,默认为整个字符串
     /// - Returns: `Self`
     @discardableResult
     func font(_ font: UIFont?, for range: NSRange? = nil) -> Self {
@@ -86,11 +78,11 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置字符间距(kerning),控制相邻字符之间的额外距离
+    /// 字符间距(kerning),控制相邻字符之间的额外距离
     ///
     /// - Parameters:
     ///   - spacing: 间距值(单位：点)正值增大间距,负值减小
-    ///   - for: 目标范围默认为整个字符串
+    ///   - range: 目标范围默认为整个字符串
     /// - Returns: `Self`
     ///
     /// - Note: 此属性作用于`所有字符之间`,包括中文、英文、Emoji 等
@@ -102,12 +94,12 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置行间距(保留已有段落样式,不传 `alignment` 时不动对齐方式)
+    /// 行间距(保留已有段落样式,不传 `alignment` 时不动对齐方式)
     ///
     /// - Parameters:
     ///   - lineSpacing: 行间距(单位：点)
     ///   - alignment: 段落对齐方式,默认为 `nil`(保持原样)
-    ///   - for: 目标范围默认为整个字符串
+    ///   - range: 目标范围默认为整个字符串
     /// - Returns: `Self`
     @discardableResult
     func lineSpacing(_ lineSpacing: CGFloat, alignment: NSTextAlignment? = nil, for range: NSRange? = nil) -> Self {
@@ -120,12 +112,12 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置`固定行高`(最小/最大行高一致,保留已有段落样式)
+    /// `固定行高`(最小/最大行高一致,保留已有段落样式)
     ///
     /// - Parameters:
     ///   - lineHeight: 期望的行高(单位：点)
     ///   - alignment: 段落对齐方式,默认为 `nil`(保持原样)
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
     ///
     /// - Note: 实际渲染行高 = max(字体自然高度, lineHeight)
@@ -142,11 +134,11 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置段落间距(保留已有段落样式与对齐方式)
+    /// 段落间距(保留已有段落样式与对齐方式)
     ///
     /// - Parameters:
     ///   - spacing: 段落间距(单位：点)
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
     @discardableResult
     func paragraphSpacing(_ spacing: CGFloat, for range: NSRange? = nil) -> Self {
@@ -156,7 +148,7 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置首行缩进(保留已有段落样式与对齐方式)
+    /// 首行缩进(保留已有段落样式与对齐方式)
     ///
     /// - Parameter indent: 缩进宽度(单位：点)
     /// - Returns: `Self`
@@ -168,11 +160,11 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置文字前景色(即文字颜色)
+    /// 文字前景色(即文字颜色)
     ///
     /// - Parameters:
     ///   - color: 文字颜色
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
     @discardableResult
     func foregroundColor(_ color: UIColor, for range: NSRange? = nil) -> Self {
@@ -181,11 +173,11 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置文字背景色(高亮背景)
+    /// 文字背景色(高亮背景)
     ///
     /// - Parameters:
     ///   - color: 背景颜色
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
     @discardableResult
     func backgroundColor(_ color: UIColor, for range: NSRange? = nil) -> Self {
@@ -199,7 +191,7 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     /// - Parameters:
     ///   - color: 下划线颜色
     ///   - style: 下划线样式(如实线、虚线等),默认为 `.single`
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
     @discardableResult
     func underline(color: UIColor, style: NSUnderlineStyle = .single, for range: NSRange? = nil) -> Self {
@@ -214,7 +206,7 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     /// - Parameters:
     ///   - color: 删除线颜色
     ///   - style: 删除线样式,默认为 `.single`
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
     @discardableResult
     func strikethrough(color: UIColor, style: NSUnderlineStyle = .single, for range: NSRange? = nil) -> Self {
@@ -224,11 +216,11 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置文字倾斜(仿斜体效果)
+    /// 文字倾斜(仿斜体效果)
     ///
     /// - Parameters:
     ///   - factor: 倾斜因子0 表示无倾斜,正值右倾,负值左倾
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
     @discardableResult
     func obliqueness(_ factor: Float = 0, for range: NSRange? = nil) -> Self {
@@ -237,11 +229,11 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
         return self
     }
 
-    /// 设置文字横向缩放(拉伸或压缩)
+    /// 文字横向缩放(拉伸或压缩)
     ///
     /// - Parameters:
     ///   - factor: 缩放因子1.0 为原始宽度,>1 拉伸,<1 压缩
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
     @discardableResult
     func expansion(_ factor: Float = 1.0, for range: NSRange? = nil) -> Self {
@@ -256,13 +248,8 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     ///   - color: 阴影颜色
     ///   - offset: 阴影偏移量(x 向右,y 向下为正)
     ///   - radius: 阴影模糊半径(越大越模糊)
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   .fdy.textShadow(color: .black, offset: CGSize(width: 1, height: 1), radius: 2)
-    ///   ```
     @discardableResult
     func textShadow(color: UIColor, offset: CGSize, radius: CGFloat, for range: NSRange? = nil) -> Self {
         let range = range ?? base.fdy_fullNSRange
@@ -281,15 +268,10 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     ///
     /// - Parameters:
     ///   - attributes: 要添加的属性字典
-    ///   - toOccurrencesOf: 目标子串(支持任意 `StringProtocol` 类型,如 `Substring`)
+    ///   - target: 目标子串(支持任意 `StringProtocol` 类型,如 `Substring`)
     /// - Returns: `Self`
     ///
     /// - Note: 匹配区分大小写,且会转义正则特殊字符以确保字面匹配
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   .fdy.addAttributes([.foregroundColor: UIColor.red], toOccurrencesOf: "World")
-    ///   ```
     @discardableResult
     func addAttributes(_ attributes: [NSAttributedString.Key: Any], toOccurrencesOf target: some StringProtocol) -> Self {
         // 使用 \Q...\E 转义目标字符串中的正则元字符,实现字面匹配
@@ -301,16 +283,11 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     ///
     /// - Parameters:
     ///   - attributes: 要添加的属性字典
-    ///   - toRangesMatching: 正则表达式模式
+    ///   - pattern: 正则模式
     ///   - options: 正则选项(如 `.caseInsensitive`)
     /// - Returns: `Self`
-    ///
     /// - Throws: 若正则表达式无效,将忽略并返回原字符串(不抛出异常)
     ///
-    /// - Example:
-    ///   ```swift
-    ///   .fdy.addAttributes([.foregroundColor: .blue], toRangesMatching: "\\d+") // 高亮所有数字
-    ///   ```
     @discardableResult
     func addAttributes(_ attributes: [NSAttributedString.Key: Any], toRangesMatching pattern: String, options: NSRegularExpression.Options = []) -> Self {
         guard !pattern.isEmpty,
@@ -328,7 +305,7 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     ///
     /// - Parameters:
     ///   - attributes: 属性字典
-    ///   - for: 目标范围
+    ///   - range: 目标范围
     /// - Returns: `Self`
     @discardableResult
     func addAttributes(_ attributes: [NSAttributedString.Key: Any], for range: NSRange) -> Self {
@@ -340,6 +317,10 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     }
 
     /// 安全地添加单个属性,自动忽略无效范围
+    /// - Parameters:
+    ///   - name: 名称
+    ///   - value: 值
+    ///   - range: 范围
     func addAttribute(_ name: NSAttributedString.Key, value: Any, range: NSRange) {
         let isValidRange = range.location >= 0 && range.length >= 0 && range.location + range.length <= base.length
         if isValidRange {
@@ -350,8 +331,7 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
 
 // MARK: - 方法
 public extension FdyWrapper where Base: NSMutableAttributedString {
-    /// 设置基础纯文本内容
-    ///
+    /// 基础纯文本内容
     /// - Parameter string: 新的字符串内容
     /// - Returns: `Self`
     @discardableResult
@@ -361,7 +341,6 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     }
 
     /// 替换当前内容为指定的不可变属性字符串
-    ///
     /// - Parameter attributedString: 新的属性字符串
     /// - Returns: `Self`
     @discardableResult
@@ -371,7 +350,6 @@ public extension FdyWrapper where Base: NSMutableAttributedString {
     }
 
     /// 在当前字符串末尾追加另一个属性字符串
-    ///
     /// - Parameter attributedString: 要追加的属性字符串
     /// - Returns: `Self`
     @discardableResult

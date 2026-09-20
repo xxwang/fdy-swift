@@ -4,6 +4,7 @@ import MapKit
 public extension MKMapView {
     /// 尝试从重用队列中获取指定类型的注解视图(无关联注解)
     ///
+    /// - Parameter annotationViewClass: 标注视图类型
     /// - Returns: 可重用视图,若无可重用项则返回 `nil`
     /// - Note: 适用于动态创建视图的场景,但通常应使用带 `for:` 的版本
     func fdy_dequeueReusableAnnotationView<T: MKAnnotationView>(withClass annotationViewClass: T.Type) -> T? {
@@ -12,18 +13,15 @@ public extension MKMapView {
 
     /// 从重用队列中获取指定类型的注解视图,并绑定到给定注解
     ///
+    /// - Parameters:
+    ///   - annotationViewClass: 标注视图类型
+    ///   - annotation: 目标注解
+    /// - Returns: 非空的注解视图实例
     /// - Important: 必须先通过 `register(annotationViewWithClass:)` 注册该类,
     ///   否则会触发运行时崩溃
     ///
-    /// - Returns: 非空的注解视图实例
     ///
     /// - Example(在 `mapView(_:viewFor:)` 中使用):
-    ///   ```swift
-    ///   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-    ///       guard !(annotation is MKUserLocation) else { return nil }
-    ///       return mapView.fdy_dequeueReusableAnnotationView(withClass: CustomPinView.self, for: annotation)
-    ///   }
-    ///   ```
     func fdy_dequeueReusableAnnotationView<T: MKAnnotationView>(
         withClass annotationViewClass: T.Type,
         for annotation: MKAnnotation
@@ -93,6 +91,9 @@ public extension MKMapView {
 // MARK: - 工具方法
 public extension MKMapView {
     /// 添加多个注解,可选择是否先清除现有注解
+    /// - Parameters:
+    ///   - annotations: 标注数组
+    ///   - clearExisting: 是否先清除现有注解,默认为 `false`
     func fdy_addAnnotations(_ annotations: [MKAnnotation], clearExisting: Bool = false) {
         if clearExisting {
             self.removeAnnotations(self.annotations)
@@ -101,16 +102,22 @@ public extension MKMapView {
     }
 
     /// 将视图中的点转换为地理坐标
+    /// - Parameter point: 坐标点
+    /// - Returns: 地理坐标
     func fdy_convertPointToCoordinate(_ point: CGPoint) -> CLLocationCoordinate2D {
         self.convert(point, toCoordinateFrom: self)
     }
 
     /// 将地理坐标转换为视图中的点
+    /// - Parameter coordinate: 地理坐标
+    /// - Returns: 坐标点
     func fdy_convertCoordinateToPoint(_ coordinate: CLLocationCoordinate2D) -> CGPoint {
         self.convert(coordinate, toPointTo: self)
     }
 
     /// 判断某坐标是否在当前可见地图区域内
+    /// - Parameter coordinate: 地理坐标
+    /// - Returns: 是否满足条件
     func fdy_isCoordinateVisible(_ coordinate: CLLocationCoordinate2D) -> Bool {
         let mapPoint = MKMapPoint(coordinate)
         return self.visibleMapRect.contains(mapPoint)

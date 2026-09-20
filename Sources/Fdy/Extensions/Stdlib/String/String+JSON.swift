@@ -3,8 +3,8 @@ import Foundation
 // MARK: - JSON
 public extension String {
     /// 将字符串解析为 JSON 并格式化输出(美化缩进)
-    /// - Note: 同时将 JSON 中的转义斜杠 `\/` 替换为 `/`
     /// - Returns: `成功`:格式化后的JSON字符串 `失败`:返回原字符串
+    /// - Note: 同时将 JSON 中的转义斜杠 `\/` 替换为 `/`
     func fdy_jsonFormat() -> String {
         guard let data = self.fdy_toData() else { return self }
 

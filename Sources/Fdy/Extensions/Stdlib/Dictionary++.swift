@@ -1,8 +1,6 @@
 import Foundation
 
 // MARK: - 命名空间入口
-//
-// `Dictionary` 是泛型结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension Dictionary: FdyExtension {}
 
 // MARK: - 字典构造器
@@ -12,14 +10,6 @@ public extension Dictionary {
     /// - Parameters:
     ///   - sequence: 要分组的元素序列
     ///   - keyPath: 用于提取分组键的 `KeyPath`
-    /// - Returns: 分组后的字典,类型为 `[Key: [S.Element]]`
-    /// - Example:
-    ///   ```swift
-    ///   struct Item { let category: String; let value: Int }
-    ///   let items = [Item(category: "A", value: 1), Item(category: "B", value: 2)]
-    ///   let dict = Dictionary(grouping: items, by: \.category)
-    ///   // ["A": [Item(...)], "B": [Item(...)]]
-    ///   ```
     init<S: Sequence>(grouping sequence: S, by keyPath: KeyPath<S.Element, Key>) where Value == [S.Element] {
         self.init(grouping: sequence, by: { $0[keyPath: keyPath] })
     }
@@ -104,8 +94,8 @@ public extension Dictionary {
 
     /// 尝试将字典转为 `JSON Data`（要求 `Key == String`）
     ///
-    /// - Note: 仅当 `Key` 为 `String` 且所有值均为 JSON 兼容类型（如 `String`, `Number`, `Bool`, `Array`, `Dictionary`, `NSNull`）时有效
     /// - Returns: 成功则返回 `Data`,否则返回 `nil`
+    /// - Note: 仅当 `Key` 为 `String` 且所有值均为 JSON 兼容类型（如 `String`, `Number`, `Bool`, `Array`, `Dictionary`, `NSNull`）时有效
     /// - Warning: 若 `Key` 不是 `String`,会触发 `assertionFailure` 并返回 `nil`
     func fdy_toJSONData() -> Data? {
         guard Key.self == String.self else {
@@ -120,17 +110,10 @@ public extension Dictionary {
 public extension [String: Any] {
     /// 通过字符串路径安全访问或设置嵌套字典中的值
     ///
-    /// - Note: 仅适用于 `[[String: Any]]` 嵌套结构
-    ///         设置时会自动创建中间层级;传入 `nil` 可删除路径末尾的键
     /// - Parameter path: 键路径数组,如 `["user", "profile", "name"]`
     /// - Returns: 路径对应的值（若路径无效则返回 `nil`）
-    /// - Example:
-    ///   ```swift
-    ///   var dict: [String: Any] = [:]
-    ///   dict[fdy_path: ["a", "b"]] = "hello"
-    ///   print(dict[fdy_path: ["a", "b"]]) // Optional("hello")
-    ///   dict[fdy_path: ["a", "b"]] = nil  // 删除该键
-    ///   ```
+    /// - Note: 仅适用于 `[[String: Any]]` 嵌套结构
+    ///         设置时会自动创建中间层级;传入 `nil` 可删除路径末尾的键
     subscript(fdy_path path: [String]) -> Any? {
         get {
             guard !path.isEmpty else { return nil }
@@ -192,7 +175,6 @@ public extension Dictionary {
     }
 
     /// 就地合并另一个字典(右侧值优先)
-    ///
     /// - Parameter other: 右侧字典
     mutating func fdy_merge(_ other: [Key: Value]) {
         other.forEach { self[$0] = $1 }

@@ -9,6 +9,7 @@ public extension UIViewController {
     }
 
     /// 获取导航栈中当前控制器的前一个控制器
+    /// - Returns: 视图控制器,不可用时返回 `nil`
     var fdy_previousViewController: UIViewController? {
         guard let nav = self.navigationController,
               let index = nav.viewControllers.firstIndex(of: self),
@@ -52,11 +53,13 @@ public extension UIViewController {
 // MARK: - 导航栈操作
 public extension UIViewController {
     /// 返回到导航栈的根控制器
+    /// - Parameter animated: 是否启用动画,默认为 `true`
     func fdy_popToRoot(animated: Bool = true) {
         self.navigationController?.popToRootViewController(animated: animated)
     }
 
     /// 返回上一级控制器
+    /// - Parameter animated: 是否启用动画,默认为 `true`
     func fdy_pop(animated: Bool = true) {
         self.navigationController?.popViewController(animated: animated)
     }
@@ -66,8 +69,6 @@ public extension UIViewController {
     /// - Parameters:
     ///   - viewController: 新的栈顶控制器
     ///   - animated: 是否启用动画默认为 `true`
-    ///
-    /// - Usage: 常用于登录后替换欢迎页,或表单提交后跳转结果页
     func fdy_replaceTop(with viewController: UIViewController, animated: Bool = true) {
         guard let nav = self.navigationController, !nav.viewControllers.isEmpty else { return }
         var vcs = nav.viewControllers
@@ -95,7 +96,6 @@ public extension UIViewController {
     /// - Parameters:
     ///   - type: 目标控制器类型(如 `HomeViewController.self`)
     ///   - animated: 是否启用动画默认为 `true`
-    ///
     /// - Returns: 是否成功找到并返回到目标控制器
     ///
     /// - Note: 使用 `last(where:)` 实现,因此返回的是`最靠近栈顶`的匹配项
@@ -129,6 +129,7 @@ public extension UIViewController {
     }
 
     /// 智能关闭当前控制器：
+    /// - Parameter animated: 是否启用动画,默认为 `true`
     /// - 若在导航栈中且不是根 → pop
     /// - 若是以 modal 方式呈现 → dismiss
     /// - 否则尝试 dismiss 自身(兜底)
@@ -144,10 +145,7 @@ public extension UIViewController {
 
     /// 关闭所有模态层,回到最底层的根视图控制器
     ///
-    /// - Parameters:
-    ///   - animated: 是否启用动画默认为 `true`
-    ///
-    /// - Usage: 例如用户登出时,清除所有弹窗回到登录页
+    /// - Parameter animated: 是否启用动画默认为 `true`
     func fdy_dismissAllModals(animated: Bool = true) {
         var top: UIViewController = self
         while let presenter = top.presentingViewController {

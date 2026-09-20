@@ -3,11 +3,13 @@ import Foundation
 // MARK: - 获取类信息
 public extension NSObject {
     /// 获取对象的类名
+    /// - Returns: 处理后的字符串
     var fdy_className: String {
         return FdyHelper.shared.className(Swift.type(of: self))
     }
 
     /// 获取当前类的名称
+    /// - Returns: 处理后的字符串
     static var fdy_className: String {
         return FdyHelper.shared.className(Self.self)
     }

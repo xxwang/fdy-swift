@@ -3,6 +3,7 @@ import UIKit
 // MARK: - 方法
 public extension UIImage.SymbolConfiguration {
     /// 默认配置(`pointSize: 20, weight: .regular, scale: .default`)
+    /// - Returns: 符号配置
     static func fdy_default() -> UIImage.SymbolConfiguration {
         return UIImage.SymbolConfiguration(
             pointSize: 20,

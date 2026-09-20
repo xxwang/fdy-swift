@@ -34,15 +34,15 @@ public extension Bundle {
     }
 
     /// 获取应用的Bundle 名称(通过 kCFBundleNameKey)
-    /// - 注意：不同于 Display Name,这是工程中的基础名称
     /// - Returns: 例如 "MyApp";若未设置则返回空字符串
+    /// - 注意：不同于 Display Name,这是工程中的基础名称
     static var fdy_name: String {
         Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String ?? ""
     }
 
     /// 获取应用的显示名称(CFBundleDisplayName)
-    /// - 如果未设置,则回退到 `name`
     /// - Returns: 用户在设备上看到的应用名称
+    /// - 如果未设置,则回退到 `name`
     static var fdy_displayName: String {
         (Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String) ?? self.fdy_name
     }
@@ -50,15 +50,13 @@ public extension Bundle {
     // MARK: 本地化与设备环境信息
 
     /// 获取应用支持的本地化语言列表(CFBundleLocalizations)
-    /// - 注意：该字段在 Info.plist 中应为数组(Array of Strings)
     /// - Returns: 例如 ["en", "zh-Hans"];若未配置则返回空数组
+    /// - 注意：该字段在 Info.plist 中应为数组(Array of Strings)
     static var fdy_localizations: [String] {
         (Bundle.main.infoDictionary?[String(kCFBundleLocalizationsKey)] as? [String]) ?? []
     }
 
     /// 生成一个自定义 User-Agent 字符串,用于网络请求标识
-    /// - Example:
-    ///   MyApp/2.1.0 (com.example.MyApp; Build/123; iPhone; iOS/17.5)
     /// - Returns: 符合常规格式的 User-Agent 字符串
     static var fdy_userAgent: String {
         let appName = self.fdy_displayName.replacingOccurrences(of: " ", with: "_")

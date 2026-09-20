@@ -10,18 +10,6 @@ public extension NSRegularExpression {
     ///   - range: 搜索范围(使用 `String.Index`)
     ///   - block: 对每个匹配项执行的闭包
     ///            若在闭包中将 `stop` 设为 `true`,将在当前匹配后停止枚举(与原生行为一致)
-    ///
-    /// - Example:
-    ///
-    ///     let regex = try! NSRegularExpression(pattern: "\\d+")
-    ///     let text = "abc 123 def 456"
-    ///     regex.fdy_enumerateMatches(in: text, range: text.startIndex..<text.endIndex) { result, _, stop in
-    ///         if let match = result {
-    ///             print("Match: \(text[Range(match.range, in: text)!])")
-    ///             stop = true // 只处理第一个匹配
-    ///         }
-    ///     }
-    ///
     func fdy_enumerateMatches(
         in string: String,
         options: NSRegularExpression.MatchingOptions = [],
@@ -44,7 +32,6 @@ public extension NSRegularExpression {
     ///   - options: 匹配选项
     ///   - range: 搜索范围
     /// - Returns: 所有匹配的 `NSTextCheckingResult` 数组
-    ///
     func fdy_matches(
         in string: String,
         options: NSRegularExpression.MatchingOptions = [],
@@ -60,7 +47,6 @@ public extension NSRegularExpression {
     ///   - options: 匹配选项
     ///   - range: 搜索范围
     /// - Returns: 匹配数量
-    ///
     func fdy_numberOfMatches(
         in string: String,
         options: NSRegularExpression.MatchingOptions = [],
@@ -76,7 +62,6 @@ public extension NSRegularExpression {
     ///   - options: 匹配选项
     ///   - range: 搜索范围
     /// - Returns: 第一个匹配结果,若无则返回 `nil`
-    ///
     func fdy_firstMatch(
         in string: String,
         options: NSRegularExpression.MatchingOptions = [],
@@ -92,7 +77,6 @@ public extension NSRegularExpression {
     ///   - options: 匹配选项
     ///   - range: 搜索范围
     /// - Returns: 第一个匹配的 `Range<String.Index>`,若无匹配则返回 `nil`
-    ///
     func fdy_firstMatchRange(
         in string: String,
         options: NSRegularExpression.MatchingOptions = [],
@@ -110,11 +94,6 @@ public extension NSRegularExpression {
     ///   - range: 替换范围
     ///   - template: 替换模板(支持 `$1`, `$2` 等捕获组)
     /// - Returns: 替换后的新字符串
-    ///
-    /// - Example:
-    ///
-    ///     let replaced = regex.fdy_replacingMatches(in: "a1b2", range: ..., with: "X")
-    ///
     func fdy_replacingMatches(
         in string: String,
         options: NSRegularExpression.MatchingOptions = [],
@@ -137,12 +116,6 @@ public extension NSRegularExpression {
     ///   - range: 替换范围
     ///   - template: 替换模板
     /// - Returns: 被替换的匹配项数量
-    ///
-    /// - Example:
-    ///
-    ///     var text = "a1b2"
-    ///     let count = regex.fdy_replaceMatches(in: &text, range: ..., with: "X")
-    ///
     @discardableResult
     func fdy_replaceMatches(
         in string: inout String,

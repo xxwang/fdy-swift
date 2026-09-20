@@ -7,13 +7,6 @@ public extension String {
     /// - Parameter index: 从 0 开始的字符位置
     /// - Returns: 对应位置的字符子串（如 `"a"`）,若索引越界则返回 `nil`
     /// - Note: 设置时若新值为空或越界,则忽略操作
-    /// - Example:
-    ///   ```swift
-    ///   var str = "Hello"
-    ///   print(str[fdy_safe: 1]) // Optional("e")
-    ///   str[fdy_safe: 0] = "J"
-    ///   print(str)          // "Jello"
-    ///   ```
     subscript(fdy_safe index: Int) -> String? {
         get {
             guard index >= 0, index < count else { return nil }
@@ -34,13 +27,6 @@ public extension String {
     /// - Parameter range: 整数范围表达式（如 `0..<3`, `2...4`）
     /// - Returns: 对应子串,若范围越界则返回 `nil`
     /// - Note: 设置时会自动裁剪范围至 `[0, count]`,确保安全
-    /// - Example:
-    ///   ```swift
-    ///   var str = "Hello"
-    ///   print(str[fdy_range: 1..<4]) // Optional("ell")
-    ///   str[fdy_range: 0..<5] = "Hi"
-    ///   print(str)        // "Hi"
-    ///   ```
     subscript<R>(fdy_range range: R) -> String? where R: RangeExpression, R.Bound == Int {
         get {
             let swiftRange = range.relative(to: 0 ..< Int.max)
@@ -71,13 +57,10 @@ public extension String {
     ///
     /// - Parameter nsRange: 基于 UTF-16 的 NSRange
     /// - Returns: 对应子串;若范围无效（如越界）则返回 `nil`（与同文件按整数范围访问的下标保持一致）
-    /// - Note: 此下标永不抛出异常,适合处理来自 Foundation 或正则匹配的 NSRange
-    /// - Example:
-    ///   ```swift
-    ///   let str = "Hello"
-    ///   let sub = str[fdy_range: NSRange(location: 1, length: 3)] // Optional("ell")
-    ///   ```
-    subscript(fdy_range nsRange: NSRange) -> String? {
+    /// - Note: 此下标永不抛出异常,适合处理来自 Foundation 或正则匹配的 NSRange。
+    ///   标签带 `ns` 是为标明口径 —— 本库**默认按 `Character` 序号**（`fdy_range` / `fdy_slice` /
+    ///   `fdy_substring` 皆然），只有 `NSRange` 系才带 `ns` 标记。
+    subscript(fdy_nsRange nsRange: NSRange) -> String? {
         guard let range = Range(nsRange, in: self) else { return nil }
         return String(self[range])
     }

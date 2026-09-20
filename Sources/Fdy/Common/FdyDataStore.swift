@@ -14,7 +14,6 @@ public struct FdyDataStore<T> {
 
     /// 创建一个 `UserDefaults` 绑定属性
     /// - Parameters:
-    ///   - key: 存储键名
     ///   - defaultValue: 默认值(读取不到时返回)
     ///   - userDefaults: 存储容器,默认为 .standard
     public init(_ key: String, default defaultValue: T, userDefaults: UserDefaults = .standard) {
@@ -24,6 +23,7 @@ public struct FdyDataStore<T> {
     }
 
     /// 获取或设置存储的值
+    /// - Returns: 存储的值
     public var wrappedValue: T {
         get {
             // 直接读取(适用于 Bool/String/Int 等)
@@ -71,6 +71,7 @@ public struct FdyDataStore<T> {
     }
 
     /// 投影值,用于调用 `$property.remove()`
+    /// - Returns: 数据存储
     public var projectedValue: FdyDataStore<T> {
         self
     }

@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性(自定义)
 public extension FdyWrapper where Base == UIImage.SymbolConfiguration {
-    /// 设置文本样式
+    /// 文本样式
     /// - Parameter textStyle: 文本样式
     /// - Returns: `Self`
     @discardableResult
@@ -12,7 +12,7 @@ public extension FdyWrapper where Base == UIImage.SymbolConfiguration {
         return self
     }
 
-    /// 设置缩放样式
+    /// 缩放样式
     /// - Parameter scale: 缩放样式
     /// - Returns: `Self`
     @discardableResult
@@ -22,7 +22,7 @@ public extension FdyWrapper where Base == UIImage.SymbolConfiguration {
         return self
     }
 
-    /// 设置自定义字体大小
+    /// 自定义字体大小
     /// - Parameter pointSize: 自定义字体大小
     /// - Returns: `Self`
     @discardableResult
@@ -32,7 +32,7 @@ public extension FdyWrapper where Base == UIImage.SymbolConfiguration {
         return self
     }
 
-    /// 设置字体字重
+    /// 字体字重
     /// - Parameter weight: 字体字重
     /// - Returns: `Self`
     @discardableResult
@@ -79,9 +79,8 @@ public extension FdyWrapper where Base == UIImage.SymbolConfiguration {
         return self
     }
 
-    /// 设置字体
-    /// - Parameters:
-    ///   - font: 字体
+    /// 字体
+    /// - Parameter font: 字体
     /// - Returns: `Self`
     @discardableResult
     func font(_ font: UIFont) -> Self {
@@ -102,7 +101,7 @@ public extension FdyWrapper where Base == UIImage.SymbolConfiguration {
         return self
     }
 
-    /// 设置分层颜色
+    /// 分层颜色
     /// - Parameter hierarchicalColor: 分层颜色
     /// - Returns: `Self`
     @discardableResult
@@ -112,7 +111,7 @@ public extension FdyWrapper where Base == UIImage.SymbolConfiguration {
         return self
     }
 
-    /// 设置调色板
+    /// 调色板
     /// - Parameter paletteColors: 调色板
     /// - Returns: `Self`
     @discardableResult

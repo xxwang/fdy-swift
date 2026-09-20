@@ -1,9 +1,6 @@
 import Foundation
 
 // MARK: - 命名空间入口
-//
-// `Range` 是泛型结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
-// 登记在无约束的 `Range` 上(conformance 不能写 `where` 子句),故 `Range<Int>` 与 `Range<String.Index>` 同时获得。
 extension Range: FdyExtension {}
 
 // MARK: - 类型转换
@@ -13,12 +10,6 @@ public extension Range<String.Index> {
     /// - Parameter string: 所属的原始字符串（必须包含此范围,否则行为未定义）
     /// - Returns: 对应的 `NSRange`;若范围无效或超出字符串边界,可能返回包含 `NSNotFound` 的结果
     /// - Note: 此方法依赖 Foundation 的 `NSRange(_:in:)` 初始化器,仅适用于 UTF-16 兼容字符串
-    /// - Example:
-    ///   ```swift
-    ///   let str = "Hello, world!"
-    ///   let range = str.startIndex..<str.index(str.startIndex, offsetBy: 5)
-    ///   let nsRange = range.fdy_toNSRange(in: str) // {0, 5}
-    ///   ```
     func fdy_toNSRange(in string: String) -> NSRange {
         return NSRange(self, in: string)
     }
@@ -30,11 +21,6 @@ public extension Range<Int> {
     ///
     /// - Returns: 半开区间 `[lowerBound, upperBound)` 内的随机整数值
     /// - Note: 若区间为空（如 `5..<5`）,调用会触发运行时错误
-    /// - Example:
-    ///   ```swift
-    ///   let range = 1..<10
-    ///   let randomValue = range.fdy_random() // 如 7
-    ///   ```
     func fdy_random() -> Int {
         Int.random(in: self)
     }
@@ -43,11 +29,6 @@ public extension Range<Int> {
     ///
     /// - Parameter offset: 要偏移的整数值（正数向右,负数向左）
     /// - Returns: 新的半开区间 `(lowerBound + offset) ..< (upperBound + offset)`
-    /// - Example:
-    ///   ```swift
-    ///   let range = 1..<5
-    ///   print(range.fdy_offset(by: 2)) // 3..<7
-    ///   ```
     func fdy_offset(by offset: Int) -> Range<Int> {
         return (lowerBound + offset) ..< (upperBound + offset)
     }
@@ -60,12 +41,6 @@ public extension Range where Bound: Comparable {
     /// - Parameter other: 另一个半开区间
     /// - Returns: 交集区间（若存在重叠）,否则返回 `nil`
     /// - Note: 半开区间 `[a, b)` 与 `[b, c)` 无交集
-    /// - Example:
-    ///   ```swift
-    ///   let r1 = 1..<10
-    ///   let r2 = 5..<15
-    ///   print(r1.fdy_intersection(with: r2)) // Optional(5..<10)
-    ///   ```
     func fdy_intersection(with other: Range<Bound>) -> Range<Bound>? {
         let lower = Swift.max(lowerBound, other.lowerBound)
         let upper = Swift.min(upperBound, other.upperBound)
@@ -77,12 +52,6 @@ public extension Range where Bound: Comparable {
     /// - Parameter other: 另一个半开区间
     /// - Returns: 从两区间最小下界到最大上界的半开区间
     /// - Note: 即使两区间不连续（如 `1..<3` 和 `5..<7`）,也会返回 `1..<7`,使用时需注意语义
-    /// - Example:
-    ///   ```swift
-    ///   let r1 = 1..<10
-    ///   let r2 = 5..<15
-    ///   print(r1.fdy_union(with: r2)) // 1..<15
-    ///   ```
     func fdy_union(with other: Range<Bound>) -> Range<Bound> {
         let lower = Swift.min(lowerBound, other.lowerBound)
         let upper = Swift.max(upperBound, other.upperBound)
@@ -93,12 +62,6 @@ public extension Range where Bound: Comparable {
     ///
     /// - Parameter other: 要减去的半开区间
     /// - Returns: 差集组成的区间数组（0～2 个半开区间）
-    /// - Example:
-    ///   ```swift
-    ///   let r1 = 1..<10
-    ///   let r2 = 4..<6
-    ///   print(r1.fdy_difference(with: r2)) // [1..<4, 6..<10]
-    ///   ```
     func fdy_difference(with other: Range<Bound>) -> [Range<Bound>] {
         guard let intersection = fdy_intersection(with: other) else {
             return [self] // 无交集,整个区间保留

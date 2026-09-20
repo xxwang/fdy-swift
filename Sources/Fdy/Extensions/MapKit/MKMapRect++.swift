@@ -13,16 +13,6 @@ public extension MKMapRect {
     /// - Important:
     ///   - 该转换假设区域不跨越国际日期变更线或极点(常规城市级区域安全)
     ///   - 若 `span` 过大(如全球视图),结果可能不准确,但 MapKit 本身对此也有局限
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let region = MKCoordinateRegion(
-    ///       center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
-    ///       span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-    ///   )
-    ///   let mapRect = MKMapRect.fdy_regionToMapRect(region)
-    ///   mapView.setVisibleMapRect(mapRect, animated: true)
-    ///   ```
     static func fdy_regionToMapRect(_ region: MKCoordinateRegion) -> MKMapRect {
         // 计算左上角和右下角的地理坐标
         let topLeft = MKMapPoint(region.fdy_topLeftCoordinate)

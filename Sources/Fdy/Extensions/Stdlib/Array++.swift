@@ -1,8 +1,6 @@
 import Foundation
 
 // MARK: - 命名空间入口
-//
-// `Array` 是泛型结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension Array: FdyExtension {}
 
 // MARK: - 下标

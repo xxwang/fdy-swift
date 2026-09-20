@@ -12,6 +12,7 @@ public extension FdyLoadable where Self: UIView {
     ///   - nibName: `XIB` 文件名(不含 `.xib`),默认为类名
     ///   - bundle: 资源 `Bundle`,默认为类所在 `Bundle`
     /// - Returns: 加载的视图实例
+    /// - Warning: `XIB` 不存在或其中没有 `Self` 类型的视图时中止程序
     static func fdy_loadView(
         nibName: String? = nil,
         bundle: Bundle? = nil
@@ -20,12 +21,14 @@ public extension FdyLoadable where Self: UIView {
         let targetBundle = bundle ?? Bundle(for: Self.self)
 
         guard let views = targetBundle.loadNibNamed(name, owner: nil, options: nil) else {
-            assertionFailure("""
+            // 实测:nib 名不存在时 `loadNibNamed` 自己抛 `NSInternalInconsistencyException`(栈顶即本方法),
+            // 走不到这里;保留 `guard` 是为「返回 nil」这一未观测到的形态 —— 那时若用 `assertionFailure`,
+            // 调用方会在 Release 下静默拿到一个零 frame 的空视图
+            preconditionFailure("""
             ❌ [Fdy] 无法加载 XIB '\(name)'
             检查：XIB 是否存在并已加入 Target
             Bundle: \(targetBundle.bundlePath)
             """)
-            return Self(frame: .zero)
         }
 
         if let view = views.first(where: { type(of: $0) == Self.self }) as? Self {
@@ -36,11 +39,11 @@ public extension FdyLoadable where Self: UIView {
         }
 
         let types = views.map { String(describing: type(of: $0)) }.joined(separator: ", ")
-        assertionFailure("""
+        // XIB 加载成功,但其中没有 `Self` 类型的视图;不用 `assertionFailure` 的理由见上
+        preconditionFailure("""
         ❌ [Fdy] XIB '\(name)' 无类型 '\(Self.self)' 的视图
         可用类型: [\(types)]请检查根视图类设置
         """)
-        return views.first as? Self ?? Self(frame: .zero)
     }
 }
 
@@ -52,6 +55,7 @@ public extension FdyLoadable where Self: UIViewController {
     ///   - bundle: 资源 `Bundle`(默认为类所在 `Bundle`)
     ///   - identifier: 控制器 ID(默认为类名)
     /// - Returns: 加载的控制器实例
+    /// - Warning: `Storyboard` ID 无效或类型不匹配时中止程序
     static func fdy_loadViewController(
         from storyboardName: String = "Main",
         bundle: Bundle? = nil,
@@ -63,12 +67,12 @@ public extension FdyLoadable where Self: UIViewController {
         let storyboard = UIStoryboard(name: storyboardName, bundle: targetBundle)
 
         guard let controller = storyboard.instantiateViewController(withIdentifier: storyboardId) as? Self else {
-            assertionFailure("""
+            // 不用 `assertionFailure` 的理由见 `fdy_loadView(nibName:bundle:)`;若真降级,调用方静默拿到一个空控制器
+            preconditionFailure("""
             ❌ [Fdy] 无法从 Storyboard '\(storyboardName)' 加载 ID '\(storyboardId)' 的控制器
             检查：Storyboard ID 和 Custom Class 是否正确
             Bundle: \(targetBundle.bundlePath)
             """)
-            return Self()
         }
 
         return controller

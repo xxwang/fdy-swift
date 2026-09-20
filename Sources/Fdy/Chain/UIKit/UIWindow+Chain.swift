@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UIWindow {
-    /// 设置窗口的根视图控制器(root view controller),传 `nil` 可清空
+    /// 窗口的根视图控制器(root view controller),传 `nil` 可清空
     ///
     /// - Parameter rootViewController: 要设置为根视图控制器的 `UIViewController` 实例
     /// - Returns: `Self`
@@ -22,7 +22,7 @@ public extension FdyWrapper where Base: UIWindow {
         return self
     }
 
-    /// 设置是否允许窗口根据内容自动调整大小
+    /// 是否允许窗口根据内容自动调整大小
     /// - Parameter fit: 是否启用自适应尺寸
     /// - Returns: `Self`
     @discardableResult
@@ -31,7 +31,7 @@ public extension FdyWrapper where Base: UIWindow {
         return self
     }
 
-    /// 设置窗口层级
+    /// 窗口层级
     /// - Parameter level: 窗口的显示层级（如普通、状态栏、警报等）
     /// - Returns: `Self`
     @discardableResult

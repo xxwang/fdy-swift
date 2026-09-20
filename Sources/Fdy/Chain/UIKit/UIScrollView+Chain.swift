@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UIScrollView {
-    /// 设置下拉刷新控件
+    /// 下拉刷新控件
     /// - Parameter refreshControl: 下拉刷新控件
     /// - Returns: `Self`
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置滚动视图的代理
+    /// 滚动视图的代理
     ///
     /// - Parameter delegate: 遵循 `UIScrollViewDelegate` 协议的对象
     /// - Returns: `Self`
@@ -21,7 +21,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置内容偏移量(`contentOffset`),直传不做范围裁剪,需要裁剪请用 `contentOffsetClamped`
+    /// 内容偏移量(`contentOffset`),直传不做范围裁剪,需要裁剪请用 `contentOffsetClamped`
     ///
     /// - Parameters:
     ///   - offset: 目标偏移点
@@ -33,7 +33,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置内容偏移量(`contentOffset`),并裁剪到合法滚动区间(考虑 `contentInset` 与 `bounds`)
+    /// 内容偏移量(`contentOffset`),并裁剪到合法滚动区间(考虑 `contentInset` 与 `bounds`)
     ///
     /// - Parameters:
     ///   - offset: 目标偏移点,超出部分会被裁剪
@@ -53,7 +53,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置可滚动内容区域的大小(`contentSize`)
+    /// 可滚动内容区域的大小(`contentSize`)
     ///
     /// - Parameter size: 内容区域尺寸宽度和高度将被限制为 ≥ 0
     /// - Returns: `Self`
@@ -67,7 +67,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置内容内边距(`contentInset`),控制内容与滚动视图边缘的距离
+    /// 内容内边距(`contentInset`),控制内容与滚动视图边缘的距离
     ///
     /// - Parameter inset: 内边距常用于避开导航栏、TabBar 等
     /// - Returns: `Self`
@@ -139,8 +139,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置滚动条的内边距(`scrollIndicatorInsets`)
-    ///
+    /// 滚动条的内边距(`scrollIndicatorInsets`)
     /// - Parameter inset: 滚动条距离滚动视图四边的距离
     /// - Returns: `Self`
     @discardableResult
@@ -159,7 +158,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置滚动条样式(颜色和外观)
+    /// 滚动条样式(颜色和外观)
     ///
     /// - Parameter style: 如 `.default`, `.black`, `.white`
     /// - Returns: `Self`
@@ -169,7 +168,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置减速率(松手后滚动停止的速度)
+    /// 减速率(松手后滚动停止的速度)
     ///
     /// - Parameter rate: 系统预设值如 `.normal` 或 `.fast`
     /// - Returns: `Self`
@@ -199,7 +198,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置键盘消失模式
+    /// 键盘消失模式
     /// - Parameter mode: 键盘消失模式,如 `.onDrag`
     /// - Returns: `Self`
     @discardableResult
@@ -208,7 +207,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置内容内边距调整行为
+    /// 内容内边距调整行为
     /// - Parameter behavior: 调整行为,如 `.automatic` / `.never`
     /// - Returns: `Self`
     @discardableResult
@@ -217,7 +216,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置最小缩放比例
+    /// 最小缩放比例
     /// - Parameter scale: 最小缩放比例
     /// - Returns: `Self`
     @discardableResult
@@ -226,7 +225,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置最大缩放比例
+    /// 最大缩放比例
     /// - Parameter scale: 最大缩放比例
     /// - Returns: `Self`
     @discardableResult
@@ -235,7 +234,7 @@ public extension FdyWrapper where Base: UIScrollView {
         return self
     }
 
-    /// 设置当前缩放比例
+    /// 当前缩放比例
     /// - Parameter scale: 缩放比例
     /// - Returns: `Self`
     @discardableResult
@@ -365,6 +364,89 @@ public extension FdyWrapper where Base: UIScrollView {
             targetX = min(maxX, targetX)
         }
         this.setContentOffset(CGPoint(x: targetX, y: this.contentOffset.y), animated: animated)
+        return self
+    }
+
+    /// 是否允许缩放回弹
+    /// - Parameter bouncesZoom: `true` 表示允许缩放回弹
+    /// - Returns: `Self`
+    @discardableResult
+    func bouncesZoom(_ bouncesZoom: Bool) -> Self {
+        base.bouncesZoom = bouncesZoom
+        return self
+    }
+
+    /// 是否允许水平回弹
+    /// - Parameter bouncesHorizontally: `true` 表示允许水平回弹
+    /// - Returns: `Self`
+    @discardableResult
+    func bouncesHorizontally(_ bouncesHorizontally: Bool) -> Self {
+        base.bouncesHorizontally = bouncesHorizontally
+        return self
+    }
+
+    /// 是否允许垂直回弹
+    /// - Parameter bouncesVertically: `true` 表示允许垂直回弹
+    /// - Returns: `Self`
+    @discardableResult
+    func bouncesVertically(_ bouncesVertically: Bool) -> Self {
+        base.bouncesVertically = bouncesVertically
+        return self
+    }
+
+    /// 是否自动调整滚动指示器的内边距
+    /// - Parameter automaticallyAdjustsScrollIndicatorInsets: 是否自动调整
+    /// - Returns: `Self`
+    @discardableResult
+    func automaticallyAdjustsScrollIndicatorInsets(
+        _ automaticallyAdjustsScrollIndicatorInsets: Bool
+    ) -> Self {
+        base.automaticallyAdjustsScrollIndicatorInsets = automaticallyAdjustsScrollIndicatorInsets
+        return self
+    }
+
+    /// 内容对齐点(`contentAlignmentPoint`)
+    /// - Parameter contentAlignmentPoint: 坐标点
+    /// - Returns: `Self`
+    @discardableResult
+    func contentAlignmentPoint(_ contentAlignmentPoint: CGPoint) -> Self {
+        base.contentAlignmentPoint = contentAlignmentPoint
+        return self
+    }
+
+    /// 索引显示模式
+    /// - Parameter indexDisplayMode: 要设置的索引显示模式
+    /// - Returns: `Self`
+    @discardableResult
+    func indexDisplayMode(_ indexDisplayMode: UIScrollView.IndexDisplayMode) -> Self {
+        base.indexDisplayMode = indexDisplayMode
+        return self
+    }
+
+    /// 是否允许键盘触发滚动
+    /// - Parameter allowsKeyboardScrolling: 是否允许键盘滚动
+    /// - Returns: `Self`
+    @discardableResult
+    func allowsKeyboardScrolling(_ allowsKeyboardScrolling: Bool) -> Self {
+        base.allowsKeyboardScrolling = allowsKeyboardScrolling
+        return self
+    }
+
+    /// 是否把水平滚动传递给父级
+    /// - Parameter transfersHorizontalScrollingToParent: 是否把水平滚动交给父级
+    /// - Returns: `Self`
+    @discardableResult
+    func transfersHorizontalScrollingToParent(_ transfersHorizontalScrollingToParent: Bool) -> Self {
+        base.transfersHorizontalScrollingToParent = transfersHorizontalScrollingToParent
+        return self
+    }
+
+    /// 是否把垂直滚动传递给父级
+    /// - Parameter transfersVerticalScrollingToParent: 是否把垂直滚动交给父级
+    /// - Returns: `Self`
+    @discardableResult
+    func transfersVerticalScrollingToParent(_ transfersVerticalScrollingToParent: Bool) -> Self {
+        base.transfersVerticalScrollingToParent = transfersVerticalScrollingToParent
         return self
     }
 }

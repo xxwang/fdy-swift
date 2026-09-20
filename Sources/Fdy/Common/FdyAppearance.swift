@@ -1,6 +1,6 @@
 import UIKit
 
-/// 应用专属的 UI 外观与默认行为配置中心。访问 `UIAppearance` / `UIApplication`,必须在主线程使用,因此标注为 ``@MainActor``
+// MARK: - 应用专属的 UI 外观与默认行为配置中心
 @MainActor
 public final class FdyAppearance {
     public static let shared = FdyAppearance()
@@ -39,9 +39,9 @@ public extension FdyAppearance {
 public extension FdyAppearance {
     /// 强制整个 App 使用指定的界面主题(忽略系统设置)
     ///
+    /// - Parameter userInterfaceStyle: 要强制使用的主题(`.light` / `.dark`)
     /// - Note: `overrideUserInterfaceStyle` 非 `UI_APPEARANCE_SELECTOR`，实测经 `UIView.appearance()` 代理赋值**不生效**，
     ///   故直接遍历窗口赋值；视图加入窗口后即继承该主题。
-    /// - Parameter userInterfaceStyle: 要强制使用的主题(`.light` / `.dark`)
     func setupView(_ userInterfaceStyle: UIUserInterfaceStyle) {
         UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
@@ -63,10 +63,10 @@ public extension FdyAppearance {
         tableView.sectionHeaderTopPadding = 0
     }
 
-    /// 设置所有 `UIScrollView` 及其子类(如 `UITableView`, `UICollectionView`)
+    /// 所有 `UIScrollView` 及其子类(如 `UITableView`, `UICollectionView`)
     /// 的内容内边距自动调整行为
     ///
-    /// - Parameter behavior: 内边距调整策略推荐使用 `.never` 以获得更可控的布局
+    /// - Parameter contentInsetAdjustmentBehavior: 内边距调整策略推荐使用 `.never` 以获得更可控的布局
     func setupScrollView(_ contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior) {
         let scrollView = UIScrollView.appearance()
         scrollView.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
@@ -142,6 +142,7 @@ public extension FdyAppearance {
 // MARK: - UIView
 public extension UIView {
     /// 配置单个视图外观
+    /// - Parameter userInterfaceStyle: 要强制使用的主题(`.light` / `.dark`)
     func setupView(_ userInterfaceStyle: UIUserInterfaceStyle) {
         self.overrideUserInterfaceStyle = userInterfaceStyle
     }
@@ -150,6 +151,7 @@ public extension UIView {
 // MARK: - UIScrollView
 public extension UIScrollView {
     /// 配置单个滚动视图
+    /// - Parameter contentInsetAdjustmentBehavior: 内容内边距的调整行为
     func setupScrollView(_ contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior) {
         self.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
     }

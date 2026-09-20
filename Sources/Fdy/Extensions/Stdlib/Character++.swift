@@ -1,8 +1,6 @@
 import Foundation
 
 // MARK: - 命名空间入口
-//
-// `Character` 是结构体,不继承 `extension NSObject: FdyExtension`,须单独登记,否则 `.fdy` 不可用。
 extension Character: FdyExtension {}
 
 // MARK: - 构造方法
@@ -10,7 +8,6 @@ public extension Character {
     /// 使用 `ASCII` 码值`(0–127)`创建一个 `Character`
     ///
     /// - Parameter ascii: 有效的 `ASCII` 码值(`UInt8`)
-    /// - Returns: 若在 0–127 范围内,返回对应字符;否则返回 `nil`
     init?(fdy_ascii ascii: UInt8) {
         guard ascii <= 127 else { return nil }
         self = Character(UnicodeScalar(ascii))
@@ -19,17 +16,9 @@ public extension Character {
     /// 使用一个或多个 `Unicode` 码点(十六进制字符串)创建 `Character`
     ///
     /// 支持格式：
+    /// - Parameter unicodeScalars: 一个或多个十六进制字符串表示的码点
     /// - `"1F60A"`, `"U+1F60A"`, `"0x1F60A"`, `"\\u{1F60A}"`
     /// - 多个码点用于组合字符(如国旗、家庭 Emoji)
-    ///
-    /// - Parameter unicodeScalars: 一个或多个十六进制字符串表示的码点
-    /// - Returns: 若能组成合法单字符,返回 `Character`;否则 `nil`
-    ///
-    /// - Examples:
-    ///   ```swift
-    ///   Character(fdy_unicodeScalars: "1F60A")                     // 😊
-    ///   Character(fdy_unicodeScalars: "U+1F1FA", "1F1F8")          // 🇺🇸
-    ///   ```
     init?(fdy_unicodeScalars unicodeScalars: String...) {
         guard !unicodeScalars.isEmpty else { return nil }
 
@@ -80,22 +69,26 @@ public extension Character {
 // MARK: - 类型转换
 public extension Character {
     /// 返回当前字符的大写形式
+    /// - Returns: 字符
     func fdy_uppercase() -> Character {
         return self.uppercased().first ?? self
     }
 
     /// 返回当前字符的小写形式
+    /// - Returns: 字符
     func fdy_lowercase() -> Character {
         return self.lowercased().first ?? self
     }
 
     /// 尝试将当前字符转换为其对应的 ASCII 码值(`UInt8`)
+    /// - Returns: 字节值,不可用时返回 `nil`
     func fdy_ASCII() -> UInt8? {
         guard let scalar = self.unicodeScalars.first, scalar.isASCII else { return nil }
         return UInt8(scalar.value)
     }
 
     /// 返回当前字符的 `Swift` 风格 `Unicode` 转义序列(如 `\u{1F60A}`)
+    /// - Returns: 处理后的字符串
     func fdy_unicodeEscapeSequence() -> String {
         return self.unicodeScalars.map { "\\u{\(String($0.value, radix: 16, uppercase: true))}" }.joined()
     }
@@ -104,11 +97,19 @@ public extension Character {
 // MARK: - 内容判断
 public extension Character {
     /// 判断当前字符是否为 `Emoji`(包括`简单Emoji `和`组合 Emoji`)
+    ///
+    /// - Returns: 是否满足条件
+    /// - Note: 单标量分支**不能只看 `properties.isEmoji`** —— 该属性对 `0`–`9`、`#`、`*`
+    ///   同样返回 `true`（它们可以是 keycap emoji 的基字符）。实测 `Character("1")` / `("7")` /
+    ///   `("#")` / `("*")` 均被误判为 emoji，并连带让 `String.fdy_containsEmoji` /
+    ///   `fdy_containsOnlyEmoji` / `fdy_emojiString` 一起失真（`"123"` 会被当成「纯 emoji」）。
+    ///   故这里额外要求码点 **> 0x7F**，把 ASCII 全部排除。
     var fdy_isEmoji: Bool {
         let scalars = self.unicodeScalars
 
-        // 单标量：直接检查 isEmoji 属性
+        // 单标量：检查 isEmoji，但先排除 ASCII（数字/`#`/`*` 的 isEmoji 也是 true）
         if let first = scalars.first, scalars.count == 1 {
+            guard first.value > 0x7F else { return false }
             return first.properties.isEmoji
         }
 
@@ -142,8 +143,8 @@ public extension Character {
         let special = includeSpecialChars ? "!@#$%^&*()-_=+[]{}|;:'\",.<>?/" : ""
         let pool = letters + digits + special
         guard let randomChar = pool.randomElement() else {
-            assertionFailure("Character.random() pool is unexpectedly empty")
-            return "a"
+            // `pool` 由三个常量字面量拼接而成,恒非空;此处仅为理论兜底
+            preconditionFailure("Character.random() pool is unexpectedly empty")
         }
         return randomChar
     }

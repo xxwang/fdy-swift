@@ -6,11 +6,6 @@ public extension Sequence {
     ///
     /// - Parameter condition: 判断闭包
     /// - Returns: 若无元素满足条件,返回 `true`;否则返回 `false`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 3, 5].fdy_noneSatisfy { $0.isMultiple(of: 2) } // true
-    ///     ```
     func fdy_noneSatisfy(_ condition: (Element) throws -> Bool) rethrows -> Bool {
         return try !contains { try condition($0) }
     }
@@ -20,11 +15,6 @@ public extension Sequence {
     /// - Parameter condition: 过滤条件
     /// - Returns: 新数组,包含不满足条件的元素
     /// - Note: 类似 Lodash 的 `reject`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [2, 4, 7].fdy_reject { $0.isMultiple(of: 2) } // [7]
-    ///     ```
     func fdy_reject(_ condition: (Element) throws -> Bool) rethrows -> [Element] {
         return try filter { try !condition($0) }
     }
@@ -35,11 +25,6 @@ public extension Sequence {
     /// 反向遍历序列中的每个元素
     ///
     /// - Parameter body: 对每个元素执行的操作
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [0, 2, 4].fdy_forEachReversed { print($0) } // 4, 2, 0
-    ///     ```
     func fdy_forEachReversed(_ body: (Element) throws -> Void) rethrows {
         try reversed().forEach(body)
     }
@@ -49,12 +34,6 @@ public extension Sequence {
     /// - Parameters:
     ///   - condition: 过滤条件
     ///   - body: 对匹配元素执行的操作
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [0, 2, 4, 7].fdy_forEachWhere({ $0.isMultiple(of: 2) }) { print($0) }
-    ///     // 输出: 0, 2, 4
-    ///     ```
     func fdy_forEachWhere(
         _ condition: (Element) throws -> Bool,
         _ body: (Element) throws -> Void
@@ -74,11 +53,6 @@ public extension Sequence {
     ///   - next: 累积函数 `(runningValue, currentElement) -> newValue`
     /// - Returns: 包含每一步累积结果的数组
     /// - Note: 类似 RxSwift 的 `scan` 或 Haskell 的 `scanl1`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 2, 3].fdy_scan(initial: 0, +) // [1, 3, 6]
-    ///     ```
     func fdy_scan<U>(initial: U, _ next: (U, Element) throws -> U) rethrows -> [U] {
         var running = initial
         return try map { element in
@@ -91,12 +65,6 @@ public extension Sequence {
     ///
     /// - Parameter condition: 查找条件
     /// - Returns: 若恰好有一个元素满足条件,返回该元素;否则返回 `nil`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 3, 4].fdy_single { $0.isMultiple(of: 2) } // Optional(4)
-    ///     [2, 4].fdy_single { $0.isMultiple(of: 2) }    // nil(多个匹配)
-    ///     ```
     func fdy_single(_ condition: (Element) throws -> Bool) rethrows -> Element? {
         var found: Element?
         for element in self where try condition(element) {
@@ -110,12 +78,6 @@ public extension Sequence {
     ///
     /// - Parameter condition: 分区条件
     /// - Returns: 元组 `(matching, nonMatching)`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     let (evens, odds) = [0, 1, 2, 3].fdy_partition { $0.isMultiple(of: 2) }
-    ///     // evens = [0, 2], odds = [1, 3]
-    ///     ```
     func fdy_partition(_ condition: (Element) throws -> Bool) rethrows -> ([Element], [Element]) {
         var matching = [Element]()
         var nonMatching = [Element]()
@@ -133,13 +95,6 @@ public extension Sequence {
     ///
     /// - Parameter keyPath: 指向 `AdditiveArithmetic` 属性的 `KeyPath`
     /// - Returns: 总和
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     struct Item { let price: Double }
-    ///     let items = [Item(price: 10), Item(price: 20)]
-    ///     items.fdy_sum(\.price) // 30.0
-    ///     ```
     func fdy_sum<T: AdditiveArithmetic>(_ keyPath: KeyPath<Element, T>) -> T {
         return reduce(.zero) { $0 + $1[keyPath: keyPath] }
     }
@@ -152,11 +107,6 @@ public extension Sequence where Element: Hashable {
     /// - Parameter elements: 要检查的元素序列
     /// - Returns: 若全部包含,返回 `true`
     /// - Note: 时间复杂度 O(n + m),使用 `Set` 优化查找
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 2, 3].fdy_containsAll([1, 3]) // true
-    ///     ```
     func fdy_containsAll(_ elements: some Sequence<Element>) -> Bool {
         let set = Set(self)
         return elements.allSatisfy(set.contains)
@@ -165,11 +115,6 @@ public extension Sequence where Element: Hashable {
     /// 检查序列中是否存在重复元素
     ///
     /// - Returns: 若存在重复,返回 `true`
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 2, 2, 3].fdy_hasDuplicates // true
-    ///     ```
     var fdy_hasDuplicates: Bool {
         var seen = Set<Element>()
         for element in self {
@@ -183,11 +128,6 @@ public extension Sequence where Element: Hashable {
     /// 获取序列中所有重复出现的元素(去重后)
     ///
     /// - Returns: 重复元素的数组(无序,无重复)
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 1, 2, 3, 3].fdy_duplicates // [1, 3](顺序不定)
-    ///     ```
     var fdy_duplicates: [Element] {
         var seen = Set<Element>()
         var duplicates = Set<Element>()
@@ -205,12 +145,6 @@ public extension Sequence where Element: AdditiveArithmetic {
     /// 计算序列中所有元素的总和
     ///
     /// - Returns: 元素总和
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     [1, 2, 3].fdy_sum() // 6
-    ///     [1.5, 2.5].fdy_sum() // 4.0
-    ///     ```
     func fdy_sum() -> Element {
         return reduce(.zero, +)
     }

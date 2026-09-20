@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UITextView {
-    /// 设置是否可编辑
+    /// 是否可编辑
     /// - Parameter isEditable: 是否可以编辑
     /// - Returns: `Self`
     @discardableResult
@@ -19,7 +19,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置纯文本内容
+    /// 纯文本内容
     /// - Parameter text: 要设置的内容
     /// - Returns: `Self`
     @discardableResult
@@ -28,7 +28,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置富文本内容
+    /// 富文本内容
     /// - Parameter attributedText: 要设置的富文本内容
     /// - Returns: `Self`
     @discardableResult
@@ -37,7 +37,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置文本对齐方式
+    /// 文本对齐方式
     /// - Parameter alignment: 要设置的对齐方式
     /// - Returns: `Self`
     @discardableResult
@@ -46,7 +46,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置文本颜色
+    /// 文本颜色
     /// - Parameter color: 要设置的颜色
     /// - Returns: `Self`
     @discardableResult
@@ -55,7 +55,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置字体
+    /// 字体
     /// - Parameter font: 要设置的字体
     /// - Returns: `Self`
     @discardableResult
@@ -64,7 +64,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置代理,传 `nil` 可清空
+    /// 代理,传 `nil` 可清空
     /// - Parameter delegate: 要设置的代理对象
     /// - Returns: `Self`
     @discardableResult
@@ -73,7 +73,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置键盘类型
+    /// 键盘类型
     /// - Parameter type: 要设置的键盘类型
     /// - Returns: `Self`
     @discardableResult
@@ -82,7 +82,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置`Return`键类型
+    /// `Return`键类型
     /// - Parameter type: 要设置的类型
     /// - Returns: `Self`
     @discardableResult
@@ -100,7 +100,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置文本容器外边距
+    /// 文本容器外边距
     /// - Parameter inset: 外边距
     /// - Returns: `Self`
     @discardableResult
@@ -109,7 +109,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置行片段左右内边距(通常设为 0 以贴边)
+    /// 行片段左右内边距(通常设为 0 以贴边)
     /// - Parameter padding: 内边距
     /// - Returns: `Self`
     @discardableResult
@@ -118,7 +118,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置是否可选择文本
+    /// 是否可选择文本
     /// - Parameter selectable: 是否可选择
     /// - Returns: `Self`
     @discardableResult
@@ -127,7 +127,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置数据检测类型(自动识别电话、链接等)
+    /// 数据检测类型(自动识别电话、链接等)
     /// - Parameter types: 检测类型,如 `.link` / `.phoneNumber`
     /// - Returns: `Self`
     @discardableResult
@@ -136,7 +136,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置是否允许编辑文本属性(加粗/斜体等)
+    /// 是否允许编辑文本属性(加粗/斜体等)
     /// - Parameter allows: 是否允许
     /// - Returns: `Self`
     @discardableResult
@@ -145,7 +145,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置链接文本属性(颜色、下划线等)
+    /// 链接文本属性(颜色、下划线等)
     /// - Parameter attributes: 链接属性字典
     /// - Returns: `Self`
     @discardableResult
@@ -154,7 +154,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置输入辅助视图(如工具栏)
+    /// 输入辅助视图(如工具栏)
     /// - Parameter accessoryView: 辅助视图
     /// - Returns: `Self`
     @discardableResult
@@ -163,7 +163,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置自定义输入视图(替代系统键盘)
+    /// 自定义输入视图(替代系统键盘)
     /// - Parameter inputView: 自定义输入视图
     /// - Returns: `Self`
     @discardableResult
@@ -172,7 +172,7 @@ public extension FdyWrapper where Base: UITextView {
         return self
     }
 
-    /// 设置当前输入属性(字体、颜色等)
+    /// 当前输入属性(字体、颜色等)
     /// - Parameter attributes: 属性字典
     /// - Returns: `Self`
     @discardableResult
@@ -214,6 +214,88 @@ public extension FdyWrapper where Base: UITextView {
         base.textContainerInset = .zero
         base.textContainer.lineFragmentPadding = 0
         base.sizeToFit()
+        return self
+    }
+
+    /// 是否启用查找交互
+    /// - Parameter isFindInteractionEnabled: `true` 表示启用查找交互
+    /// - Returns: `Self`
+    @discardableResult
+    func isFindInteractionEnabled(_ isFindInteractionEnabled: Bool) -> Self {
+        base.isFindInteractionEnabled = isFindInteractionEnabled
+        return self
+    }
+
+    /// 边框样式
+    /// - Parameter borderStyle: 要设置的边框样式
+    /// - Returns: `Self`
+    @discardableResult
+    func borderStyle(_ borderStyle: UITextView.BorderStyle) -> Self {
+        base.borderStyle = borderStyle
+        return self
+    }
+
+    /// 是否使用标准文本缩放
+    /// - Parameter usesStandardTextScaling: 是否使用标准文字缩放
+    /// - Returns: `Self`
+    @discardableResult
+    func usesStandardTextScaling(_ usesStandardTextScaling: Bool) -> Self {
+        base.usesStandardTextScaling = usesStandardTextScaling
+        return self
+    }
+
+    /// 高亮文本属性
+    /// - Parameter textHighlightAttributes: 富文本属性,传 `nil` 恢复默认
+    /// - Returns: `Self`
+    @discardableResult
+    func textHighlightAttributes(_ textHighlightAttributes: [NSAttributedString.Key: Any]?) -> Self {
+        base.textHighlightAttributes = textHighlightAttributes
+        return self
+    }
+
+    /// 写作工具行为
+    /// - Parameter writingToolsBehavior: 要设置的写作工具行为
+    /// - Returns: `Self`
+    @discardableResult
+    func writingToolsBehavior(_ writingToolsBehavior: UIWritingToolsBehavior) -> Self {
+        base.writingToolsBehavior = writingToolsBehavior
+        return self
+    }
+
+    /// 写作工具的结果类型
+    /// - Parameter allowedWritingToolsResultOptions: 要设置的写作工具的结果类型
+    /// - Returns: `Self`
+    @discardableResult
+    func allowedWritingToolsResultOptions(
+        _ allowedWritingToolsResultOptions: UIWritingToolsResultOptions
+    ) -> Self {
+        base.allowedWritingToolsResultOptions = allowedWritingToolsResultOptions
+        return self
+    }
+
+    /// 文本格式化面板的配置
+    /// - Parameter textFormattingConfiguration: 配置,传 `nil` 清空
+    /// - Returns: `Self`
+    @discardableResult
+    func textFormattingConfiguration(
+        _ textFormattingConfiguration: UITextFormattingViewController.Configuration?
+    ) -> Self {
+        base.textFormattingConfiguration = textFormattingConfiguration
+        return self
+    }
+}
+
+// MARK: - iOS 26.0 新增属性
+
+public extension FdyWrapper where Base: UITextView {
+    /// 全部选中区间
+    ///
+    /// - Parameter selectedRanges: 选中区间数组（按 UTF-16 单元,与 `NSRange` 口径一致）
+    /// - Returns: `Self`
+    @available(iOS 26.0, *)
+    @discardableResult
+    func selectedRanges(_ selectedRanges: [NSRange]) -> Self {
+        base.selectedRanges = selectedRanges
         return self
     }
 }

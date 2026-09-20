@@ -4,6 +4,7 @@ import Foundation
 // MARK: - 类型转换
 public extension BinaryFloatingPoint {
     /// 将当前浮点数值转换为布尔值
+    /// - Returns: 是否满足条件
     func fdy_toBool() -> Bool {
         self > 0
     }
@@ -12,32 +13,38 @@ public extension BinaryFloatingPoint {
     // 它们等价于 `Int(self)`、`Double(self)` 等系统构造器(后者更短),且与 `String.fdy_Int()` 同名易混。
 
     /// 将当前值包装为 `NSNumber` 对象
+    /// - Returns: 数值
     func fdy_toNSNumber() -> NSNumber {
         NSNumber(value: Double(self))
     }
 
     /// 将当前值转换为 `NSDecimalNumber`
+    /// - Returns: 十进制数
     func fdy_toNSDecimalNumber() -> NSDecimalNumber {
         NSDecimalNumber(string: self.fdy_toString())
     }
 
     /// 将当前值转换为 `Decimal`
+    /// - Returns: 十进制数
     func fdy_toDecimal() -> Decimal {
         self.fdy_toNSDecimalNumber().decimalValue
     }
 
     /// 将当前值转换为字符串表示
+    /// - Returns: 处理后的字符串
     func fdy_toString() -> String {
         String(describing: self)
     }
 
     /// 将当前值转换为 `CGPoint`,`x` 和 `y` 坐标均使用该值
+    /// - Returns: 坐标点
     func fdy_toCGPoint() -> CGPoint {
         let v = CGFloat(self)
         return CGPoint(x: v, y: v)
     }
 
     /// 将当前值转换为 `CGSize`,`width` 和 `height` 均使用该值
+    /// - Returns: 尺寸
     func fdy_toCGSize() -> CGSize {
         let v = CGFloat(self)
         return CGSize(width: v, height: v)
@@ -64,16 +71,19 @@ public extension BinaryFloatingPoint {
 // MARK: - 基础数值操作
 public extension BinaryFloatingPoint {
     /// 返回当前值的绝对值
+    /// - Returns: `Self`
     func fdy_abs() -> Self {
         Swift.abs(self)
     }
 
     /// 对当前值向上取整(向正无穷方向)
+    /// - Returns: `Self`
     func fdy_ceil() -> Self {
         Foundation.ceil(self)
     }
 
     /// 对当前值向下取整(向负无穷方向)
+    /// - Returns: `Self`
     func fdy_floor() -> Self {
         Foundation.floor(self)
     }
@@ -91,15 +101,6 @@ public extension BinaryFloatingPoint {
     ///
     /// - Parameter places: 要保留的小数位数,必须 ≥ 0若为负数,返回原值
     /// - Returns: 截断后的值
-    ///
-    /// - Example:
-    ///   ```swift
-    ///     let value: Double = 5.6789
-    ///     print(value.fdy_truncate(places: 2)) // 5.67
-    ///
-    ///     let negative: Double = -5.6789
-    ///     print(negative.fdy_truncate(places: 2)) // -5.67
-    ///     ```
     func fdy_truncate(places: Int) -> Self {
         guard places >= 0 else { return self }
         let multiplier = Self(pow(10, Double(places)))
@@ -110,12 +111,6 @@ public extension BinaryFloatingPoint {
     ///
     /// - Parameter places: 要保留的小数位数,必须 ≥ 0若为负数,返回原值
     /// - Returns: 四舍五入后的值
-    ///
-    /// - Example:
-    ///   ```swift
-    ///     let value: Double = 5.6789
-    ///     print(value.fdy_round(places: 2)) // 5.68
-    ///     ```
     func fdy_round(places: Int) -> Self {
         guard places >= 0 else { return self }
         let multiplier = Self(pow(10, Double(places)))
@@ -128,12 +123,6 @@ public extension BinaryFloatingPoint {
     ///   - places: 要保留的小数位数(≥ 0)
     ///   - rule: 舍入规则,如 `.up`, `.down`, `.towardZero` 等
     /// - Returns: 舍入后的值
-    ///
-    /// - Example:
-    ///   ```swift
-    ///     let value: Double = 5.671
-    ///     print(value.fdy_rounded(places: 2, rule: .down)) // 5.67
-    ///     ```
     func fdy_rounded(places: Int, rule: FloatingPointRoundingRule) -> Self {
         guard places >= 0 else { return self }
         let multiplier = Self(pow(10, Double(places)))

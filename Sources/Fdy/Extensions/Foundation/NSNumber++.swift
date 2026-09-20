@@ -65,6 +65,7 @@ public extension NSNumber {
     }
 
     /// 格式化为科学计数法(如 "1.234E5")
+    /// - Returns: 处理后的字符串,不可用时返回 `nil`
     func fdy_scientific() -> String? {
         let formatter = NumberFormatter()
         formatter.numberStyle = .scientific

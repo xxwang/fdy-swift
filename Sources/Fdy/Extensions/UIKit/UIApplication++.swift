@@ -13,8 +13,8 @@ public extension UIApplication {
 public extension UIApplication {
     /// 使用内嵌 `StoreKit` 视图显示应用详情
     /// - Parameters:
-    ///   - appId:应用的`ID`
-    ///   - from: 来源控制器;不传时降级取 `keyWindow` 的根控制器,仍取不到则静默返回
+    ///   - appId: 应用的`ID`
+    ///   - viewController: 来源控制器;不传时降级取 `keyWindow` 的根控制器,仍取不到则静默返回
     func fdy_showStoreProduct(
         for appId: String,
         from viewController: UIViewController? = nil
@@ -36,7 +36,7 @@ public extension UIApplication {
     }
 
     /// 在应用商店(`App Store`)中打开应用的(`App详情页`)
-    /// - Parameters:
+    /// - Parameter appId: 应用标识
     /// - appId: 应用的`ID`
     func fdy_openInAppStore(with appId: String) {
         if let url = URL(string: "itms-apps://itunes.apple.com/app/id\(appId)?mt=8") {
@@ -45,7 +45,7 @@ public extension UIApplication {
     }
 
     /// 如果有`AppStore`应用, 会在`AppStore`应用中打开, 如果没有会在`浏览器`中打开应用的(`App详情页`)
-    /// - Parameters:
+    /// - Parameter appId: 应用标识
     /// - appId: 应用的`ID`
     func fdy_openInBrowser(with appId: String) {
         let urlString = "https://itunes.apple.com/cn/app/id\(appId)?mt=8"
@@ -106,9 +106,8 @@ public extension UIApplication {
         }
 
         guard let telURL = URL(string: "tel://\(cleanNumber)") else {
-            assertionFailure("无法构造电话 URL: tel://\(cleanNumber)")
-            completion?(false)
-            return
+            // `cleanNumber` 上游已过滤为纯数字,`tel://<digits>` 恒可构造;此处仅为理论兜底
+            preconditionFailure("无法构造电话 URL: tel://\(cleanNumber)")
         }
         self.fdy_open(telURL, completion: completion)
     }
@@ -167,11 +166,13 @@ public extension UIApplication {
     }
 
     /// 当前 App 的结构化版本信息
+    /// - Returns: 版本信息
     var fdy_currentAppVersion: FdyAppVersion {
         return FdyAppVersion(Bundle.fdy_appVersion)
     }
 
     /// 是否为首次安装或升级到新版本(只读,不会写回 UserDefaults)
+    /// - Returns: 是否满足条件
     /// - Note: 本属性只做判断,不产生任何副作用。处理完新版本引导逻辑后,请调用 `recordCurrentVersion()` 记录当前版本。
     var fdy_isNewVersion: Bool {
         let current = Bundle.fdy_appVersion
@@ -185,6 +186,7 @@ public extension UIApplication {
     }
 
     /// 比较当前版本是否低于指定版本
+    /// - Parameter targetVersion: 目标版本
     /// - Returns: `true` 表示当前版本 < 参数版本(即有更新)
     func fdy_isVersionBelow(_ targetVersion: String) -> Bool {
         let current = self.fdy_currentAppVersion

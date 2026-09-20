@@ -3,6 +3,7 @@ import UIKit
 // MARK: - 属性
 public extension UITextField {
     /// 判断当前文本内容是否为空
+    /// - Returns: 是否满足条件
     var fdy_isEmpty: Bool {
         self.text == nil || self.text == ""
     }
@@ -16,12 +17,6 @@ public extension UITextField {
     ///   - items: 工具栏中的按钮项数组
     ///   - height: 工具栏高度,默认为 `44`
     /// - Returns: 创建的 `UIToolbar` 实例
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))
-    ///   textField.fdy_addToolbar(items: [doneButton])
-    ///   ```
     @discardableResult
     func fdy_addToolbar(items: [UIBarButtonItem]?, height: CGFloat = 44) -> UIToolbar {
         let toolbar = UIToolbar()
@@ -48,22 +43,10 @@ public extension UITextField {
     ///
     /// - Parameters:
     ///   - range: 当前编辑范围(由 delegate 方法传入)
-    ///   - replacementText: 即将插入的文本
+    ///   - text: 文本
     ///   - maxCharacters: 允许的最大字符数
     ///   - regex: 可选的正则表达式,用于限制输入字符类型(如仅数字字母)
     /// - Returns: `true` 表示允许输入,`false` 表示拒绝
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-    ///       return textField.fdy_inputRestrictions(
-    ///           shouldChangeTextIn: range,
-    ///           replacementText: string,
-    ///           maxCharacters: 10,
-    ///           regex: "^[a-zA-Z0-9]*$"
-    ///       )
-    ///   }
-    ///   ```
     func fdy_inputRestrictions(
         shouldChangeTextIn range: NSRange,
         replacementText text: String,

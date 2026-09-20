@@ -13,11 +13,13 @@ public enum FdyLogLevel: Int, Comparable, CustomStringConvertible, CaseIterable 
     /// 致命错误
     case fatal = 5
 
+    /// 按严重程度比较两个级别
     public static func < (lhs: FdyLogLevel, rhs: FdyLogLevel) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 
     /// 图标前缀（可选，增强可读性）
+    /// - Returns: 处理后的字符串
     public var icon: String {
         switch self {
         case .debug: return "👻"
@@ -28,6 +30,7 @@ public enum FdyLogLevel: Int, Comparable, CustomStringConvertible, CaseIterable 
         }
     }
 
+    /// 级别的显示名
     public var description: String {
         switch self {
         case .debug: return "调试"

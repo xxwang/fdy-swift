@@ -3,12 +3,9 @@ import Foundation
 // MARK: - HTML 与链接处理
 public extension String {
     /// 从简单的 `<a>` 标签中提取链接和文本内容
+    /// - Returns: 链接与文本,不可用时返回 `nil`
     /// - 返回值: `(link: String, text: String)` 元组;若匹配失败,返回 `nil`
     /// - 注意: 仅支持单个 `<a>` 标签,且属性顺序固定
-    ///
-    /// - Example:
-    ///     `"<a href=\"https://example.com\">Click</a>".fdy_linkAndText` → `("https://example.com", "Click")`
-    ///
     var fdy_linkAndText: (link: String, text: String)? {
         let pattern = #"href\s*=\s*["']([^"']+)["'][^>]*>([^<]+)"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]),
@@ -30,12 +27,9 @@ public extension String {
     }
 
     /// 提取字符串中所有 URL、@提及、#话题 的 `NSRange`
+    /// - Returns: 范围数组,不可用时返回 `nil`
     /// - 返回值: 匹配范围数组;若正则失败,返回 `nil`
     /// - 支持: http/https 链接、@用户名(含中文)、#话题#
-    ///
-    /// - Example:
-    ///     `"看 https://a.com 和 @张三 #热点#"` → 三个 NSRange
-    ///
     var fdy_linkRanges: [NSRange]? {
         let patterns = [
             ##"https?://[^\s<>"{}|\\^`\[\]]+"##, // URL

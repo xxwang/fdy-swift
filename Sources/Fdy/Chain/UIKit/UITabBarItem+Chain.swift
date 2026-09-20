@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UITabBarItem {
-    /// 设置标题
+    /// 标题
     /// - Parameter title: 标题文本
     /// - Returns: `Self`
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UITabBarItem {
         return self
     }
 
-    /// 设置按钮标题的文本属性
+    /// 按钮标题的文本属性
     /// - Parameters:
     ///   - attributes: 文本属性字典,如字体、颜色等
     ///   - state: 控件状态,如 `.normal`、`.highlighted` 等
@@ -22,7 +22,7 @@ public extension FdyWrapper where Base: UITabBarItem {
         return self
     }
 
-    /// 设置默认图片
+    /// 默认图片
     /// - Parameter image: 图片
     /// - Returns: `Self`
     @discardableResult
@@ -35,7 +35,7 @@ public extension FdyWrapper where Base: UITabBarItem {
         return self
     }
 
-    /// 设置选中图片
+    /// 选中图片
     /// - Parameter image: 图片
     /// - Returns: `Self`
     @discardableResult
@@ -48,7 +48,7 @@ public extension FdyWrapper where Base: UITabBarItem {
         return self
     }
 
-    /// 设置图片的内边距
+    /// 图片的内边距
     /// - Parameter imageInsets: 图片的内边距
     /// - Returns: `Self`
     @discardableResult
@@ -57,7 +57,7 @@ public extension FdyWrapper where Base: UITabBarItem {
         return self
     }
 
-    /// 设置标题的位置调整
+    /// 标题的位置调整
     /// - Parameter titleOffset: 标题相对于默认位置的偏移量
     /// - Returns: `Self`
     @discardableResult
@@ -66,7 +66,7 @@ public extension FdyWrapper where Base: UITabBarItem {
         return self
     }
 
-    /// 设置 `badgeColor` 颜色
+    ///  `badgeColor` 颜色
     /// - Parameter color: 颜色
     /// - Returns: `Self`
     @discardableResult
@@ -75,7 +75,7 @@ public extension FdyWrapper where Base: UITabBarItem {
         return self
     }
 
-    /// 设置 `badgeValue` 值
+    ///  `badgeValue` 值
     /// - Parameter value: 值
     /// - Returns: `Self`
     @discardableResult
@@ -87,7 +87,7 @@ public extension FdyWrapper where Base: UITabBarItem {
 
 // MARK: - 链式方法
 public extension FdyWrapper where Base: UITabBarItem {
-    /// 设置`Badge`文本属性
+    /// `Badge`文本属性
     /// - Parameters:
     ///   - textAttributes: 文本属性字典(如字体、颜色等)
     ///   - state: 控制状态(如 `.normal` 或 `.selected`)
@@ -98,7 +98,7 @@ public extension FdyWrapper where Base: UITabBarItem {
         return self
     }
 
-    /// 设置图标的渲染模式
+    /// 图标的渲染模式
     /// - Parameter renderingMode: 渲染模式(默认使用 `.alwaysOriginal`)
     /// - Returns: `Self`
     @discardableResult
@@ -109,6 +109,33 @@ public extension FdyWrapper where Base: UITabBarItem {
         if let selectedImage = base.selectedImage {
             base.selectedImage = selectedImage.withRenderingMode(renderingMode)
         }
+        return self
+    }
+
+    /// 该标签项的默认外观(`standardAppearance`)
+    /// - Parameter appearance: 目标外观,传 `nil` 回退到标签栏的设置
+    /// - Returns: `Self`
+    @discardableResult
+    func standardAppearance(_ appearance: UITabBarAppearance?) -> Self {
+        base.standardAppearance = appearance
+        return self
+    }
+
+    /// 该标签项滚动到边缘时的外观(`scrollEdgeAppearance`)
+    /// - Parameter appearance: 目标外观,传 `nil` 回退到标签栏的设置
+    /// - Returns: `Self`
+    @discardableResult
+    func scrollEdgeAppearance(_ appearance: UITabBarAppearance?) -> Self {
+        base.scrollEdgeAppearance = appearance
+        return self
+    }
+
+    /// 大内容尺寸下使用的图片(辅助功能)
+    /// - Parameter image: 图片,传 `nil` 用系统默认
+    /// - Returns: `Self`
+    @discardableResult
+    func largeContentSizeImage(_ image: UIImage?) -> Self {
+        base.largeContentSizeImage = image
         return self
     }
 }

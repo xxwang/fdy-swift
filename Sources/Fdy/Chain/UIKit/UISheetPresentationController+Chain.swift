@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UISheetPresentationController {
-    /// 设置代理
+    /// 代理
     /// - Parameter delegate: 代理对象
     /// - Returns: `Self`
     @discardableResult
@@ -11,7 +11,7 @@ public extension FdyWrapper where Base: UISheetPresentationController {
         return self
     }
 
-    /// 设置抽屉档位
+    /// 抽屉档位
     /// - Parameter detents: 抽屉支持的高度档位（如 .medium(), .large()）
     /// - Returns: `Self`
     @discardableResult
@@ -29,7 +29,7 @@ public extension FdyWrapper where Base: UISheetPresentationController {
         return self
     }
 
-    /// 设置来源视图（主要用于 .formSheet 定位）
+    /// 来源视图（主要用于 .formSheet 定位）
     /// - Parameter sourceView: 来源视图
     /// - Returns: `Self`
     @discardableResult
@@ -73,8 +73,8 @@ public extension FdyWrapper where Base: UISheetPresentationController {
         return self
     }
 
-    /// 设置最大不暗化档位（小于此档位背景变暗）
-    /// - Parameter identifier: 档位标识符（如 .medium）
+    /// 最大不暗化档位（小于此档位背景变暗）
+    /// - Parameter largestUndimmedDetentIdentifier: 档位标识符（如 .medium）
     /// - Returns: `Self`
     @discardableResult
     func largestUndimmedDetentIdentifier(_ largestUndimmedDetentIdentifier: UISheetPresentationController.Detent.Identifier?) -> Self {
@@ -88,6 +88,41 @@ public extension FdyWrapper where Base: UISheetPresentationController {
     @discardableResult
     func prefersScrollingExpandsWhenScrolledToEdge(_ prefersScrollingExpandsWhenScrolledToEdge: Bool) -> Self {
         base.prefersScrollingExpandsWhenScrolledToEdge = prefersScrollingExpandsWhenScrolledToEdge
+        return self
+    }
+
+    /// 首选圆角半径
+    /// - Parameter preferredCornerRadius: 要设置的首选圆角半径
+    /// - Returns: `Self`
+    @discardableResult
+    func preferredCornerRadius(_ preferredCornerRadius: CGFloat) -> Self {
+        base.preferredCornerRadius = preferredCornerRadius
+        return self
+    }
+
+    /// 当前选中的档位标识符
+    /// - Parameter selectedDetentIdentifier: 档位标识符,传 `nil` 用系统默认
+    /// - Returns: `Self`
+    @discardableResult
+    func selectedDetentIdentifier(
+        _ selectedDetentIdentifier: UISheetPresentationController.Detent.Identifier?
+    ) -> Self {
+        base.selectedDetentIdentifier = selectedDetentIdentifier
+        return self
+    }
+}
+
+// MARK: - iOS 27.0 新增属性
+
+public extension FdyWrapper where Base: UISheetPresentationController {
+    /// 首选展示位置
+    ///
+    /// - Parameter preferredPlacement: 展示位置枚举值
+    /// - Returns: `Self`
+    @available(iOS 27.0, *)
+    @discardableResult
+    func preferredPlacement(_ preferredPlacement: UISheetPresentationController.Placement) -> Self {
+        base.preferredPlacement = preferredPlacement
         return self
     }
 }

@@ -1,26 +1,9 @@
 import Foundation
 
 // MARK: - 全局入口
-
-/// 全局工具入口。通过 `fdyG` 访问所有工具类。
-///
-/// ```swift
-/// fdyG.logger.debug("hello")
-/// fdyG.helper.isPad
-/// fdyG.perChecker.request(.camera) { ... }
-/// fdyG.queue.asyncMain { ... }
-/// fdyG.screen.width
-/// fdyG.symbol.monochrome(for: "star", color: .red)
-/// fdyG.path.documentsDirPath
-/// fdyG.appearance.initGlobalUI()
-/// fdyG.skinManager.updateSkin()
-/// fdyG.plist.read(from: url)
-/// ```
-///
-/// - Note: 全局单例一律由这里统一暴露,不再在调用侧直接写 `Xxx.shared`。
 public let fdyG = FdyGlobal()
 
-/// 全局工具聚合器
+// MARK: - 全局工具聚合器
 public final class FdyGlobal {
     /// 设备辅助信息（UI 相关成员为 ``@MainActor``）
     public var helper: FdyHelper {

@@ -4,15 +4,15 @@ import Foundation
 public extension Timer {
     /// 在主线程 `RunLoop` 中创建并自动调度的定时器
     ///
-    /// - Warning: `RunLoop.main` 强持有 timer，timer 强引用 `block`。
-    ///   若 `repeats: true` 且 block 内使用 `self`，必须使用 `[weak self]`
-    ///   并配合手动调用 `invalidate()` 停止，否则会造成永久泄漏。
     /// - Parameters:
     ///   - mode: `RunLoop` 模式，默认为 `.common`（兼容滚动、拖拽等场景）
     ///   - timeInterval: 触发间隔（秒），必须大于 0
     ///   - repeats: 是否重复执行
     ///   - block: 回调闭包，传入当前 `Timer` 实例
     /// - Returns: 已添加到 `RunLoop.main` 的 `Timer` 实例
+    /// - Warning: `RunLoop.main` 强持有 timer，timer 强引用 `block`。
+    ///   若 `repeats: true` 且 block 内使用 `self`，必须使用 `[weak self]`
+    ///   并配合手动调用 `invalidate()` 停止，否则会造成永久泄漏。
     /// - Note: 必须在主线程调用；使用后需手动调用 `invalidate()` 或通过 `pause()`/`resume()` 管理生命周期
     @discardableResult
     static func fdy_scheduled(
@@ -59,8 +59,9 @@ public extension Timer {
         completion: @escaping FdyAction
     ) -> Timer {
         guard duration > 0, interval > 0 else {
-            assertionFailure("Duration and interval must be positive")
-            return Timer()
+            // 不用 `assertionFailure`:它自 `-O` 起被移除,Release 下会返回一个 `isValid == false` 的
+            // `Timer()`,调用方既不会收到 tick 也读不出原因,`RunLoop.main.add` 它还会直接段错误
+            preconditionFailure("Duration and interval must be positive")
         }
 
         let startTime = Date()

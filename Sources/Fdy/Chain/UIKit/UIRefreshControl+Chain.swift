@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - 链式设置属性
 public extension FdyWrapper where Base: UIRefreshControl {
-    /// 设置富文本标题
+    /// 富文本标题
     /// - Parameters:
     ///   - title: 标题文本
     ///   - attributes: 富文本属性(如字体、颜色)
@@ -75,6 +75,15 @@ public extension FdyWrapper where Base: UIRefreshControl {
                 scrollView.contentOffset.y = topOffset
             }
         }
+        return self
+    }
+
+    /// 富文本样式的小标题
+    /// - Parameter attributedTitle: 富文本标题,传 `nil` 清空
+    /// - Returns: `Self`
+    @discardableResult
+    func attributedTitle(_ attributedTitle: NSAttributedString?) -> Self {
+        base.attributedTitle = attributedTitle
         return self
     }
 }

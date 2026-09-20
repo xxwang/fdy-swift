@@ -7,13 +7,6 @@ import UIKit
 ///
 /// 当 `UIControl` 的指定事件（或手势识别器）触发时发出元素；**永远不会失败**（`Failure == Never`）。
 /// 取消订阅时自动移除 `target`/`action`，避免悬挂引用与内存泄漏。
-///
-/// 例：
-/// ```swift
-/// button.fdy_tapPublisher
-///     .sink { print("tapped") }
-///     .store(in: &cancellables)
-/// ```
 public struct FdyControlEvent<Value>: Publisher {
     public typealias Output = Value
     public typealias Failure = Never
@@ -27,6 +20,7 @@ public struct FdyControlEvent<Value>: Publisher {
     }
 
     /// 由已构造好的 `AnyPublisher` 包装（推荐通过模块内的 `SubscribePublisher` 构造）。
+    /// - Parameter publisher: 上游发布者
     init(_ publisher: AnyPublisher<Value, Never>) {
         self.publisher = publisher
     }

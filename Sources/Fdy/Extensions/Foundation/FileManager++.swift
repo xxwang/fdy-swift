@@ -46,11 +46,6 @@ public extension FileManager {
     ///   - string: 要追加的字符串
     ///   - path: 目标文件路径(支持 `～`)
     /// - Returns: 成功追加返回 `true`,否则返回 `false`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   _ = FileManager.fdy_appendString("New log entry\n", to: "～/Documents/app.log")
-    ///   ```
     @discardableResult
     static func fdy_appendString(_ string: String, to path: String) -> Bool {
         self.fdy_appendString(string, to: URL(fileURLWithPath: path))

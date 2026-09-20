@@ -44,22 +44,26 @@ public extension UIImage {
 // MARK: - UIImage属性
 public extension UIImage {
     /// 获取图片解码后的位图大小(单位:字节),O(1) 估算,避免每次全量 JPEG 编码
+    /// - Returns: 计算结果
     var fdy_sizeInBytes: Int {
         guard let cg = self.cgImage else { return 0 }
         return cg.bytesPerRow * cg.height
     }
 
     /// 获取图片解码后的位图大小(单位:KB)
+    /// - Returns: 计算结果
     var fdy_sizeInKB: Double {
         return Double(self.fdy_sizeInBytes) / 1024.0
     }
 
     /// 返回使用原始渲染模式的图片实例
+    /// - Returns: 图片
     var fdy_withOriginalRenderingMode: UIImage {
         return self.withRenderingMode(.alwaysOriginal)
     }
 
     /// 返回使用模板渲染模式的图片实例
+    /// - Returns: 图片
     var fdy_withTemplateRenderingMode: UIImage {
         return self.withRenderingMode(.alwaysTemplate)
     }
@@ -70,13 +74,6 @@ public extension UIImage {
     /// 获取图像的 PNG 格式 Base64 编码字符串
     ///
     /// - Returns: Base64 字符串,若 PNG 数据生成失败则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let base64 = image.fdy_pngBase64String {
-    ///       print("data:image/png;base64,\(base64)")
-    ///   }
-    ///   ```
     var fdy_pngBase64String: String? {
         return self.pngData()?.base64EncodedString()
     }
@@ -85,13 +82,6 @@ public extension UIImage {
     ///
     /// - Parameter compressionQuality: 压缩质量,范围 `[0.0, 1.0]`值越高质量越高,文件越大
     /// - Returns: Base64 字符串,若 JPEG 数据生成失败则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let base64 = image.fdy_jpegBase64String(compressionQuality: 0.8) {
-    ///       print("data:image/jpeg;base64,\(base64)")
-    ///   }
-    ///   ```
     func fdy_jpegBase64String(compressionQuality: CGFloat) -> String? {
         let quality = min(max(compressionQuality, 0), 1)
         return self.jpegData(compressionQuality: quality)?.base64EncodedString()
@@ -105,11 +95,6 @@ public extension UIImage {
     ///   - lightImageName: 浅色模式下的图片名称
     ///   - darkImageName: 深色模式下的图片名称(可选,默认使用浅色图片)
     /// - Returns: 真正随系统外观切换的动态图片
-    ///
-    /// - Example:
-    ///
-    ///     let dynamicImage = UIImage.fdy_dynamic(lightImageName: "light_icon", darkImageName: "dark_icon")
-    ///
     static func fdy_dynamic(lightImageName: String, darkImageName: String? = nil) -> UIImage? {
         guard let lightImage = UIImage(named: lightImageName) else { return nil }
         let darkImage = darkImageName.flatMap { UIImage(named: $0) }
@@ -121,11 +106,6 @@ public extension UIImage {
     ///   - light: 浅色模式下的图片
     ///   - dark: 深色模式下的图片(可选,默认使用浅色图片)
     /// - Returns: 真正随系统外观切换的动态图片
-    ///
-    /// - Example:
-    ///
-    ///     let dynamicImage = UIImage.fdy_dynamic(light: lightImage, dark: darkImage)
-    ///
     static func fdy_dynamic(light: UIImage, dark: UIImage? = nil) -> UIImage? {
         return fdy_makeDynamicImage(light: light, dark: dark)
     }
@@ -171,6 +151,7 @@ public enum FdyCompressionMode {
     )
 
     /// 当前模式的最大文件大小(字节)
+    /// - Returns: 计算结果
     var maxFileSize: Int {
         switch self {
         case .low: return Self.dataSizeRule.low
@@ -182,6 +163,7 @@ public enum FdyCompressionMode {
     }
 
     /// 当前模式的最大边长(像素)
+    /// - Returns: 计算结果
     var maxResolution: CGFloat {
         switch self {
         case .low: return Self.resolutionRule.low
@@ -280,7 +262,6 @@ public extension UIImage {
     }
 
     /// 使用`ImageIO`调整尺寸(最佳性能)
-    /// - Parameter newSize: 目标大小
     /// - Returns: `UIImage?`
     private func fdy_resizedUsingImageIO(_ newSize: CGSize) -> UIImage? {
         guard let data = self.pngData(), let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
@@ -296,7 +277,6 @@ public extension UIImage {
     }
 
     /// 使用`CoreGraphics`调整尺寸(兼容方案)
-    /// - Parameter newSize: 目标大小
     /// - Returns: `UIImage?`
     private func fdy_resizedUsingCoreGraphics(_ newSize: CGSize) -> UIImage? {
         let renderer = UIGraphicsImageRenderer(size: newSize)
@@ -342,6 +322,7 @@ public extension UIImage {
 // MARK: - 拉伸相关
 public extension UIImage {
     /// 创建可拉伸图片(从中心点拉伸)
+    /// - Returns: 图片
     func fdy_makeResizableFromCenter() -> UIImage {
         let insets = UIEdgeInsets(
             top: (self.size.height / 2).fdy_floor(),
@@ -356,6 +337,7 @@ public extension UIImage {
     /// - Parameters:
     ///   - insets: 不拉伸的区域
     ///   - mode: 拉伸模式(默认.stretch)
+    /// - Returns: 图片
     func fdy_makeResizable(insets: UIEdgeInsets, mode: UIImage.ResizingMode = .stretch) -> UIImage {
         return self.resizableImage(withCapInsets: insets, resizingMode: mode)
     }
@@ -365,6 +347,7 @@ public extension UIImage {
 public extension UIImage {
     /// 等比缩放图片到指定尺寸(可能留有空白)
     /// - Parameter size: 目标尺寸
+    /// - Returns: 图片
     func fdy_scaleAspectFit(to size: CGSize) -> UIImage {
         let aspectRatio = min(size.width / self.size.width, size.height / self.size.height)
         let newSize = CGSize(width: self.size.width * aspectRatio, height: self.size.height * aspectRatio)
@@ -379,6 +362,7 @@ public extension UIImage {
 
     /// 等比填充缩放图片到指定尺寸(可能裁剪)
     /// - Parameter size: 目标尺寸
+    /// - Returns: 图片
     func fdy_scaleAspectFill(to size: CGSize) -> UIImage {
         let aspectRatio = max(size.width / self.size.width, size.height / self.size.height)
         let scaledSize = CGSize(width: self.size.width * aspectRatio, height: self.size.height * aspectRatio)
@@ -395,6 +379,7 @@ public extension UIImage {
     /// - Parameters:
     ///   - newWidth: 目标宽度
     ///   - opaque: 是否不透明背景
+    /// - Returns: 图片,不可用时返回 `nil`
     func fdy_scale(toWidth newWidth: CGFloat, opaque: Bool = false) -> UIImage? {
         let scaleFactor = newWidth / self.size.width
         let newSize = CGSize(width: newWidth, height: self.size.height * scaleFactor)
@@ -410,6 +395,7 @@ public extension UIImage {
     /// - Parameters:
     ///   - newHeight: 目标高度
     ///   - opaque: 是否不透明背景
+    /// - Returns: 图片,不可用时返回 `nil`
     func fdy_scale(toHeight newHeight: CGFloat, opaque: Bool = false) -> UIImage? {
         let scaleFactor = newHeight / self.size.height
         let newSize = CGSize(width: self.size.width * scaleFactor, height: newHeight)
@@ -426,11 +412,6 @@ public extension UIImage {
 public extension UIImage {
     /// 修正图片方向(确保总是 .up 方向)
     /// - Returns: 方向修正后的图片
-    ///
-    /// - Example:
-    ///
-    ///     let fixedImage = capturedImage.fdy_fixOrientation()
-    ///
     func fdy_fixOrientation() -> UIImage {
         guard self.imageOrientation != .up, let _ = self.cgImage else { return self }
 
@@ -445,11 +426,6 @@ public extension UIImage {
     /// 按角度旋转图片(正数顺时针,负数逆时针)
     /// - Parameter degrees: 旋转角度(单位：度)
     /// - Returns: 旋转后的图片
-    ///
-    /// - Example:
-    ///
-    ///     let rotatedImage = image.fdy_rotate(degrees: 90)
-    ///
     func fdy_rotate(degrees: CGFloat) -> UIImage? {
         let radians = degrees * .pi / 180
         return self.fdy_rotate(radians: radians)
@@ -458,11 +434,6 @@ public extension UIImage {
     /// 按弧度旋转图片
     /// - Parameter radians: 旋转弧度
     /// - Returns: 旋转后的图片
-    ///
-    /// - Example:
-    ///
-    ///     let rotatedImage = image.fdy_rotate(radians: -.pi / 2)
-    ///
     func fdy_rotate(radians: CGFloat) -> UIImage? {
         guard let cgImage = self.cgImage else { return nil }
 
@@ -493,22 +464,12 @@ public extension UIImage {
 
     /// 水平翻转图片(镜像)
     /// - Returns: 水平翻转后的图片
-    ///
-    /// - Example:
-    ///
-    ///     let mirroredImage = image.fdy_flipHorizontal()
-    ///
     func fdy_flipHorizontal() -> UIImage? {
         return self.fdy_apply(orientation: .upMirrored)
     }
 
     /// 垂直翻转图片
     /// - Returns: 垂直翻转后的图片
-    ///
-    /// - Example:
-    ///
-    ///     let flippedImage = image.fdy_flipVertical()
-    ///
     func fdy_flipVertical() -> UIImage? {
         return self.fdy_apply(orientation: .downMirrored)
     }
@@ -695,14 +656,6 @@ public extension UIImage {
     ///
     /// - Parameter maxSize: 缩放后的最大尺寸(宽高均不超过该值)默认为 `CGSize(width: 250, height: 250)`
     /// - Returns: 包含四种角色颜色的 `FdyColorPalette`若分析失败,返回默认黑白组合
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let image = UIImage(named: "avatar") {
-    ///       let palette = image.fdy_analyzeColors(maxSize: CGSize(width: 100, height: 100))
-    ///       view.backgroundColor = palette.background
-    ///   }
-    ///   ```
     func fdy_analyzeColors(maxSize: CGSize = CGSize(width: 250, height: 250)) -> FdyColorPalette {
         guard let cgImage = self.cgImage else {
             let fallbackColor = UIColor.black
@@ -905,15 +858,6 @@ public extension UIImage {
     /// 内部会将图片缩放到 40x40 以加速计算
     ///
     /// - Parameter completion: 回调返回主题色,若失败则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   image.fdy_extractThemeColor { color in
-    ///       DispatchQueue.main.async {
-    ///           self.titleLabel.textColor = color ?? .label
-    ///       }
-    ///   }
-    ///   ```
     func fdy_extractThemeColor(_ completion: @escaping FdyAction1<UIColor?>) {
         guard let cgImage = self.cgImage else {
             DispatchQueue.main.async { completion(nil) }
@@ -1008,13 +952,6 @@ public extension UIImage {
     /// 结果基于 sRGB 颜色空间计算,确保跨设备一致性
     ///
     /// - Returns: 平均颜色;若图片无效或处理失败,返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let avgColor = image.fdy_averageColor() {
-    ///       view.backgroundColor = avgColor
-    ///   }
-    ///   ```
     func fdy_averageColor() -> UIColor? {
         // 尝试获取有效的 CIImage
         var ciImage: CIImage?
@@ -1068,18 +1005,10 @@ public extension UIImage {
 
     /// 获取图片指定坐标处的像素颜色(同步)
     ///
-    /// - Note: 坐标基于图片的自然尺寸(`size`),原点在左上角
-    /// - Warning: 若图片无 `cgImage`(如 PDF、纯色图),返回 `nil`
-    ///
     /// - Parameter point: 图片上的点(单位：point)
     /// - Returns: 该点的颜色,若坐标越界或无法读取则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   if let color = image.fdy_color(at: CGPoint(x: 10, y: 20)) {
-    ///       print("Color: \(color)")
-    ///   }
-    ///   ```
+    /// - Note: 坐标基于图片的自然尺寸(`size`),原点在左上角
+    /// - Warning: 若图片无 `cgImage`(如 PDF、纯色图),返回 `nil`
     func fdy_color(at point: CGPoint) -> UIColor? {
         guard let cgImage = self.cgImage else { return nil }
         guard point.x >= 0, point.y >= 0, point.x < self.size.width, point.y < self.size.height else {
@@ -1138,17 +1067,9 @@ public extension UIImage {
 
     /// 异步获取图片指定坐标处的像素颜色
     ///
-    /// - Parameter point: 图片上的点(单位：point)
-    /// - Parameter completion: 回调返回颜色或 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   image.fdy_color(at: CGPoint(x: 50, y: 50)) { color in
-    ///       DispatchQueue.main.async {
-    ///           self.indicatorView.backgroundColor = color
-    ///       }
-    ///   }
-    ///   ```
+    /// - Parameters:
+    ///   - point: 图片上的点(单位：point)
+    ///   - completion: 回调返回颜色或 `nil`
     func fdy_color(at point: CGPoint, completion: @escaping FdyAction1<UIColor?>) {
         DispatchQueue.global(qos: .userInteractive).async {
             let color = self.fdy_color(at: point)
@@ -1186,16 +1107,9 @@ public extension UIImage {
         return self.withConfiguration(configuration)
     }
 
-    /// 设置图像的整体透明度(Alpha 值)
+    /// 图像的整体透明度(Alpha 值)
     /// - Parameter alpha: 透明度值,范围 0.0(完全透明)到 1.0(完全不透明)
     /// - Returns: 透明度调整后的新图像;若失败返回原图
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let image = UIImage(named: "example.png")
-    ///   let newImage = image?.fdy_imageAlpha(0.5)
-    ///   // newImage: 透明度为 50% 的图像
-    ///   ```
     func fdy_imageAlpha(_ alpha: CGFloat) -> UIImage {
         // 边界检查
         guard alpha >= 0.0, alpha <= 1.0 else { return self }
@@ -1212,12 +1126,6 @@ public extension UIImage {
     /// 使用指定颜色填充图像的不透明区域(常用于图标着色)
     /// - Parameter color: 填充颜色
     /// - Returns: 填充后的新图像;若失败返回原图
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let image = UIImage(named: "icon")?.withRenderingMode(.alwaysTemplate)
-    ///   let filled = image?.fdy_filled(with: .red)
-    ///   ```
     func fdy_filled(with color: UIColor) -> UIImage {
         guard let cgImage = self.cgImage else { return self }
 
@@ -1237,12 +1145,6 @@ public extension UIImage {
     /// 为图像添加纯色背景(保留原图内容,下方叠加背景色)
     /// - Parameter color: 背景颜色
     /// - Returns: 带背景色的新图像;若失败返回原图
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let image = UIImage(named: "logo-transparent.png")
-    ///   let withBg = image?.fdy_backgroundColor(.systemBlue)
-    ///   ```
     func fdy_backgroundColor(_ color: UIColor) -> UIImage {
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = self.scale
@@ -1261,12 +1163,6 @@ public extension UIImage {
     ///   - blendMode: 混合模式(如 `.multiply`, `.overlay` 等)
     ///   - alpha: 绘制时的透明度(默认 1.0)
     /// - Returns: 着色后的新图像;若失败返回原图
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let image = UIImage(named: "texture.png")
-    ///   let tinted = image?.fdy_tint(.red, blendMode: .multiply)
-    ///   ```
     func fdy_tint(_ color: UIColor, blendMode: CGBlendMode, alpha: CGFloat = 1.0) -> UIImage {
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = self.scale
@@ -1286,12 +1182,6 @@ public extension UIImage {
 public extension UIImage {
     /// 移除接近白色的背景,使其变为透明
     /// - Returns: 白色背景区域透明化后的新图像;若失败返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let logo = UIImage(named: "company_logo")
-    ///   let transparentLogo = logo?.fdy_removeWhiteBackground()
-    ///   ```
     func fdy_removeWhiteBackground() -> UIImage? {
         // 允许一定容差(222～255 表示浅灰到纯白)
         let colorRange: [CGFloat] = [222, 255, 222, 255, 222, 255]
@@ -1335,12 +1225,6 @@ public extension UIImage {
     /// 应用高斯模糊效果
     /// - Parameter radius: 模糊半径(建议 0～100),默认 20
     /// - Returns: 模糊后的新图像;若失败返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let portrait = UIImage(named: "profile")
-    ///   let blurred = portrait?.fdy_gaussianBlur(radius: 15)
-    ///   ```
     func fdy_gaussianBlur(radius: CGFloat = 20) -> UIImage? {
         guard radius >= 0 else { return nil }
         return self.fdy_applyCoreImageFilter(filterName: "CIGaussianBlur", parameters: [kCIInputRadiusKey: radius])
@@ -1357,7 +1241,6 @@ public extension UIImage {
     /// 通用 Core Image 滤镜应用方法
     /// - Parameters:
     ///   - filterName: CIFilter 名称(如 "CIGaussianBlur")
-    ///   - parameters: 滤镜参数字典
     /// - Returns: 处理后的新图像;若失败返回 `nil`
     private func fdy_applyCoreImageFilter(filterName: String, parameters: [String: Any]) -> UIImage? {
         guard let ciImage = CIImage(image: self) else { return nil }
@@ -1395,12 +1278,6 @@ public extension UIImage {
     /// 应用指定滤镜效果
     /// - Parameter filter: 要应用的滤镜
     /// - Returns: 滤镜处理后的新图像;若失败返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let photo = UIImage(named: "vacation")
-    ///   let vintagePhoto = photo?.fdy_filter(.sepia(intensity: 0.8))
-    ///   ```
     func fdy_filter(_ filter: FdyPhotoFilter) -> UIImage? {
         let filterName: String
         var parameters: [String: Any] = [:]
@@ -1427,12 +1304,6 @@ public extension UIImage {
 public extension UIImage {
     /// 检测图像中的人脸位置
     /// - Returns: 人脸边界框数组(UIKit 坐标系,原点左上);若无结果或失败返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let groupPhoto = UIImage(named: "team")
-    ///   let faces = groupPhoto?.fdy_detectFaces()
-    ///   ```
     func fdy_detectFaces() -> [CGRect]? {
         guard let ciImage = CIImage(image: self) else { return nil }
 
@@ -1560,15 +1431,6 @@ public extension UIImage {
     ///   - locations: 颜色分布位置(0.0～1.0),可选
     ///   - direction: 渐变方向,默认水平
     /// - Returns: 渐变图像;若颜色为空返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let gradient = UIImage.fdy_gradientImage(
-    ///       colors: [.red, .blue],
-    ///       size: CGSize(width: 100, height: 100),
-    ///       cornerRadius: 10
-    ///   )
-    ///   ```
     static func fdy_gradientImage(
         colors: [UIColor],
         size: CGSize = CGSize(width: 1, height: 1),
@@ -1622,11 +1484,6 @@ public extension UIImage {
     /// - Returns: 加载成功的 `UIImage`,若资源不存在则返回 `nil`
     ///
     /// - Note: 不支持网络 URL如需加载网络图像,请使用 `URLSession` 获取 `Data` 后调用 `UIImage(data:)`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let icon = UIImage.fdy_fromResource(named: "app_icon")
-    ///   ```
     static func fdy_fromResource(named name: String) -> UIImage? {
         guard !name.isEmpty else { return nil }
         return UIImage(named: name)
@@ -1638,13 +1495,6 @@ public extension UIImage {
     ///
     /// - Parameter path: 图像文件的绝对路径
     /// - Returns: 加载成功的 `UIImage`,若路径无效或文件损坏则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
-    ///   let imagePath = (documentsPath as NSString).appendingPathComponent("photo.jpg")
-    ///   let image = UIImage.fdy_fromFile(at: imagePath)
-    ///   ```
     static func fdy_fromFile(at path: String) -> UIImage? {
         guard !path.isEmpty, FileManager.default.fileExists(atPath: path) else { return nil }
         return UIImage(contentsOfFile: path)
@@ -1673,12 +1523,6 @@ public extension UIImage {
     /// - Returns: 动画图像对象,失败时返回 `nil`
     ///
     /// - Important: 此方法`不支持网络 URL`请先通过异步方式下载数据,再传入 `.data`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let gif = UIImage.fdy_animatedGIF(from: .resource("loading"))
-    ///   imageView.image = gif
-    ///   ```
     static func fdy_animatedGIF(from source: FdyGIFSource) -> UIImage? {
         guard let data = self.fdy_gifData(from: source) else { return nil }
         return self.fdy_animatedGIF(from: data)
@@ -1794,8 +1638,6 @@ public extension UIImage {
         ///
         /// - Parameters:
         ///   - size: 水印内容的尺寸(文本或图像)
-        ///   - imageSize: 背景图像的尺寸
-        ///   - margin: 边距
         /// - Returns: 水印应绘制的 `CGRect`
         func rect(forSize size: CGSize, inImageSize imageSize: CGSize, margin: CGFloat) -> CGRect {
             let x: CGFloat
@@ -1839,21 +1681,6 @@ public extension UIImage {
     ///   - position: 水印位置,默认为 `.bottomRight`
     ///   - margin: 水印与图像边缘的间距(单位：点),默认为 `20`
     /// - Returns: 添加水印后的新图像若输入无效,返回原始图像
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let attributes: [NSAttributedString.Key: Any] = [
-    ///       .font: UIFont.boldSystemFont(ofSize: 36),
-    ///       .foregroundColor: UIColor.white.withAlphaComponent(0.8),
-    ///       .backgroundColor: UIColor.black.withAlphaComponent(0.3)
-    ///   ]
-    ///   let result = image.fdy_addTextWatermark(
-    ///       text: "机密",
-    ///       attributes: attributes,
-    ///       position: .topLeft,
-    ///       margin: 16
-    ///   )
-    ///   ```
     func fdy_addTextWatermark(
         text: String,
         attributes: [NSAttributedString.Key: Any]? = nil,
@@ -1894,16 +1721,6 @@ public extension UIImage {
     ///   - margin: 水印与图像边缘的间距(单位：点),默认为 `20`
     ///   - alpha: 水印透明度,取值范围 `[0.0, 1.0]`,默认为 `1.0`
     /// - Returns: 添加水印后的新图像若水印无效,返回原始图像
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let result = image.fdy_addImageWatermark(
-    ///       watermarkImage: logo,
-    ///       position: .center,
-    ///       margin: 0,
-    ///       alpha: 0.6
-    ///   )
-    ///   ```
     func fdy_addImageWatermark(
         watermarkImage: UIImage?,
         position: FdyWatermarkPosition = .bottomRight,
@@ -1945,15 +1762,6 @@ public extension UIImage {
     ///   - font: 文字字体,默认为 `systemFont(ofSize: 24)`
     ///   - isCircular: 是否裁剪为圆形,默认为 `false`
     /// - Returns: 生成的占位图像,若尺寸无效则返回 `nil`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let placeholder = UIImage.fdy_placeholder(
-    ///       with: "A",
-    ///       size: CGSize(width: 60, height: 60),
-    ///       isCircular: true
-    ///   )
-    ///   ```
     static func fdy_placeholder(
         with text: String,
         size: CGSize,
@@ -2002,11 +1810,6 @@ public extension UIImage {
     ///
     /// - Parameter size: 目标尺寸(单位：点)
     /// - Returns: 平铺后的新图像
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   let tiled = patternImage.fdy_tiled(to: view.bounds.size)
-    ///   ```
     func fdy_tiled(to size: CGSize) -> UIImage {
         guard size.width > 0, size.height > 0 else { return self }
 
@@ -2031,14 +1834,6 @@ public extension UIImage {
     /// - Returns: 图像尺寸(已应用最大边长限制),若解析失败返回 `.zero`
     ///
     /// - Warning: 此方法为同步阻塞调用,`不应在主线程执行`
-    ///
-    /// - Example:
-    ///   ```swift
-    ///   DispatchQueue.global().async {
-    ///       let size = UIImage.fdy_sizeOfRemoteImage(at: url, maximumDimension: 1024)
-    ///       print("Image size: \(size)")
-    ///   }
-    ///   ```
     static func fdy_sizeOfRemoteImage(at url: URL, maximumDimension: CGFloat? = nil) -> CGSize {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
               let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],

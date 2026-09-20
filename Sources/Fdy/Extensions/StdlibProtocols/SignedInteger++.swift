@@ -7,13 +7,6 @@ public extension SignedInteger {
     /// - Returns: 若数值 > 1 且仅能被 1 和自身整除,则返回 `true`;否则返回 `false`
     /// - Note: 使用优化的试除法(跳过偶数,上限为平方根),适用于大多数场景
     /// - Warning: 对极大整数(如 > 10^12)性能显著下降,建议用于中小数值
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     print((7).fdy_isPrime)   // true
-    ///     print((8).fdy_isPrime)   // false
-    ///     print((1).fdy_isPrime)   // false
-    ///     ```
     var fdy_isPrime: Bool {
         guard self > 1 else { return false }
         if self == 2 {
@@ -42,12 +35,6 @@ public extension SignedInteger {
     ///
     /// - Returns: 罗马数字字符串(如 `"MCMXCIV"`);若数值 ≤ 0,返回 `nil`
     /// - Note: 仅支持 1 到 3999 的整数(传统罗马数字范围)
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     print((1994).fdy_toRomanNumeral() as Any) // "MCMXCIV"
-    ///     print((0).fdy_toRomanNumeral() as Any)    // nil
-    ///     ```
     func fdy_toRomanNumeral() -> String? {
         guard self > 0, self <= 3999 else { return nil } // 罗马数字通常不超过 3999
 
@@ -72,12 +59,6 @@ public extension SignedInteger {
 
     /// 返回绝对值
     /// - Returns: 绝对值
-    ///
-    /// - Example:
-    ///
-    ///     let value = -42
-    ///     print(value.fdy_abs()) // 42
-    ///
     func fdy_abs() -> Self {
         return Swift.abs(self)
     }
@@ -86,12 +67,6 @@ public extension SignedInteger {
     ///
     /// - Parameter other: 另一个整数
     /// - Returns: 两数的 GCD(非负)
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     print((12).fdy_gcd(with: 15)) // 3
-    ///     print((-8).fdy_gcd(with: 12)) // 4
-    ///     ```
     func fdy_gcd(with other: Self) -> Self {
         var a = Swift.abs(self)
         var b = Swift.abs(other)
@@ -106,12 +81,6 @@ public extension SignedInteger {
     /// - Parameter other: 另一个整数
     /// - Returns: 两数的 LCM若任一数为 0,返回 0
     /// - Note: 数学上 LCM(0, 0) 未定义,此处按惯例返回 0
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     print((12).fdy_lcm(with: 15)) // 60
-    ///     print((0).fdy_lcm(with: 5))   // 0
-    ///     ```
     func fdy_lcm(with other: Self) -> Self {
         guard self != 0, other != 0 else { return 0 }
         return (Swift.abs(self) / self.fdy_gcd(with: other)) * Swift.abs(other)
@@ -122,12 +91,6 @@ public extension SignedInteger {
     /// - Returns: 阶乘结果(如 `5! = 120`);若数值 < 0,返回 `nil`
     /// - Warning: 阶乘增长极快,`Int` 类型在 `21!` 时即溢出
     ///   建议仅用于小数值(≤ 20)
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     print((5).fdy_factorial() as Any)  // Optional(120)
-    ///     print((-1).fdy_factorial() as Any) // nil
-    ///     ```
     func fdy_factorial() -> Self? {
         guard self >= 0 else { return nil }
 
@@ -149,14 +112,6 @@ public extension SignedInteger {
     ///
     /// - Parameter body: 要重复执行的闭包
     /// - Note: 若当前值 ≤ 0,不执行任何操作
-    ///
-    /// - Example:
-    ///     ```swift
-    ///     (3).fdy_times {
-    ///         print("Hello!")
-    ///     }
-    ///     // 输出三次 "Hello!"
-    ///     ```
     func fdy_times(_ body: FdyAction) {
         guard self > 0 else { return }
         var count: Self = 0

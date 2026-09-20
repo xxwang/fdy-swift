@@ -7,18 +7,6 @@ import UIKit
 ///
 /// - 订阅时**立即重放当前值**，此后在属性变化（用户操作或代码赋值）时持续发出；
 /// - 通过 `bind(from:)` 可将上游 publisher 的值写回控件，实现双向绑定。
-///
-/// 例（双向绑定）：
-/// ```swift
-/// // 读：用户输入 -> viewModel
-/// textField.fdy_textPublisher
-///     .compactMap { $0 }
-///     .sink { viewModel.name = $0 }
-///     .store(in: &cancellables)
-///
-/// // 写：viewModel -> 控件（无需 eraseToAnyPublisher）
-/// textField.fdy_textPublisher.bind(from: viewModel.$name)
-/// ```
 public struct FdyControlProperty<Value>: Publisher {
     public typealias Output = Value
     public typealias Failure = Never
@@ -32,6 +20,7 @@ public struct FdyControlProperty<Value>: Publisher {
         values.receive(subscriber: subscriber)
     }
 
+    /// 用上游发布者与写回闭包创建属性发布者
     init(values: AnyPublisher<Value, Never>, setter: @escaping (Value) -> Void) {
         self.values = values
         self.setter = setter

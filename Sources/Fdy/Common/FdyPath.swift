@@ -58,21 +58,29 @@ public extension FdyPath {
     }
 
     /// 在 `Library` 目录下构建完整路径
+    /// - Parameter relativePath: 相对路径组件(如 `"data/file.txt"`)
+    /// - Returns: 绝对路径字符串
     func path(inLibrary relativePath: String) -> String {
         buildPath(in: libraryDirPath, relativePath: relativePath)
     }
 
     /// 在 `Caches` 目录下构建完整路径
+    /// - Parameter relativePath: 相对路径组件(如 `"data/file.txt"`)
+    /// - Returns: 绝对路径字符串
     func path(inCaches relativePath: String) -> String {
         buildPath(in: cachesDirPath, relativePath: relativePath)
     }
 
     /// 在 `Application Support` 目录下构建完整路径
+    /// - Parameter relativePath: 相对路径组件(如 `"data/file.txt"`)
+    /// - Returns: 绝对路径字符串
     func path(inApplicationSupport relativePath: String) -> String {
         buildPath(in: applicationSupportDirPath, relativePath: relativePath)
     }
 
     /// 在临时目录下构建完整路径
+    /// - Parameter relativePath: 相对路径组件(如 `"data/file.txt"`)
+    /// - Returns: 绝对路径字符串
     func path(inTemp relativePath: String) -> String {
         buildPath(in: tempDirPath, relativePath: relativePath)
     }
@@ -94,11 +102,15 @@ public extension FdyPath {
     }
 
     /// 在 `Library` 目录下构建文件 URL
+    /// - Parameter relativePath: 相对路径组件
+    /// - Returns: 文件 URL
     func url(inLibrary relativePath: String) -> URL {
         libraryDirURL.appendingPathComponent(relativePath)
     }
 
     /// 在 `Caches` 目录下构建文件 URL
+    /// - Parameter relativePath: 相对路径组件
+    /// - Returns: 文件 URL
     func url(inCaches relativePath: String) -> URL {
         cachesDirURL.appendingPathComponent(relativePath)
     }
@@ -112,6 +124,8 @@ public extension FdyPath {
     }
 
     /// 在临时目录下构建文件 URL
+    /// - Parameter relativePath: 相对路径组件
+    /// - Returns: 文件 URL
     func url(inTemp relativePath: String) -> URL {
         let tempDirUrl = URL(filePath: tempDirPath, directoryHint: .isDirectory)
         return tempDirUrl.appendingPathComponent(relativePath)
