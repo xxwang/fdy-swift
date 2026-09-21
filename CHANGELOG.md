@@ -2,6 +2,29 @@
 
 本库遵循[语义化版本](https://semver.org/lang/zh-CN/)，格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [未发布]
+
+### 新增 —— `UUID` 的两个静态生成方法
+
+`UUID` 此前在库内**零 `fdy_` 成员**（0.2.0 删掉的实例方法 `fdy_toString()` 按决议**不恢复**），
+取字符串只能落到系统 API。新建 `Sources/Fdy/Extensions/Foundation/UUID++.swift` 补两个静态入口：
+
+| 方法 | 返回 |
+|---|---|
+| `UUID.fdy_string()` | 新建 UUID 的字符串形式，大写、含连字符，形如 `E621E1F8-C36C-495A-93FC-0C247A3E6E5F` |
+| `UUID.fdy_compactString()` | 同上但**已去除连字符**，形如 `E621E1F8C36C495A93FC0C247A3E6E5F` |
+
+**纯新增，非破坏性。** 两者均无参数，每次调用生成一个新的 UUID（不复用、不缓存）。
+
+- **不登记 `extension UUID: FdyExtension {}`**：库内没有任何 `.fdy` 链式成员，登记即空转（这正是 0.2.0 删它的原因）
+  ⇒ `FdyExtension` conformance **保持 32 条**，本次未动。
+- ⛔ **`UUID(uuidString:)` 在 Darwin 上不接受无连字符的 32 位串**（实测 `UUID(uuidString: "E621E1F8C36C495A93FC0C247A3E6E5F")` 返回 `nil`）——
+  故 `fdy_compactString()` 的产物**不能**再喂回 `UUID(uuidString:)`；它的目标场景是主键 / 文件名 / 短链这类纯文本用途。
+- 关卡：① 0 error / 3 warning（**289 文件**，原 288）· ② 0/289 · ③ 13/13 · ③' 2/2 · ④ 0 error（dylib / probe 两端）·
+  ⑤ 118 行 IDENTICAL · ⑥ 0 目标文件。
+  产物级复核（`nm -gU lib/libFdy.dylib | swift-demangle`）：
+  `static (extension in Fdy):Foundation.UUID.fdy_string() -> Swift.String` 与 `…fdy_compactString() -> Swift.String`。
+
 ## [0.2.1] - 2026-09-21
 
 ### 注释 —— 清掉「iOS 26.x 新增属性」分区 MARK（7 处）
