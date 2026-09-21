@@ -96,3 +96,8 @@ iOSInjectionProject/
 
 # 内部方案 / 实测文档：仅存本地，不入版本控制
 docs/
+
+# Python 字节码缓存：跑 CI 脚本（含 py_compile 复核）时会生成，
+# 头部绑源码 mtime + size，入版本库只会变成二进制 diff 噪音
+__pycache__/
+*.pyc

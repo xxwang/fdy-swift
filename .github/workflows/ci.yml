@@ -65,7 +65,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           echo "${xcode_version} / SDK ${sdk_version}"
 
-      - name: 装 SwiftFormat（钉 ${SWIFTFORMAT_VERSION}）
+      - name: 装 SwiftFormat（钉 ${{ env.SWIFTFORMAT_VERSION }}）
         run: |
           set -euo pipefail
           dest="$RUNNER_TEMP/swiftformat-bin"
