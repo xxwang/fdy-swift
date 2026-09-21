@@ -1,0 +1,88 @@
+# Fdy · 发版
+#
+# 本库是纯 SwiftPM 源码包，没有二进制产物 —— 「部署」= 打 tag + 建 GitHub Release。
+# 消费方按 README 的 `.package(url:from:)` 取版本，Release 页就是分发入口。
+#
+# tag 形态与既有版本一致：**裸版本号**（`0.3.0`），不带 `v` 前缀。
+# 打 tag 前必须已在 CHANGELOG.md 补好 `## [x.y.z]` 段落，否则本工作流会红。
+name: Release
+
+on:
+  push:
+    tags:
+      # 裸版本号 x.y.z（以及误带 v 前缀的 v x.y.z，脚本里会归一化）
+      - '*.*.*'
+
+# 只有 release 作业需要写权限；复用的 CI 工作流自己声明的是只读。
+permissions:
+  contents: write
+
+jobs:
+  # 发版前先把 CI 那套跑一遍，红的不许发
+  verify:
+    name: 复用 CI 验证
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: 建 GitHub Release
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 检出
+        uses: actions/checkout@v7
+
+      - name: 校验 tag 形态
+        id: tag
+        run: |
+          set -euo pipefail
+          raw="${GITHUB_REF_NAME}"
+          version="${raw#v}"
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::tag「${raw}」不是 x.y.z 形态（本库 tag 不带 v 前缀）"
+            exit 1
+          fi
+          if [ "$version" != "$raw" ]; then
+            echo "::warning::tag 带了 v 前缀（${raw}），已归一化为 ${version}"
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=${raw}" >> "$GITHUB_OUTPUT"
+
+      - name: 抽 CHANGELOG 段落
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/changelog_section.py "${{ steps.tag.outputs.version }}" > "$RUNNER_TEMP/notes.md"
+          echo "抽到 $(wc -l < "$RUNNER_TEMP/notes.md" | tr -d ' ') 行正文"
+
+      - name: 拼接 Release 正文
+        run: |
+          set -euo pipefail
+          {
+            cat "$RUNNER_TEMP/notes.md"
+            echo ""
+            echo "---"
+            echo ""
+            echo "**安装**（Swift Package Manager）"
+            echo ""
+            echo '```swift'
+            echo ".package(url: \"https://github.com/${GITHUB_REPOSITORY}.git\", from: \"${{ steps.tag.outputs.version }}\")"
+            echo '```'
+            echo ""
+            echo "平台要求：iOS 18.0+ / Swift 6.0，无第三方依赖。"
+          } > "$RUNNER_TEMP/body.md"
+
+      - name: 建 / 更新 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${{ steps.tag.outputs.tag }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release 已存在，改为按当前 CHANGELOG 更新正文"
+            gh release edit "$tag" --title "$tag" --notes-file "$RUNNER_TEMP/body.md"
+          else
+            gh release create "$tag" --title "$tag" --notes-file "$RUNNER_TEMP/body.md" --verify-tag
+          fi
+          echo "### 发版完成：${tag}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://github.com/${GITHUB_REPOSITORY}/releases/tag/${tag}" >> "$GITHUB_STEP_SUMMARY"

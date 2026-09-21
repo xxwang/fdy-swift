@@ -1,5 +1,7 @@
 # Fdy
 
+[![CI](https://github.com/xxwang/fdy-swift/actions/workflows/ci.yml/badge.svg?branch=Swift6)](https://github.com/xxwang/fdy-swift/actions/workflows/ci.yml)
+
 轻量级 Swift 扩展工具库。基于 `FdyExtension` 协议 + `FdyWrapper` 泛型命名空间，为 UIKit、Foundation、CoreGraphics、QuartzCore、MapKit、WebKit 等提供 `.fdy` 链式 API 与批量工具扩展，**不污染原生类型**。
 
 ```swift

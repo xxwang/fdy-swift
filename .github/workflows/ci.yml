@@ -1,0 +1,181 @@
+# Fdy · CI
+#
+# 本仓库**没有 `Tests/` 目录** —— package 只有 `Fdy` 一个 target，也没有测试 target。
+# 所以「测试」这一步落地为七关里**能在干净检出上复现**的那几关：
+#
+#   ① 整模块 typecheck          0 error / 3 warning
+#   ② swiftformat --lint        0/289
+#   ⑥ 平台分支哨兵              0 目标文件
+#   + 契约哨兵（零全局符号 / 五零 / 文档卫生）+ 一次真实构建
+#
+# ③ / ③' / ④ / ⑤ 依赖 `.build/structprobe/` 下的探针与双运行时模拟器，而探针按约定
+# **不入库**（CHANGELOG：验证脚手架为本机路径）⇒ 这四关留在本机跑，CI 不覆盖、也不假装覆盖。
+#
+# 运行器必须是 Xcode 27：库里有 9 个成员标了 `@available(iOS 27.0, *)`
+# （如 `UIBarAppearance.overrideUserInterfaceStyle`），iOS 26 SDK 编不过。
+# `xcode-27` 目前是 public preview（arm64）。若 GitHub 换标签名，只改这一行。
+name: CI
+
+on:
+  push:
+    branches: [Swift6, develop, main]
+  pull_request:
+    branches: [Swift6, develop, main]
+  # 供 release.yml 复用
+  workflow_call:
+
+# 同一分支的新推送取消旧运行
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # ② 关的工具链钉死版本：swiftformat 升版本可能带新规则，0/289 的判据会无声漂移
+  SWIFTFORMAT_VERSION: "0.63.0"
+  # ① 关告警基线。换 Xcode / SDK 后必须先重跑 ① 取新基线，再改这里
+  TYPECHECK_WARN_BUDGET: "3"
+  # 清单自证下限：`find` 出问题会得到空清单 → 之后所有「0 诊断」都是假绿
+  TYPECHECK_MIN_FILES: "280"
+
+jobs:
+  verify:
+    name: 验证（① ② ⑥ + 契约 + 构建）
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+      - name: 检出
+        uses: actions/checkout@v7
+
+      - name: 记录工具链
+        run: |
+          set -euo pipefail
+          sdk_version="$(xcrun --sdk iphonesimulator --show-sdk-version)"
+          xcode_version="$(xcodebuild -version | head -1)"
+          {
+            echo "## 工具链"
+            echo ""
+            echo '```'
+            echo "$xcode_version"
+            echo "iphonesimulator SDK: ${sdk_version}"
+            swift --version
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "${xcode_version} / SDK ${sdk_version}"
+
+      - name: 装 SwiftFormat（钉 ${SWIFTFORMAT_VERSION}）
+        run: |
+          set -euo pipefail
+          dest="$RUNNER_TEMP/swiftformat-bin"
+          mkdir -p "$dest"
+          curl -fsSL --retry 3 --retry-delay 2 \
+            -o "$RUNNER_TEMP/swiftformat.zip" \
+            "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat.zip"
+          unzip -oq "$RUNNER_TEMP/swiftformat.zip" -d "$dest"
+          chmod +x "$dest/swiftformat"
+          echo "$dest" >> "$GITHUB_PATH"
+          installed="$("$dest/swiftformat" --version)"
+          echo "SwiftFormat: ${installed}"
+          if [ "$installed" != "$SWIFTFORMAT_VERSION" ]; then
+            echo "::error::拿到的 SwiftFormat 是 ${installed}，不是钉住的 ${SWIFTFORMAT_VERSION} —— 判据已漂，别放行"
+            exit 1
+          fi
+
+      # ② 逐条比对标点与空白：判据是 0/M「files require formatting」
+      - name: ② swiftformat --lint --no-cache Sources/
+        run: |
+          set +e
+          swiftformat --lint --no-cache Sources/ > "$RUNNER_TEMP/lint.log" 2>&1
+          status=$?
+          grep -E 'files? require formatting|Source input did not pass' "$RUNNER_TEMP/lint.log" | tail -2 || true
+          {
+            echo ""
+            echo "## ② swiftformat --lint"
+            echo ""
+            echo '```'
+            tail -3 "$RUNNER_TEMP/lint.log"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$status" -ne 0 ]; then
+            grep -E ': error: \(' "$RUNNER_TEMP/lint.log" | head -40 || true
+            echo "::error::swiftformat 未通过（退出码 ${status}）"
+            exit "$status"
+          fi
+          echo "② 通过"
+
+      # 契约哨兵：零全局符号 / 五零 / 平台分支 / 文档卫生
+      - name: 契约哨兵
+        run: python3 .github/scripts/check_contracts.py .
+
+      # ① 判据只看「按文件:行:列锚定的诊断计数」，退出码与尾部「构建完成」一类字样都不作数
+      - name: ① 整模块 typecheck
+        run: |
+          set +e
+          sdk="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+          files="$RUNNER_TEMP/files.txt"
+          find Sources/Fdy -name '*.swift' | sort > "$files"
+          count="$(wc -l < "$files" | tr -d ' ')"
+          log="$RUNNER_TEMP/typecheck.log"
+          xcrun swiftc -typecheck \
+            -target arm64-apple-ios18.0-simulator \
+            -sdk "$sdk" \
+            -swift-version 5 \
+            "@$files" > "$log" 2>&1
+          tc_status=$?
+          errors="$(grep -cE '^[^ |]+\.swift:[0-9]+:[0-9]+: error:' "$log" || true)"
+          warnings="$(grep -cE '^[^ |]+\.swift:[0-9]+:[0-9]+: warning:' "$log" || true)"
+          echo "清单=${count} 文件  error=${errors}  warning=${warnings}  退出码=${tc_status}"
+          {
+            echo ""
+            echo "## ① 整模块 typecheck"
+            echo ""
+            echo "| 项 | 实测 | 判据 |"
+            echo "|---|---|---|"
+            echo "| 文件数 | ${count} | ≥ ${TYPECHECK_MIN_FILES} |"
+            echo "| error | ${errors} | = 0 |"
+            echo "| warning | ${warnings} | ≤ ${TYPECHECK_WARN_BUDGET} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$count" -lt "$TYPECHECK_MIN_FILES" ]; then
+            echo "::error::源文件清单只有 ${count} 个（下限 ${TYPECHECK_MIN_FILES}）—— 清单没取全，后面的 0 诊断是假绿"
+            exit 1
+          fi
+          if [ "$errors" -ne 0 ]; then
+            grep -E '\.swift:[0-9]+:[0-9]+: error:' "$log" | head -50 || true
+            echo "::error::${errors} 个编译错误"
+            exit 1
+          fi
+          if [ "$warnings" -gt "$TYPECHECK_WARN_BUDGET" ]; then
+            grep -E '\.swift:[0-9]+:[0-9]+: warning:' "$log" | head -50 || true
+            echo "::error::告警 ${warnings} 条 > 基线 ${TYPECHECK_WARN_BUDGET} —— 要么修掉，要么按当前 SDK 重取基线后改 TYPECHECK_WARN_BUDGET"
+            exit 1
+          fi
+          grep -E '\.swift:[0-9]+:[0-9]+: warning:' "$log" | head -20 || true
+          echo "① 通过：${count} 文件 / ${errors} error / ${warnings} warning"
+
+      - name: 构建 · iOS Simulator（generic）
+        run: |
+          set +e
+          log="$RUNNER_TEMP/build.log"
+          xcodebuild -scheme Fdy \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            build > "$log" 2>&1
+          status=$?
+          grep -E '\*\* BUILD (SUCCEEDED|FAILED) \*\*' "$log" | tail -1 || true
+          {
+            echo ""
+            echo "## 构建"
+            echo ""
+            echo '```'
+            grep -E '\*\* BUILD (SUCCEEDED|FAILED) \*\*' "$log" | tail -1 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$status" -ne 0 ]; then
+            grep -E 'error:' "$log" | head -40 || true
+            echo "::error::xcodebuild 失败（退出码 ${status}）"
+            exit 1
+          fi
+          echo "构建通过"
