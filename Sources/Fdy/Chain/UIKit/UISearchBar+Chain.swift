@@ -97,15 +97,6 @@ public extension FdyWrapper where Base: UISearchBar {
         return self
     }
 
-    /// 搜索栏的 `tintColor`
-    /// - Parameter color: 颜色,传 `nil` 用系统默认
-    /// - Returns: `Self`
-    @discardableResult
-    func tintColor(_ color: UIColor?) -> Self {
-        base.tintColor = color
-        return self
-    }
-
     /// 搜索框背景的偏移量
     /// - Parameter searchFieldBackgroundPositionAdjustment: 偏移量
     /// - Returns: `Self`

@@ -227,8 +227,6 @@ public extension FdyWrapper where Base: UIBarButtonItem {
     }
 }
 
-// MARK: - iOS 26.0 / 27.0 新增属性
-
 public extension FdyWrapper where Base: UIBarButtonItem {
     /// 是否隐藏与相邻按钮的共享背景
     ///

@@ -73,15 +73,6 @@ public extension FdyWrapper where Base: UINavigationBar {
         return self
     }
 
-    /// 导航栏的 `tintColor`
-    /// - Parameter color: 颜色
-    /// - Returns: `Self`
-    @discardableResult
-    func tintColor(_ color: UIColor?) -> Self {
-        base.tintColor = color
-        return self
-    }
-
     /// 导航栏的背景颜色
     /// - Parameter color: 背景颜色
     /// - Returns: `Self`

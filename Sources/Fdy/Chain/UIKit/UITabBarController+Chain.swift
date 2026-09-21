@@ -90,8 +90,6 @@ public extension FdyWrapper where Base: UITabBarController {
     }
 }
 
-// MARK: - iOS 26.0 / 27.0 新增属性
-
 public extension FdyWrapper where Base: UITabBarController {
     /// 标签栏收起行为
     ///

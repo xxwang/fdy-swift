@@ -2,7 +2,58 @@
 
 本库遵循[语义化版本](https://semver.org/lang/zh-CN/)，格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
-## [未发布]
+## [0.2.1] - 2026-09-21
+
+### 注释 —— 清掉「iOS 26.x 新增属性」分区 MARK（7 处）
+
+`+Chain` 里 iOS 26 起才有的属性被单开成一段 `extension`，段前挂着 `// MARK: - iOS 26.0 新增属性` 之类的分区线。
+这些 `extension` 的**每个成员都已各自带 `@available(iOS 26.0, *)`** —— 可用性由编译器强制，分区线只是把同一条信息
+再抄一遍。删掉后能力面零变化：
+
+| 文件 | 原 MARK |
+|---|---|
+| `Chain/UIKit/UINavigationItem+Chain.swift` | `iOS 26.0 新增属性` |
+| `Chain/UIKit/UISlider+Chain.swift` | `iOS 26.0 新增属性` |
+| `Chain/UIKit/UITextView+Chain.swift` | `iOS 26.0 新增属性` |
+| `Chain/WebKit/WKWebView+Chain.swift` | `iOS 26.0 新增属性` |
+| `Chain/UIKit/UITabGroup+Chain.swift` | `iOS 26.0 / 26.1 新增属性` |
+| `Chain/UIKit/UIBarButtonItem+Chain.swift` | `iOS 26.0 / 27.0 新增属性` |
+| `Chain/UIKit/UITabBarController+Chain.swift` | `iOS 26.0 / 27.0 新增属性` |
+
+> ⛔ 别和文件级 `// MARK: - <一句话类型说明>` 混为一谈：那是把类型文档压成分区标记，**有信息量、保留**；
+> 这里是**重复 `@available` 的分段线**，零增量、删。判据同注释规范 —— **签名（含 `@available`）说得出的不写**。
+> 改后全库 `MARK: - iOS 26` 命中数 **7 → 0**；同时核过 7 个 `extension` 的 `@available` 计数未受影响、无连续空行残留。
+
+**非破坏性**（纯注释，不进破坏性清单）。关卡：① 0 error / 3 warning · ② 0/288 · ③ 13/13 · ③' 2/2 · ④ 0 error ·
+⑤ 118 行 IDENTICAL · ⑥ 0 目标文件。`Sources/` 净变化 = **7 文件 / −14 行 / +0 行**。
+
+### 去重 —— `UINavigationBar` / `UISearchBar` 的 `tintColor` 覆盖删除（第三十三轮）
+
+`+Chain` 扩展里有两处 `tintColor(_ color: UIColor?) -> Self`，与父类 `UIView+Chain` 的同名方法**代码逐字等价**
+（外部标签同为 `_`，仅内部参数名 `color` / `tintColor` 不同），属可去重的冗余覆盖：
+
+| 文件 | 处置 | 依据 |
+|---|---|---|
+| `Chain/UIKit/UINavigationBar+Chain.swift` | **删除** | 原 doc「导航栏的 `tintColor`」为纯复述，零增量 |
+| `Chain/UIKit/UISearchBar+Chain.swift` | **删除** | 原 doc「传 `nil` 用系统默认」是 UIKit 通用语义，非本类型特有 |
+| `Chain/UIKit/UIToolbar+Chain.swift` | **保留** | 原 doc「**作用于按钮项**」是真信息 —— 与相邻 `barTintColor`「作用于栏背景」构成对比，删了即丢 |
+
+> ⛔ 后两列不是形式主义：源码扫描给出的「同签名跨类重复」有 7 处，其中 4 处是**同名不同义**的刻意覆盖
+> （`backgroundColor` 族走 `standardAppearance`），逐字那 3 处里又有 1 处的 doc 承载真 gotcha。
+> **「逐字重复」四字不足以授权删除。**
+
+**非破坏性**（不进破坏性清单）：外部标签相同 → 调用语法不变，重载解析落到父类 `where Base: UIView` 覆盖。
+三级验证：
+
+- **编译级** —— 新增跨模块探针 `b34_tint_probe.swift`（3 个类型的 `.fdy.tintColor(_:)` + 继续链式 `.isHidden(_:)`），0 诊断
+- **产物级** —— 重建后 `libFdy.dylib` 符号表（`swift-demangle`）中 `UINavigationBar` / `UISearchBar` 的 `tintColor` 各 **0 条**，
+  `UIToolbar` **1 条**、母版 `UIView` **1 条** —— 证明删除确实落到产物、而非编译了旧清单
+- **行为级** —— ⑤ 判定集 **118 行 IDENTICAL**；`S93`（`UISearchBar`）的 `tint=true` 在删掉自身覆盖后**仍为真**
+
+关卡：① 0 error / 3 warning · ② 0/288 · ③ **13/13** · ③' 2/2 · ④ 0 error · ⑤ 118 行 IDENTICAL。
+`Sources/` 净变化 = **2 文件 / −18 行 / +0 行**。
+
+## [0.2.0] - 2026-09-20
 
 ### 注释（续 2）—— 按「参数名词典 + 返回类型表」批量铺（第二十五轮）
 
@@ -41,12 +92,11 @@
 | 1 | `FdyLocationPermissionType` 别名删除（纯等价、零增益） | **已落地** |
 | 2 | `FdyTuple2…5` · `FdyAction3…5` · `FdyFunc3…5` | **已复原、不删** —— 前批「零内部引用 ⇒ 可删」的判据已作废（公开库的成员就是产品） |
 | 3 | `UISwitch.title(_:)` | **库内本就不存在**（属批次缺口候选），按决议**不新增**（仅 Catalyst Mac idiom 支持，真 iOS 上抛异常） |
-| 4 | `UUID++.swift` 被暂存删除 → `UUID: FdyExtension` 登记消失，conformance 由 33 条变 32 条 | **待维护者处置**（工作区既有改动，非本批引入） |
-| 5 | `String+Pasteboard.swift` 平台条件编译被抹平（全库 `os(macOS)` 零命中） | **待维护者处置**（工作区既有改动，非本批引入） |
+| 4 | `UUID++.swift` 删除 → `UUID: FdyExtension` 登记消失，conformance 由 33 条变 32 条 | **已落地**（维护者确认属有意改动） |
+| 5 | `String+Pasteboard.swift` 收窄为 iOS-only：移除 `os(macOS)` / `NSPasteboard` 分支 | **已落地**（维护者确认属有意改动） |
 | 6 | `String` 的 `[fdy_range: NSRange]` 改名 **`[fdy_nsRange: NSRange]`** —— 原与 Character 版共用 `fdy_range` 标签，调用方读代码看不出是 UTF-16 口径。改后 `fdy_range` 单一含义 = `Character` 序号，与 `fdy_toNSRange` / `fdy_nsRanges` / `fdy_fullNSRange` 等 NS 系命名对齐 | **已落地** |
 
-> 4、5 均有逐文件 diff / mtime 证据（均为工作区既有改动，与注释批次无关）。若维持现状，`0.2.0` 必须把 4、5 一并
-> 写进破坏性清单；若恢复，则不进清单。
+> 4、5 均为**维护者确认的有意改动**（非本批引入），已随 `0.2.0` 一并发布 —— 按「维持现状」分支处理，进本清单。
 > 6 是**可读性驱动**的破坏性改名（原写法语法上仍靠参数类型区分，并非 bug）—— 回滚办法：
 > `git checkout HEAD -- Sources/Fdy/Extensions/Stdlib/String/String+Subscript.swift`，并还原探针
 > `subscript_probe.swift` / `String+Range.swift` 的口径注释。

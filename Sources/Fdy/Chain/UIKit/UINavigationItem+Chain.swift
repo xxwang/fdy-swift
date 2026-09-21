@@ -283,8 +283,6 @@ public extension FdyWrapper where Base: UINavigationItem {
     }
 }
 
-// MARK: - iOS 26.0 新增属性
-
 public extension FdyWrapper where Base: UINavigationItem {
     /// 导航栏副标题
     ///

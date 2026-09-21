@@ -258,8 +258,6 @@ public extension FdyWrapper where Base: WKWebView {
     }
 }
 
-// MARK: - iOS 26.0 新增属性
-
 public extension FdyWrapper where Base: WKWebView {
     /// 被遮挡区域的内容内边距
     ///

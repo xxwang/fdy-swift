@@ -285,8 +285,6 @@ public extension FdyWrapper where Base: UITextView {
     }
 }
 
-// MARK: - iOS 26.0 新增属性
-
 public extension FdyWrapper where Base: UITextView {
     /// 全部选中区间
     ///

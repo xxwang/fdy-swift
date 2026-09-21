@@ -94,8 +94,6 @@ public extension FdyWrapper where Base: UISlider {
     }
 }
 
-// MARK: - iOS 26.0 新增属性
-
 public extension FdyWrapper where Base: UISlider {
     /// 滑块样式
     ///

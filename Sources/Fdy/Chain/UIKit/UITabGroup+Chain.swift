@@ -75,8 +75,6 @@ public extension FdyWrapper where Base: UITabGroup {
     }
 }
 
-// MARK: - iOS 26.0 / 26.1 新增属性
-
 public extension FdyWrapper where Base: UITabGroup {
     /// 是否作为侧边栏目标
     ///
