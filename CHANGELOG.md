@@ -2,7 +2,7 @@
 
 本库遵循[语义化版本](https://semver.org/lang/zh-CN/)，格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
-## [未发布]
+## [0.3.0] - 2026-09-21
 
 ### 新增 —— `UUID` 的两个静态生成方法
 
@@ -853,6 +853,7 @@ IDENTICAL**（末行 `DONE`）· ⑥ macOS 分支 **0 诊断**。
   想稳定生效只能二选一。
 - 验证脚手架（`.build/structprobe/`：8 个跨模块探针 + 1 个行为探针 app）为**本机路径，不入库**
 
+[0.3.0]: https://github.com/xxwang/fdy-swift/releases/tag/0.3.0
 [0.2.1]: https://github.com/xxwang/fdy-swift/releases/tag/0.2.1
 [0.2.0]: https://github.com/xxwang/fdy-swift/releases/tag/0.2.0
 [0.1.0]: https://github.com/xxwang/fdy-swift/releases/tag/0.1.0
