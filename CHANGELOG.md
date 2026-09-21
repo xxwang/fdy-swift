@@ -500,8 +500,11 @@ DocC 读到的是「有个叫 `for` 的参数不存在，而 `range` 没有文�
   具体生效值落在**只读**的 `behavioralStyle`。
 - `UISearchBar.isLookToDictateEnabled` —— iOS 上是 **silent no-op**（首发平台 visionOS，写 `true` 读回恒 `false`）。
 
-> ⚠️ **`UISwitch.title` 是待决项**：头文件标 `API_AVAILABLE(ios(14.0))`，但文档注释写明「仅 Catalyst Mac idiom 支持」，
-  iOS 上调用 `setTitle:` 会抛 `_UICatalystUnsupportedMacIdiomBehavior`。**当前保留在库内且未加保护**，是否删除待拍板。
+> ⚠️ **`UISwitch.title` —— 已定论（2026-09-21 订正）**：原记「**当前保留在库内且未加保护**，是否删除待拍板」**有误** ——
+  实核 `Sources/Fdy/Chain/UIKit/UISwitch+Chain.swift` 仅 7 个成员（`isOn` / `onTintColor` / `thumbTintColor` /
+  `toggle` / `onImage` / `offImage` / `preferredStyle`），**无 `title`**；全库 `UISwitch` + `title` **零命中**。
+  该成员属**批次缺口候选**：头文件标 `API_AVAILABLE(ios(14.0))`，但文档写明「仅 Catalyst Mac idiom 支持」，
+  iOS 上调用 `setTitle:` 会抛 `_UICatalystUnsupportedMacIdiomBehavior` ⇒ **按决议不新增**（见本段破坏性清单表格第 3 项）。
 
 ### 验证（第 6 批）
 
