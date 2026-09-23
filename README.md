@@ -745,7 +745,8 @@ Sources/
 
 ## 文档
 
-变更历史见 [`CHANGELOG.md`](CHANGELOG.md)。设计取舍与实测记录为维护者本地文档，不随仓库分发。
+变更历史见 [`CHANGELOG.md`](CHANGELOG.md)。工程规范见 [`AGENTS.md`](AGENTS.md)（AI 助手与贡献者开工前先读）。
+设计取舍与实测记录为维护者本地文档，不随仓库分发。
 
 ## License
 
